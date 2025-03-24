@@ -1,0 +1,70 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border: none;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.income {
+    color: #28a745;
+}
+
+.expense {
+    color: #dc3545;
+}
+
+.balance {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.btn-action {
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-weight: 500;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* Animação de troca de página */
+.page-enter {
+    opacity: 0;
+    transform: translateX(20px);
+}
+
+.page-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+    transition: all 300ms ease-out;
+}
+
+.page-exit {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.page-exit-active {
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 300ms ease-in;
+}
