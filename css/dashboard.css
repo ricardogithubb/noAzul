@@ -1,0 +1,61 @@
+/* Ajustes específicos para o dashboard */
+.total-card {
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.total-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.total-card .card-body {
+    padding: 1rem;
+}
+
+.total-card h5 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.total-card h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.total-card i {
+    font-size: 2.5rem;
+    opacity: 0.7;
+}
+
+/* Ajustes para mobile */
+@media (max-width: 576px) {
+    .total-card h5 {
+        font-size: 0.9rem;
+    }
+    
+    .total-card h2 {
+        font-size: 1.2rem;
+    }
+    
+    .total-card i {
+        font-size: 1.8rem;
+    }
+    
+    .row {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+    }
+    
+    .col-6 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+/* Espaçamento entre os cards em mobile */
+@media (max-width: 576px) {
+    .total-card {
+        margin-bottom: 0.5rem;
+    }
+}

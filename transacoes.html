@@ -6,229 +6,156 @@
     <title>noAzul - Transações</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">
+    <link href="css/transacoes.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Barra de navegação (igual ao dashboard) -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow">
         <div class="container-fluid">
-            <a class="navbar-brand" href="dashboard.html">Home</a>
-            <div class="d-flex align-items-center">
-                <!-- Botão do mês/ano clicável -->
-                <button class="btn btn-outline-light dropdown-toggle me-3" type="button" id="monthYearDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span id="currentMonthYear">Março 2023</span>
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="bi bi-wallet2"></i> noAzul
+            </a>
+            <button class="btn btn-outline-light ms-auto" id="monthYearBtn">
+                <span id="currentMonthYear">Março 2023</span>
+                <i class="bi bi-chevron-down ms-1"></i>
+            </button>
+            <div class="dropdown ms-2">
+                <button class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i>
                 </button>
-                
-                <!-- Dropdown do calendário -->
-                <div class="dropdown-menu dropdown-menu-end p-3 calendar-dropdown" aria-labelledby="monthYearDropdown">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <button class="btn btn-sm btn-outline-primary prev-year">
-                            <i class="bi bi-chevron-left"></i>
-                        </button>
-                        <h5 class="mb-0 current-year">2023</h5>
-                        <button class="btn btn-sm btn-outline-primary next-year">
-                            <i class="bi bi-chevron-right"></i>
-                        </button>
-                    </div>
-                    <div class="row months-grid">
-                        <div class="col-3 month-item">Jan</div>
-                        <div class="col-3 month-item">Fev</div>
-                        <div class="col-3 month-item">Mar</div>
-                        <div class="col-3 month-item">Abr</div>
-                        <div class="col-3 month-item">Mai</div>
-                        <div class="col-3 month-item">Jun</div>
-                        <div class="col-3 month-item">Jul</div>
-                        <div class="col-3 month-item">Ago</div>
-                        <div class="col-3 month-item">Set</div>
-                        <div class="col-3 month-item">Out</div>
-                        <div class="col-3 month-item">Nov</div>
-                        <div class="col-3 month-item">Dez</div>
-                    </div>
-                </div>
-                
-                <button class="btn btn-outline-light logout-btn">
-                    <i class="bi bi-box-arrow-right"></i> Sair
-                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Perfil</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Configurações</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="index.html"><i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
+                </ul>
             </div>
         </div>
     </nav>
-
-    <div class="container mt-4">
+    
+    <div class="container-fluid mt-5 pt-3">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Transações</h2>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#novaTransacaoModal">
-                <i class="bi bi-plus-lg"></i> Nova Transação
-            </button>
+            <div>
+                <h2 class="mb-1">Transações</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Transações</li>
+                    </ol>
+                </nav>
+            </div>
+            <div>
+                <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#novaReceitaModal">
+                    <i class="bi bi-plus-lg"></i> Receita
+                </button>
+                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#novaDespesaModal">
+                    <i class="bi bi-plus-lg"></i> Despesa
+                </button>
+            </div>
         </div>
 
-        <!-- Filtros avançados -->
-        <div class="card mb-4">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">Filtros</h5>
-            </div>
-            <div class="card-body">
-                <form id="filtrosForm">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <label for="filtroTipo" class="form-label">Tipo</label>
-                            <select class="form-select" id="filtroTipo">
-                                <option value="">Todos</option>
-                                <option value="receita">Receita</option>
-                                <option value="despesa">Despesa</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="filtroCategoria" class="form-label">Categoria</label>
-                            <select class="form-select" id="filtroCategoria">
-                                <option value="">Todas</option>
-                                <!-- Preenchido via JavaScript -->
-                            </select>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="filtroDataInicio" class="form-label">Data Início</label>
-                            <input type="date" class="form-control" id="filtroDataInicio">
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="filtroDataFim" class="form-label">Data Fim</label>
-                            <input type="date" class="form-control" id="filtroDataFim">
-                        </div>
+        <!-- Filtros -->
+        <div class="card shadow mb-4">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center flex-wrap">
+                    <button class="btn btn-outline-secondary me-2 mb-2" id="filtroAvancadoBtn">
+                        <i class="bi bi-funnel"></i> Filtros
+                    </button>
+                    <div class="input-group me-2 mb-2" style="width: 200px;">
+                        <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                        <select class="form-select" id="periodoSelect">
+                            <option value="este-mes">Este Mês</option>
+                            <option value="mes-passado">Mês Passado</option>
+                            <option value="ultimos-3-meses">Últimos 3 Meses</option>
+                            <option value="personalizado">Personalizado</option>
+                        </select>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="filtroValorMin" class="form-label">Valor Mínimo</label>
-                            <input type="number" step="0.01" class="form-control" id="filtroValorMin">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="filtroValorMax" class="form-label">Valor Máximo</label>
-                            <input type="number" step="0.01" class="form-control" id="filtroValorMax">
-                        </div>
+                    <div class="input-group me-2 mb-2" style="width: 200px;">
+                        <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                        <select class="form-select" id="categoriaSelect">
+                            <option value="">Todas Categorias</option>
+                            <option value="salario">Salário</option>
+                            <option value="alimentacao">Alimentação</option>
+                            <option value="moradia">Moradia</option>
+                        </select>
                     </div>
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-outline-secondary me-2" id="limparFiltros">
-                            Limpar
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            Aplicar Filtros
-                        </button>
+                    <div class="input-group me-2 mb-2" style="width: 200px;">
+                        <span class="input-group-text"><i class="bi bi-arrow-left-right"></i></span>
+                        <select class="form-select" id="tipoTransacaoSelect">
+                            <option value="">Todos Tipos</option>
+                            <option value="receita">Receitas</option>
+                            <option value="despesa">Despesas</option>
+                        </select>
                     </div>
-                </form>
+                    <div class="input-group me-2 mb-2" style="width: 200px;">
+                        <span class="input-group-text"><i class="bi bi-check-circle"></i></span>
+                        <select class="form-select" id="statusSelect">
+                            <option value="">Todos Status</option>
+                            <option value="efetivado">Efetivado</option>
+                            <option value="pendente">Pendente</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Lista de transações -->
-        <div class="card">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold">Todas as Transações</h6>
+                <div>
+                    <span class="badge bg-primary rounded-pill me-2">15 Receitas</span>
+                    <span class="badge bg-danger rounded-pill">23 Despesas</span>
+                </div>
+            </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover" id="tabelaTransacoes">
+                    <table class="table table-hover" id="transacoesTable" width="100%">
                         <thead>
                             <tr>
                                 <th>Data</th>
+                                <th>Tipo</th>
                                 <th>Descrição</th>
                                 <th>Categoria</th>
-                                <th>Tipo</th>
                                 <th>Valor</th>
+                                <th>Status</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Preenchido via JavaScript -->
+                            <tr>
+                                <td>05/03/2023</td>
+                                <td><span class="badge bg-primary">Receita</span></td>
+                                <td>Salário ACME</td>
+                                <td><span class="badge bg-success">Salário</span></td>
+                                <td class="text-success">R$ 2.500,00</td>
+                                <td><span class="badge bg-success">Efetivado</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>10/03/2023</td>
+                                <td><span class="badge bg-danger">Despesa</span></td>
+                                <td>Supermercado</td>
+                                <td><span class="badge bg-success">Alimentação</span></td>
+                                <td class="text-danger">R$ 450,00</td>
+                                <td><span class="badge bg-success">Efetivado</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                            <!-- Mais transações -->
                         </tbody>
                     </table>
                 </div>
-                <nav aria-label="Navegação de páginas" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1">Anterior</a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Próxima</a>
-                        </li>
-                    </ul>
-                </nav>
             </div>
         </div>
     </div>
 
-    <!-- Modal Nova Transação -->
-    <div class="modal fade" id="novaTransacaoModal" tabindex="-1" aria-labelledby="novaTransacaoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="novaTransacaoModalLabel">Nova Transação</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="formTransacao">
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="transacaoTipo" class="form-label">Tipo</label>
-                                <select class="form-select" id="transacaoTipo" required>
-                                    <option value="">Selecione...</option>
-                                    <option value="receita">Receita</option>
-                                    <option value="despesa">Despesa</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="transacaoCategoria" class="form-label">Categoria</label>
-                                <select class="form-select" id="transacaoCategoria" required>
-                                    <option value="">Selecione...</option>
-                                    <!-- Preenchido via JavaScript -->
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="transacaoDescricao" class="form-label">Descrição</label>
-                            <input type="text" class="form-control" id="transacaoDescricao" required>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="transacaoValor" class="form-label">Valor</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">R$</span>
-                                    <input type="number" step="0.01" class="form-control" id="transacaoValor" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="transacaoData" class="form-label">Data</label>
-                                <input type="date" class="form-control" id="transacaoData" required>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="transacaoRepetir">
-                                <label class="form-check-label" for="transacaoRepetir">
-                                    Repetir transação
-                                </label>
-                            </div>
-                        </div>
-                        <div id="repeticaoContainer" style="display: none;">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="transacaoRepeticaoTipo" class="form-label">Repetir a cada</label>
-                                    <select class="form-select" id="transacaoRepeticaoTipo">
-                                        <option value="mensal">Mês</option>
-                                        <option value="anual">Ano</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="transacaoRepeticaoQuantidade" class="form-label">Quantidade de vezes</label>
-                                    <input type="number" class="form-control" id="transacaoRepeticaoQuantidade" min="1" value="1">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Salvar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
+    <!-- Modais (mesmos modais de receitas e despesas) -->
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/transacoes.js"></script>

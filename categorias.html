@@ -6,94 +6,112 @@
     <title>noAzul - Categorias</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">
+    <link href="css/categorias.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Barra de navegação (igual ao dashboard) -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow">
         <div class="container-fluid">
-            <a class="navbar-brand" href="dashboard.html">Home</a>
-            <div class="d-flex align-items-center">
-                <!-- Botão do mês/ano clicável -->
-                <button class="btn btn-outline-light dropdown-toggle me-3" type="button" id="monthYearDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span id="currentMonthYear">Março 2023</span>
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="bi bi-wallet2"></i> noAzul
+            </a>
+            <button class="btn btn-outline-light ms-auto" id="monthYearBtn">
+                <span id="currentMonthYear">Março 2023</span>
+                <i class="bi bi-chevron-down ms-1"></i>
+            </button>
+            <div class="dropdown ms-2">
+                <button class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i>
                 </button>
-                
-                <!-- Dropdown do calendário -->
-                <div class="dropdown-menu dropdown-menu-end p-3 calendar-dropdown" aria-labelledby="monthYearDropdown">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <button class="btn btn-sm btn-outline-primary prev-year">
-                            <i class="bi bi-chevron-left"></i>
-                        </button>
-                        <h5 class="mb-0 current-year">2023</h5>
-                        <button class="btn btn-sm btn-outline-primary next-year">
-                            <i class="bi bi-chevron-right"></i>
-                        </button>
-                    </div>
-                    <div class="row months-grid">
-                        <div class="col-3 month-item">Jan</div>
-                        <div class="col-3 month-item">Fev</div>
-                        <div class="col-3 month-item">Mar</div>
-                        <div class="col-3 month-item">Abr</div>
-                        <div class="col-3 month-item">Mai</div>
-                        <div class="col-3 month-item">Jun</div>
-                        <div class="col-3 month-item">Jul</div>
-                        <div class="col-3 month-item">Ago</div>
-                        <div class="col-3 month-item">Set</div>
-                        <div class="col-3 month-item">Out</div>
-                        <div class="col-3 month-item">Nov</div>
-                        <div class="col-3 month-item">Dez</div>
-                    </div>
-                </div>
-                
-                <button class="btn btn-outline-light logout-btn">
-                    <i class="bi bi-box-arrow-right"></i> Sair
-                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Perfil</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Configurações</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="index.html"><i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
+                </ul>
             </div>
         </div>
     </nav>
-
-    <div class="container mt-4">
+    
+    <div class="container-fluid mt-5 pt-3">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Categorias</h2>
+            <div>
+                <h2 class="mb-1">Categorias</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Categorias</li>
+                    </ol>
+                </nav>
+            </div>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#novaCategoriaModal">
                 <i class="bi bi-plus-lg"></i> Nova Categoria
             </button>
         </div>
 
         <!-- Lista de categorias -->
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="tabelaCategorias">
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Tipo</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Preenchido via JavaScript -->
-                        </tbody>
-                    </table>
+        <div class="row">
+            <!-- Categorias de Receitas -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3 bg-primary text-white">
+                        <h6 class="m-0 font-weight-bold">Categorias de Receitas</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group" id="categoriasReceitas">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-primary me-2">R</span>
+                                    Salário
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </div>
+                            <!-- Mais categorias de receitas -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categorias de Despesas -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header py-3 bg-danger text-white">
+                        <h6 class="m-0 font-weight-bold">Categorias de Despesas</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group" id="categoriasDespesas">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-danger me-2">D</span>
+                                    Alimentação
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </div>
+                            <!-- Mais categorias de despesas -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Nova Categoria -->
-    <div class="modal fade" id="novaCategoriaModal" tabindex="-1" aria-labelledby="novaCategoriaModalLabel" aria-hidden="true">
+    <!-- Modal de nova categoria -->
+    <div class="modal fade" id="novaCategoriaModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="novaCategoriaModalLabel">Nova Categoria</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">Nova Categoria</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="formCategoria">
+                <form id="formNovaCategoria">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="categoriaNome" class="form-label">Nome</label>
+                            <label for="categoriaNome" class="form-label">Nome da Categoria</label>
                             <input type="text" class="form-control" id="categoriaNome" required>
                         </div>
                         <div class="mb-3">
@@ -104,14 +122,54 @@
                                 <option value="despesa">Despesa</option>
                             </select>
                         </div>
+                        <div class="mb-3">
+                            <label for="categoriaCor" class="form-label">Cor</label>
+                            <div class="d-flex flex-wrap">
+                                <div class="color-option me-2 mb-2">
+                                    <input type="radio" name="categoriaCor" id="corPrimary" value="primary" checked>
+                                    <label for="corPrimary" class="badge bg-primary"></label>
+                                </div>
+                                <div class="color-option me-2 mb-2">
+                                    <input type="radio" name="categoriaCor" id="corSuccess" value="success">
+                                    <label for="corSuccess" class="badge bg-success"></label>
+                                </div>
+                                <div class="color-option me-2 mb-2">
+                                    <input type="radio" name="categoriaCor" id="corInfo" value="info">
+                                    <label for="corInfo" class="badge bg-info"></label>
+                                </div>
+                                <div class="color-option me-2 mb-2">
+                                    <input type="radio" name="categoriaCor" id="corWarning" value="warning">
+                                    <label for="corWarning" class="badge bg-warning"></label>
+                                </div>
+                                <div class="color-option me-2 mb-2">
+                                    <input type="radio" name="categoriaCor" id="corDanger" value="danger">
+                                    <label for="corDanger" class="badge bg-danger"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoriaIcone" class="form-label">Ícone</label>
+                            <select class="form-select" id="categoriaIcone">
+                                <option value="bi-cash">Dinheiro</option>
+                                <option value="bi-credit-card">Cartão</option>
+                                <option value="bi-basket">Compras</option>
+                                <option value="bi-house">Casa</option>
+                                <option value="bi-car">Carro</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Categoria</button>
                     </div>
                 </form>
             </div>
         </div>
+    </div>
+
+    <!-- Modal de edição de categoria -->
+    <div class="modal fade" id="editarCategoriaModal" tabindex="-1" aria-hidden="true">
+        <!-- Similar ao modal de nova categoria, mas para edição -->
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

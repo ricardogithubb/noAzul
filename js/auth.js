@@ -1,28 +1,50 @@
+// Gerenciamento de autenticação e login
+
 $(document).ready(function() {
-    // Verifica se o usuário está autenticado ao carregar páginas protegidas
-    if (window.location.pathname !== '/index.html' && !localStorage.getItem('userToken')) {
-        window.location.href = 'index.html';
+    // Verifica se há um usuário logado
+    if (localStorage.getItem('userLoggedIn') && window.location.pathname.endsWith('index.html')) {
+        window.location.href = 'dashboard.html';
     }
-    
-    // Configura o formulário de login
+
+    // Formulário de login
     $('#loginForm').submit(function(e) {
         e.preventDefault();
         
         const email = $('#email').val();
         const password = $('#password').val();
-        
-        // Simulação de autenticação
+        const remember = $('#remember').is(':checked');
+
+        // Simulação de autenticação - em produção, seria uma chamada AJAX para o backend
         if (email && password) {
-            // Em uma aplicação real, aqui seria uma chamada AJAX para o backend
-            localStorage.setItem('userToken', 'simulated-token');
+            // Salva o estado de login
+            localStorage.setItem('userLoggedIn', 'true');
+            
+            // Se "Lembrar-me" estiver marcado, salva as credenciais (não seguro - apenas para demonstração)
+            if (remember) {
+                localStorage.setItem('userEmail', email);
+                localStorage.setItem('userPassword', password); // Nunca faça isso em produção!
+            } else {
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userPassword');
+            }
+
+            // Redireciona para o dashboard
             window.location.href = 'dashboard.html';
         } else {
             alert('Por favor, preencha todos os campos.');
         }
     });
-});
 
-function logout() {
-    localStorage.removeItem('userToken');
-    window.location.href = 'index.html';
-}   
+    // Preenche os campos se houver credenciais salvas
+    if (localStorage.getItem('userEmail')) {
+        $('#email').val(localStorage.getItem('userEmail'));
+        $('#password').val(localStorage.getItem('userPassword'));
+        $('#remember').prop('checked', true);
+    }
+
+    // Logout
+    $('.logout-btn').click(function() {
+        localStorage.removeItem('userLoggedIn');
+        window.location.href = 'index.html';
+    });
+});
