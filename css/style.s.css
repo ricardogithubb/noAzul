@@ -68,3 +68,60 @@ body {
     transform: translateX(-20px);
     transition: all 300ms ease-in;
 }
+
+/* Adicione ao styles.css */
+.navbar-brand {
+    font-size: 1.2rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+/* Estilo para os botões de navegação */
+.btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Ajuste para o dropdown */
+.dropdown-toggle::after {
+    display: none;
+}
+
+/* Melhorar a visibilidade do calendário */
+.bi-calendar3 {
+    font-size: 1.1rem;
+}
+
+/* Adicione estes estilos */
+#mainMonthYear {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#mainMonthYear:hover {
+    opacity: 0.8;
+}
+
+.month-btn {
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.month-btn.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.modal-body .row {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+}
+
+.modal-body .col-4 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}

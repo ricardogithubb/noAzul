@@ -1,3 +1,15 @@
+// Variáveis de controle de data
+let currentDate = new Date(); // Data atual
+let currentMonth = currentDate.getMonth(); // Mês atual (0-11)
+let currentYear = currentDate.getFullYear(); // Ano atual
+
+// 1. Primeiro crie um array com os nomes dos meses corretamente formatados
+const monthNames = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 
+    'Maio', 'Junho', 'Julho', 'Agosto', 
+    'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+];
+
 // Dados de exemplo
 let transactions = [
     { id: 1, type: 'income', category: 'Salário', amount: 3500, date: '2023-06-01', description: 'Salário mensal' },
@@ -13,6 +25,24 @@ let budgets = [
     { category: 'Lazer', limit: 300, spent: 80 },
     { category: 'Moradia', limit: 1200, spent: 0 }
 ];
+
+// Adicione esta função no início do app.js, após as declarações de variáveis
+function navigateMonth(offset) {
+    return function() {
+        currentMonth += offset;
+        
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        } else if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        
+        updateMonthDisplay();
+        loadPage(getCurrentPage());
+    };
+}
 
 // Função para carregar páginas
 function loadPage(page) {
@@ -199,7 +229,7 @@ function loadTransactions() {
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Tipo</th>
+                            <th>Tipo.</th>
                             <th>Descrição</th>
                             <th>Categoria</th>
                             <th>Valor</th>
@@ -696,19 +726,40 @@ function addBudget() {
     loadPage('budget');
 }
 
+function updateMonthDisplay() {
+    const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
+                       "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    const monthYear = `${monthNames[currentMonth]} ${currentYear}`;
+    
+    // Atualiza o título principal
+    document.getElementById('mainMonthYear').textContent = monthYear;
+    
+    // Atualiza todas as referências de mês nos cartões (se existirem)
+    document.querySelectorAll('.month-reference').forEach(el => {
+        el.textContent = monthYear;
+    });
+}
+
+
+
 // Event Listeners
+// No DOMContentLoaded, mantenha apenas:
 document.addEventListener('DOMContentLoaded', function() {
-    // Carregar dashboard inicial
-    loadPage('dashboard');
+    updateMonthDisplay(); // Inicializa o display do mês
+    loadPage('dashboard'); // Carrega a página inicial
     
     // Configurar navegação
     document.querySelectorAll('[data-page]').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            const page = this.getAttribute('data-page');
-            loadPage(page);
+            loadPage(this.getAttribute('data-page'));
         });
     });
+    
+    // Event listeners para navegação de mês (mantenha os mesmos do código anterior)
+    document.getElementById('prevMonth').addEventListener('click', navigateMonth(-1));
+    document.getElementById('nextMonth').addEventListener('click', navigateMonth(1));
+    document.getElementById('applyDate').addEventListener('click', applyNewDate);
     
     // Definir data atual como padrão para novas transações
     const today = new Date().toISOString().split('T')[0];
@@ -717,4 +768,21 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('transactionDate').value = today;
         }
     });
+
 });
+
+function applyNewDate() {
+    currentMonth = parseInt(document.getElementById('monthSelect').value);
+    currentYear = parseInt(document.getElementById('yearSelect').value);
+    
+    updateMonthDisplay();
+    loadPage(getCurrentPage());
+    
+    const dropdown = bootstrap.Dropdown.getInstance(document.getElementById('monthYearDropdown'));
+    dropdown.hide();
+}
+
+function getCurrentPage() {
+    const activeLink = document.querySelector('.nav-link.active');
+    return activeLink ? activeLink.getAttribute('data-page') : 'dashboard';
+}
