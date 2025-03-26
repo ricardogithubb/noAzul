@@ -95,39 +95,62 @@
         </div>
 
         <!-- Lista de receitas -->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold">Lista de Receitas</h6>
-                <span class="badge bg-primary rounded-pill">15 itens</span>
+        <div class="transactions-list">
+            <!-- Grupo por data - Sábado, 30 -->
+            <div class="transaction-group">
+                <div class="transaction-date bg-light">Sábado, 30</div>
+                
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Energia Elétrica (11/12)</div>
+                        <div class="transaction-details small text-muted">Casa | Santander</div> <!-- Texto menor e baixa densidade -->
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 270,00</div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="receitasTable" width="100%">
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Descrição</th>
-                                <th>Categoria</th>
-                                <th>Valor</th>
-                                <th>Status</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>05/03/2023</td>
-                                <td>Salário ACME</td>
-                                <td><span class="badge bg-success">Salário</span></td>
-                                <td class="text-success">R$ 2.500,00</td>
-                                <td><span class="badge bg-success">Efetivado</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                                </td>
-                            </tr>
-                            <!-- Mais linhas de receitas -->
-                        </tbody>
-                    </table>
+
+            <!-- Grupo por data - Sexta, 29 -->
+            <div class="transaction-group">
+                <div class="transaction-date bg-light">Sexta, 29</div>
+                
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Dizimo (11/12)</div>
+                        <div class="transaction-details small text-muted">Igreja | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 300,00</div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Alimentos Diversos (11/12)</div>
+                        <div class="transaction-details small text-muted">Casa | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 1.000,00</div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Estefane (11/12)</div>
+                        <div class="transaction-details small text-muted">Familia | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 1.200,00</div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Meu Primeiro Milhão (11/12)</div>
+                        <div class="transaction-details small text-muted">Investimentos | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 1.000,00</div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Combustível (11/12)</div>
+                        <div class="transaction-details small text-muted">Carro | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 250,00</div>
                 </div>
             </div>
         </div>

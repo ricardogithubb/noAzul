@@ -52,8 +52,8 @@ $(document).ready(function() {
                                 <small class="text-muted">${transacao.categoria} • ${transacao.data}</small>
                             </div>                            
                         </div>
-                        <span class="${valorClass}">${formatMoney(transacao.valor)}</span>
-                        ${efetivadaBadge}
+                        <span class="${valorClass}">${formatMoney(transacao.valor)} ${efetivadaBadge}</span>
+                        
                     </div>
                 </a>
             `;

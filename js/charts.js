@@ -1,61 +1,95 @@
 function initCharts() {
     // Gráfico anual
-    const annualCtx = document.getElementById('annualChart').getContext('2d');
-    const annualChart = new Chart(annualCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-            datasets: [
-                {
-                    label: 'Receitas',
-                    backgroundColor: 'rgba(78, 115, 223, 0.8)',
-                    borderColor: 'rgba(78, 115, 223, 1)',
-                    borderWidth: 1,
-                    data: [5000, 4500, 5250, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                },
-                {
-                    label: 'Despesas',
-                    backgroundColor: 'rgba(231, 74, 59, 0.8)',
-                    borderColor: 'rgba(231, 74, 59, 1)',
-                    borderWidth: 1,
-                    data: [3200, 3500, 3780, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                }
-            ]
-        },
-        options: {
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    grid: {
-                        display: false
-                    }
-                },
-                y: {
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    },
-                    beginAtZero: true
+    // Gráfico anual em linhas
+const annualCtx = document.getElementById('annualChart').getContext('2d');
+const annualChart = new Chart(annualCtx, {
+    type: 'line', // Alterado para tipo 'line'
+    data: {
+        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+        datasets: [
+            {
+                label: 'Receitas',
+                backgroundColor: 'rgba(78, 115, 223, 0.2)', // Fundo mais claro para preenchimento
+                borderColor: 'rgba(78, 115, 223, 1)',
+                borderWidth: 2, // Linha mais grossa
+                pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                pointBorderColor: '#fff',
+                pointRadius: 4, // Tamanho dos pontos
+                pointHoverRadius: 6,
+                fill: true, // Preenchimento abaixo da linha
+                tension: 0.3, // Suavização das curvas
+                data: [5000, 4500, 5250, 10000, 7896, 12098, 4599, 0, 0, 0, 0, 0]
+            },
+            {
+                label: 'Despesas',
+                backgroundColor: 'rgba(231, 74, 59, 0.2)',
+                borderColor: 'rgba(231, 74, 59, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(231, 74, 59, 1)',
+                pointBorderColor: '#fff',
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: true,
+                tension: 0.3,
+                data: [3200, 3500, 3780, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }
+        ]
+    },
+    options: {
+        maintainAspectRatio: false,
+        responsive: true,
+        scales: {
+            x: {
+                grid: {
+                    display: false
                 }
             },
-            plugins: {
-                legend: {
-                    position: 'top'
+            y: {
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + formatMoney(context.raw);
-                        }
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return 'R$ ' + value.toLocaleString('pt-BR');
                     }
                 }
             }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    usePointStyle: true, // Estilo mais compacto para a legenda
+                    padding: 20
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': ' + formatMoney(context.raw);
+                    }
+                },
+                mode: 'index',
+                intersect: false
+            }
+        },
+        interaction: {
+            intersect: false,
+            mode: 'nearest'
         }
-    });
+    }
+});
+
+// Função auxiliar para formatar valores monetários
+function formatMoney(value) {
+    return 'R$ ' + value.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
 
     // Gráfico de orçamento (no dashboard)
     const orcamentoCtx = document.getElementById('orcamentoChart').getContext('2d');
     const orcamentoChart = new Chart(orcamentoCtx, {
-        type: 'doughnut',
+        type: 'line',
         data: {
             labels: ['Alimentação', 'Moradia', 'Transporte', 'Lazer', 'Outros'],
             datasets: [{

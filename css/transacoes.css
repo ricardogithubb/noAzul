@@ -1,0 +1,108 @@
+/* Estilo para a lista de transações */
+.transactions-list {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.transaction-group {
+    margin-bottom: 1rem;
+}
+
+.transaction-date {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    color: #495057;
+    background-color: #f8f9fa;
+    font-size: 0.9rem;
+}
+
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.transaction-item:last-child {
+    border-bottom: none;
+}
+
+.transaction-main {
+    flex: 1;
+}
+
+.transaction-title {
+    font-weight: 500;
+    color: #212529;
+    margin-bottom: 0.25rem;
+}
+
+.transaction-details {
+    font-size: 0.8rem;
+    color: #6c757d !important;
+    opacity: 0.8;
+}
+
+.transaction-amount {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-left: 1rem;
+    white-space: nowrap;
+}
+
+/* Ajustes para mobile */
+@media (max-width: 576px) {
+    .transaction-item {
+        padding: 0.6rem;
+        flex-direction: row;
+        align-items: flex-start;
+    }
+    
+    .transaction-amount {
+        margin-left: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .transaction-title {
+        font-size: 0.95rem;
+    }
+    
+    .transaction-details {
+        font-size: 0.75rem;
+    }
+    
+    /* Garante que os totais ficarão lado a lado mesmo em mobile */
+    .row.g-2 {
+        margin-left: -0.25rem;
+        margin-right: -0.25rem;
+    }
+    
+    .col-6 {
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+    }
+    
+    .card-body {
+        padding: 0.5rem !important;
+    }
+    
+    h6.card-title {
+        font-size: 0.8rem;
+    }
+    
+    h4.card-text {
+        font-size: 1rem;
+    }
+}
+
+/* Cores para os valores */
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.text-success {
+    color: #28a745 !important;
+}

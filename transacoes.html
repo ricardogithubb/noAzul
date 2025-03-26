@@ -43,14 +43,14 @@
                     </ol>
                 </nav>
             </div>
-            <div>
+            <!-- <div>
                 <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#novaReceitaModal">
                     <i class="bi bi-plus-lg"></i> Receita
                 </button>
                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#novaDespesaModal">
                     <i class="bi bi-plus-lg"></i> Despesa
                 </button>
-            </div>
+            </div> -->
         </div>
 
         <!-- Filtros -->
@@ -99,56 +99,62 @@
         </div>
 
         <!-- Lista de transações -->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold">Todas as Transações</h6>
-                <div>
-                    <span class="badge bg-primary rounded-pill me-2">15 Receitas</span>
-                    <span class="badge bg-danger rounded-pill">23 Despesas</span>
+        <div class="transactions-list">
+            <!-- Grupo por data - Sábado, 30 -->
+            <div class="transaction-group">
+                <div class="transaction-date bg-light">Sábado, 30</div>
+                
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Energia Elétrica (11/12)</div>
+                        <div class="transaction-details small text-muted">Casa | Santander</div> <!-- Texto menor e baixa densidade -->
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 270,00</div>
                 </div>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="transacoesTable" width="100%">
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Tipo</th>
-                                <th>Descrição</th>
-                                <th>Categoria</th>
-                                <th>Valor</th>
-                                <th>Status</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>05/03/2023</td>
-                                <td><span class="badge bg-primary">Receita</span></td>
-                                <td>Salário ACME</td>
-                                <td><span class="badge bg-success">Salário</span></td>
-                                <td class="text-success">R$ 2.500,00</td>
-                                <td><span class="badge bg-success">Efetivado</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>10/03/2023</td>
-                                <td><span class="badge bg-danger">Despesa</span></td>
-                                <td>Supermercado</td>
-                                <td><span class="badge bg-success">Alimentação</span></td>
-                                <td class="text-danger">R$ 450,00</td>
-                                <td><span class="badge bg-success">Efetivado</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                                </td>
-                            </tr>
-                            <!-- Mais transações -->
-                        </tbody>
-                    </table>
+
+            <!-- Grupo por data - Sexta, 29 -->
+            <div class="transaction-group">
+                <div class="transaction-date bg-light">Sexta, 29</div>
+                
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Dizimo (11/12)</div>
+                        <div class="transaction-details small text-muted">Igreja | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 300,00</div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Alimentos Diversos (11/12)</div>
+                        <div class="transaction-details small text-muted">Casa | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 1.000,00</div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Estefane (11/12)</div>
+                        <div class="transaction-details small text-muted">Familia | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 1.200,00</div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Meu Primeiro Milhão (11/12)</div>
+                        <div class="transaction-details small text-muted">Investimentos | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 1.000,00</div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Combustível (11/12)</div>
+                        <div class="transaction-details small text-muted">Carro | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 250,00</div>
                 </div>
             </div>
         </div>
