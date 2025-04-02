@@ -8,7 +8,8 @@ $(document).ready(function() {
     // Inicialização
     init();
 
-    function init() {
+    async function init() {
+        $('#totalReceitas').text(await getTotalReceitas(mesAtual, anoAtual));
         carregarReceitas();
         setupEventListeners();
         atualizarTotalReceitas();

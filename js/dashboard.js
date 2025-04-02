@@ -87,7 +87,7 @@ $(document).ready(function() {
     //endpoint para criar um array de totas as tranações conforme na função loadUltimasTransacoes
     function endpointTodasTransacoes(mes, ano) {
         const token = localStorage.getItem('authToken');
-        const url = 'https://apinoazul.markethubplace.com/api/todas-transacoes/'+mes+'/'+ano; // Substitua pela URL correta
+        const url = 'https://apinoazul.markethubplace.com/api/transacoes-recentes/'+mes+'/'+ano+'/5'; // Substitua pela URL correta
 
         console.log("Token:", token);   
         $.ajax({
@@ -97,12 +97,11 @@ $(document).ready(function() {
             },
             method: 'GET',
             success: function(response) {
-                const todasTransacoes = response.transacoes;
-                //formatar total receitas para exibir no dashboard
-                loadUltimasTransacoes(todasTransacoes);
+                
+                loadUltimasTransacoes(response);
             },
             error: function(xhr, status, error) {
-                console.log('Erro ao obter o total de receitas: ' + error);
+                console.log('Ultimas transações: ' + error);
             }
         })
     }
@@ -126,15 +125,21 @@ $(document).ready(function() {
 
 
     // Carrega as últimas transações
-    function loadUltimasTransacoes() {
-        // Simulação de dados - na implementação real viria de uma API ou localStorage
-        const transacoes = [
-            { tipo: 'receita', descricao: 'Salário', valor: 2500, data: '05/03/2023', categoria: 'Salário', efetivada: true },
-            { tipo: 'despesa', descricao: 'Supermercado', valor: 450, data: '10/03/2023', categoria: 'Alimentação', efetivada: true },
-            { tipo: 'despesa', descricao: 'Combustível', valor: 180, data: '12/03/2023', categoria: 'Transporte', efetivada: true },
-            { tipo: 'receita', descricao: 'Freelance', valor: 800, data: '15/03/2023', categoria: 'Freelance', efetivada: false },
-            { tipo: 'despesa', descricao: 'Restaurante', valor: 120, data: '18/03/2023', categoria: 'Alimentação', efetivada: true }
-        ];
+    function loadUltimasTransacoes(todasTransacoes) {
+
+        const transacoes = [];
+        
+        todasTransacoes.forEach(transacao => {
+            transacoes.push({
+                tipo: transacao.tipo === 'R' ? 'receita' : 'despesa',
+                descricao: transacao.descricao,
+                valor: parseFloat(transacao.valor),
+                data: transacao.data_vencimento,
+                categoria: transacao.categoria,
+                efetivada: transacao.data_efetivacao !== null
+            });
+        });
+
 
         let html = '';
         transacoes.forEach(transacao => {
@@ -174,7 +179,7 @@ $(document).ready(function() {
 
         endpointTotalDespesas(mes, ano);
         endpointTotalReceitas(mes, ano);
-        loadUltimasTransacoes();
+        endpointTodasTransacoes(mes, ano);
 
     }
 
