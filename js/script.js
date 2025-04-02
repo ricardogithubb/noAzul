@@ -20,6 +20,7 @@ function updateMonthYear(month, year) {
 
     localStorage.setItem('selectedMonth', month+1);
     localStorage.setItem('selectedYear', year);
+    $('#currentYear').text(year);
 
     const currentMonth = months[month];
     const currentYear = year;
@@ -57,7 +58,7 @@ function setupMonthYearSelector() {
         // gravar mês/ano selecionado no localStorage
         localStorage.setItem('selectedMonth', selectedMonth);
         localStorage.setItem('selectedYear', selectedYear);
-
+        $('#currentYear').text(selectedYear);
 
         
         // Atualiza os dados conforme o mês/ano selecionado
