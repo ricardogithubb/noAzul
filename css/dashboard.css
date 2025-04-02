@@ -28,6 +28,8 @@
     opacity: 0.7;
 }
 
+
+
 /* Ajustes para mobile */
 @media (max-width: 576px) {
     .total-card h5 {
