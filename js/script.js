@@ -14,9 +14,17 @@ function formatMoney(value) {
 function updateMonthYear(month, year) {
     const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
                    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    const currentMonth = month !== undefined ? months[month] : months[new Date().getMonth()];
-    const currentYear = year !== undefined ? year : new Date().getFullYear();
+    
+    month !== undefined ? month : month = new Date().getMonth();
+    year !== undefined ? year : year = new Date().getFullYear();
+
+    localStorage.setItem('selectedMonth', month+1);
+    localStorage.setItem('selectedYear', year);
+
+    const currentMonth = months[month];
+    const currentYear = year;
     $('#currentMonthYear').text(`${currentMonth} ${currentYear}`);
+
 }
 
 // Configuração do seletor de mês/ano
@@ -45,6 +53,12 @@ function setupMonthYearSelector() {
         const selectedYear = $('#currentYear').text();
         updateMonthYear(selectedMonth, selectedYear);
         $('#monthYearModal').modal('hide');
+
+        // gravar mês/ano selecionado no localStorage
+        localStorage.setItem('selectedMonth', selectedMonth);
+        localStorage.setItem('selectedYear', selectedYear);
+
+
         
         // Atualiza os dados conforme o mês/ano selecionado
         if (typeof loadData === 'function') {

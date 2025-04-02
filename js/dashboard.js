@@ -32,6 +32,10 @@ $(document).ready(function() {
     // Configuração do botão de toggle
     $('#btnToggleCategorias').click(function() {
         toggleTodasCategorias();
+    });    
+        
+    $('#confirmMonthYear').click(function() {
+        Inicializacao();
     });
 
     // executar endpoint para carregar total despesa com token
@@ -165,9 +169,13 @@ $(document).ready(function() {
     }
 
     function Inicializacao() {
-        endpointTotalDespesas(3, 2025);
-        endpointTotalReceitas(3, 2025);
+        var mes = localStorage.getItem('selectedMonth');
+        var ano = localStorage.getItem('selectedYear');
+
+        endpointTotalDespesas(mes, ano);
+        endpointTotalReceitas(mes, ano);
         loadUltimasTransacoes();
+
     }
 
     // Inicialização

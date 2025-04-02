@@ -9,8 +9,6 @@ $(document).ready(function() {
     // Formulário de login
     $('#btEntrar').click(function(e) {
         // e.preventDefault();
-
-        alert('Autenticando...');
         
         const email = $('#email').val();
         const password = $('#password').val();
@@ -29,11 +27,7 @@ $(document).ready(function() {
                     dataType: "json",
                     success: function (response) {
                         alert('Sucesso');
-                        //converter objeto para json
-                        // JSON.stringify(response)
-                        alert(response.access_token); // Exibe a mensagem de sucesso
-                        console.log("Token:", response.token); // Exibe o token no console
-                
+                        
                         // Opcional: armazenar o token no localStorage
                         localStorage.setItem("authToken", response.token);
     
