@@ -8,8 +8,7 @@ $(document).ready(function() {
     // Inicialização
     init();
 
-    async function init() {
-        $('#totalReceitas').text(await getTotalReceitas(mesAtual, anoAtual));
+    async function init() {        
         carregarReceitas();
         setupEventListeners();
         atualizarTotalReceitas();
@@ -148,42 +147,105 @@ $(document).ready(function() {
     }
 
     // Salva uma nova receita
-    function salvarReceita() {
-        const descricao = $('#receitaDescricao').val();
+    async function salvarReceita() {
+        // Obter valores do formulário
+        const descricao = $('#receitaDescricao').val().trim();
         const valor = parseFloat($('#receitaValor').val());
         const data = $('#receitaData').val();
-        const categoria = $('#receitaCategoria').val();
+        const categoria_id = $('#receitaCategoria').val();
         const efetivada = $('#receitaEfetivada').is(':checked');
-        const observacao = $('#receitaObservacao').val();
+        const observacao = $('#receitaObservacao').val().trim();
+        const conta_id = $('#receitaConta').val(); // Adicione um select para contas no formulário
         const repetir = $('#receitaRepetir').is(':checked');
-
-        if (!descricao || !valor || !data || !categoria) {
+    
+        // Validação dos campos obrigatórios
+        if (!descricao || isNaN(valor) || !data || !categoria_id || !conta_id) {
             alert('Preencha todos os campos obrigatórios');
             return;
         }
-
-        const novaReceita = {
-            id: Date.now(), // ID único
+    
+        console.log(data);
+        // Formatando a data para o padrão da API (YYYY/MM/DD)
+        const dataVencimento = data;
+    
+        // Objeto com os dados para a API
+        const dadosReceita = {
             descricao,
+            conta_id: parseInt(conta_id),
+            categoria_id: parseInt(categoria_id),
             valor,
-            data,
-            categoria,
-            efetivada,
+            data_vencimento: dataVencimento,
             observacao,
-            conta: 'Santander' // Exemplo, pode ser um select no formulário
+            efetivada
         };
+    
+        console.log(dadosReceita);
 
-        receitas.push(novaReceita);
-        salvarReceitas();
-        exibirReceitas(receitas);
-        $('#novaReceitaModal').modal('hide');
-        resetarFormulario();
-        atualizarTotalReceitas();
-
-        // Lógica para receitas recorrentes (simplificada)
-        if (repetir) {
-            alert('Funcionalidade de repetição será implementada');
+        try {
+            // Mostrar indicador de carregamento
+            $('#btnSalvarReceita').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...');
+    
+            // Chamada à API
+            const response = await fetch('https://apinoazul.markethubplace.com/api/receitas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('authToken') // Assumindo autenticação JWT
+                },
+                body: JSON.stringify(dadosReceita)
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erro ao salvar receita');
+            }
+    
+            const receitaSalva = await response.json();
+    
+            // Adiciona a receita na lista local (opcional)
+            // receitas.push({
+            //     id: receitaSalva.id,
+            //     ...dadosReceita
+            // });
+    
+            // Atualiza a interface
+            exibirReceitas(receitas);
+            $('#novaReceitaModal').modal('hide');
+            resetarFormulario();
+            atualizarTotalReceitas();
+    
+            // Feedback de sucesso
+            mostrarAlerta('Receita salva com sucesso!', 'success');
+    
+            // Lógica para receitas recorrentes
+            if (repetir) {
+                // Implementar lógica de repetição conforme necessário
+            }
+    
+        } catch (error) {
+            console.error('Erro ao salvar receita:', error);
+            mostrarAlerta(error.message || 'Erro ao salvar receita. Tente novamente.', 'danger');
+        } finally {
+            // Restaurar botão
+            $('#btnSalvarReceita').prop('disabled', false).text('Salvar Receita');
         }
+    }
+    
+    // Função auxiliar para formatar data para YYYY/MM/DD
+    function formatarDataParaAPI(data) {
+        const [dia, mes, ano] = data.split('/');
+        return `${ano}/${mes}/${dia}`;
+    }
+    
+    // Função para mostrar feedback visual
+    function mostrarAlerta(mensagem, tipo) {
+        const alerta = `
+            <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                ${mensagem}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        $('#alertaContainer').html(alerta);
     }
 
     // Editar receita existente
@@ -311,9 +373,9 @@ $(document).ready(function() {
     }
 
     // Atualizar o total de receitas exibido
-    function atualizarTotalReceitas() {
-        const total = receitas.reduce((sum, r) => sum + r.valor, 0);
-        $('#totalReceitas').text(formatMoney(total));
+    async function atualizarTotalReceitas() {
+        const total = await getTotalReceitas(mesAtual, anoAtual);
+        $('#totalReceitas').text(total);
     }
 
     // Salvar receitas no localStorage
@@ -340,4 +402,11 @@ $(document).ready(function() {
         const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
         return new Date(dataString).toLocaleDateString('pt-BR', options);
     }
+
+    carregarContas();
+
+    carregarCategorias();
+
+
 });
+

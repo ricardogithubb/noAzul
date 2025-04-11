@@ -17,7 +17,7 @@
                 <i class="bi bi-wallet2"></i> noAzul
             </a>
             <button class="btn btn-outline-light ms-auto" id="monthYearBtn">
-                <span id="currentMonthYear">Março 2023</span>
+                <span id="currentMonthYear"></span>
                 <i class="bi bi-chevron-down ms-1"></i>
             </button>
             <div class="dropdown ms-2">
@@ -87,7 +87,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="mb-0">Total Receitas</h6>
-                                <h3 class="mb-0" id="totalReceitas">R$ 5.250,00</h3>
+                                <h3 class="mb-0" id="totalReceitas">0</h3>
                             </div>
                             <i class="bi bi-currency-dollar display-6 opacity-50"></i>
                         </div>
@@ -183,13 +183,21 @@
                             </div>
                         </div>
                         <div class="mb-3">
+                            <label for="receitaConta" class="form-label">Conta</label>
+                            <select class="form-select" id="receitaConta" required>
+                                <option value="">Selecione uma conta...</option>
+                                <option value="1">Santander</option>
+                                <option value="2">Nubank</option>
+                                <!-- Preencher dinamicamente via API -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="receitaCategoria" class="form-label">Categoria</label>
                             <select class="form-select" id="receitaCategoria" required>
-                                <option value="">Selecione...</option>
-                                <option value="salario">Salário</option>
-                                <option value="freelance">Freelance</option>
-                                <option value="investimentos">Investimentos</option>
-                                <option value="outros">Outros</option>
+                                <option value="">Selecione uma categoria...</option>
+                                <option value="1">Salário</option>
+                                <option value="2">Freelance</option>
+                                <!-- Preencher dinamicamente via API -->
                             </select>
                         </div>
                         <div class="mb-3">

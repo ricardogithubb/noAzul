@@ -11,14 +11,14 @@ function formatMoney(value) {
 }
 
 // Atualiza o mês/ano exibido
-function updateMonthYear(month, year) {
-    const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
+function updateMonthYear(month, year) { 
+    const months = ["", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
                    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     
-    month !== undefined ? month : month = new Date().getMonth();
+    month !== undefined ? month : month = new Date().getMonth()+1;
     year !== undefined ? year : year = new Date().getFullYear();
 
-    localStorage.setItem('selectedMonth', (month+1));
+    localStorage.setItem('selectedMonth', parseInt(month));
     localStorage.setItem('selectedYear', year);
 
     $('#currentYear').text(year);
@@ -35,7 +35,7 @@ function setupMonthYearSelector() {
     $('.month-btn').removeClass('btn-primary').addClass('btn-outline-primary');
     
     //remover a classe btn-outline-primary e adicionar a classe btn-primary no botão que data-month for igual ao mês atual
-    const currentMonth = new Date().getMonth();
+    const currentMonth = new Date().getMonth()+1;
     $('.month-btn[data-month="' + currentMonth + '"]').removeClass('btn-outline-primary').addClass('btn-primary');
 
 
@@ -121,18 +121,18 @@ function appendModalToBody() {
                         </div>
                     </div>
                     <div class="row g-2">
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="0">Jan</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="1">Fev</button></div>
-                        <div class="col-3"><button class="btn btn-primary w-100 month-btn" data-month="2">Mar</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="3">Abr</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="4">Mai</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="5">Jun</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="6">Jul</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="7">Ago</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="8">Set</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="9">Out</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="10">Nov</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="11">Dez</button></div>
+                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="1">Jan</button></div>
+                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="2">Fev</button></div>
+                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="3">Mar</button></div>
+                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="4">Abr</button></div>
+                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="5">Mai</button></div>
+                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="6">Jun</button></div>
+                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="7">Jul</button></div>
+                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="8">Ago</button></div>
+                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="9">Set</button></div>
+                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="10">Out</button></div>
+                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="11">Nov</button></div>
+                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="12">Dez</button></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -169,6 +169,47 @@ function getTotalDespesas(mes, ano) {
     });
 }
 
+async function carregarContas() {
+    try {
+        const response = await fetch('https://apinoazul.markethubplace.com/api/contas', {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            }
+        });
+        const contas = await response.json();
+        
+        const $select = $('#receitaConta');
+        $select.empty();
+        $select.append('<option value="">Selecione uma conta...</option>');
+        
+        contas.forEach(conta => {
+            $select.append(`<option value="${conta.id}">${conta.nome}</option>`);
+        });
+    } catch (error) {
+        console.error('Erro ao carregar contas:', error);
+    }
+}
+
+function carregarCategorias() {
+    fetch('https://apinoazul.markethubplace.com/api/categorias', {
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+        }
+    })
+    .then(response => response.json())
+    .then(categorias => {
+        const $select = $('#receitaCategoria');
+        $select.empty();
+        $select.append('<option value="">Selecione uma categoria...</option>');
+        categorias.forEach(categoria => {
+            $select.append(`<option value="${categoria.id}">${categoria.nome}</option>`);
+        });
+    })
+    .catch(error => {
+        console.error('Erro ao carregar categorias:', error);
+    });
+}
+
 
 // executar endpoint para carregar total receita com token
 function getTotalReceitas(mes, ano) {
@@ -176,7 +217,7 @@ function getTotalReceitas(mes, ano) {
         const token = localStorage.getItem('authToken');
         const url = `https://apinoazul.markethubplace.com/api/total-receitas/${mes}/${ano}`;
 
-        console.log("Token:", token);
+        console.log(url);
 
         $.ajax({
             url: url,
@@ -185,7 +226,9 @@ function getTotalReceitas(mes, ano) {
             },
             method: 'GET',
             success: function(response) {
+                console.log(response.total);
                 resolve(formatMoney(response.total));
+                
             },
             error: function(xhr, status, error) {
                 console.log('Erro ao obter o total de receitas:', error);
@@ -199,7 +242,10 @@ function getTotalReceitas(mes, ano) {
 // Inicializa funções globais quando o DOM estiver pronto
 $(document).ready(function() {
     appendModalToBody();
-    updateMonthYear();
+
+    updateMonthYear(localStorage.getItem('selectedMonth'), 
+                    localStorage.getItem('selectedYear'));
+
     setupMonthYearSelector();
     setupRepeatOptions();
 });
