@@ -20,6 +20,12 @@ $(document).ready(function() {
         popularFiltros();
     }
 
+$('.transactions-list').on('click', '.transaction-item', function() {
+    const transactionId = $(this).data('id');
+    editarReceita(transactionId);
+});
+
+
     $('#confirmMonthYear').click(function() {
         init();
     });
@@ -126,7 +132,7 @@ $(document).ready(function() {
             }
     
             $container.append(`
-                <div class="transaction-item">
+                <div class="transaction-item" data-id="${receita.id}">
                     <div class="transaction-main">
                         <div class="transaction-title">${receita.descricao}</div>
                         <div class="transaction-details small text-muted">${receita.categoria} | ${receita.conta}</div> <!-- Texto menor e baixa densidade -->
@@ -330,6 +336,8 @@ $(document).ready(function() {
 
         $('#novaReceitaModal').modal('show');
     }
+
+    
 
     // Atualizar receita existente
     function atualizarReceita(id) {

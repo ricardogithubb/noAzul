@@ -100,7 +100,7 @@
         <!-- Lista de receitas -->
         <div class="transactions-list">
             <!-- Grupo por data - Sábado, 30 -->
-            <div class="transaction-group">
+            <div class="transaction-group" id="receitasGroup">
                 <div class="transaction-date bg-light">Sábado, 30</div>
                 
                 <div class="transaction-item">
@@ -250,6 +250,105 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-primary">Salvar Receita</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de edição de receita -->
+    <div class="modal fade" id="editarReceitaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Receita</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formEditarReceita">
+                    <div class="modal-body">
+                        <input type="hidden" id="editarId">
+                        <div class="mb-3">
+                            <label for="editarDescricao" class="form-label">Descrição</label>
+                            <input type="text" class="form-control" id="editarDescricao" required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="editarValor" class="form-label">Valor (R$)</label>
+                                <input type="text" step="0.01" class="form-control" id="editarValor" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editarData" class="form-label">Data</label>
+                                <input type="date" class="form-control" id="editarData" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editarConta" class="form-label">Conta</label>
+                            <select class="form-select" id="editarConta" required>
+                                <option value="">Selecione uma conta...</option>
+                                <option value="1">Santander</option>
+                                <option value="2">Nubank</option>
+                                <!-- Opções preenchidas via API -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editarCategoria" class="form-label">Categoria</label>
+                            <select class="form-select" id="editarCategoria" required>
+                                <option value="">Selecione uma categoria...</option>
+                                <option value="1">Salário</option>
+                                <option value="2">Freelance</option>
+                                <!-- Opções preenchidas via API -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editarObservacao" class="form-label">Observação</label>
+                            <textarea class="form-control" id="editarObservacao" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="editarEfetivada">
+                            <label class="form-check-label" for="editarEfetivada">Receita efetivada</label>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="editarRepetir">
+                                <label class="form-check-label" for="editarRepetir">Repetir receita</label>
+                            </div>
+                            <div id="editarRepeticaoOptions" class="mt-2 p-3 bg-light rounded" style="display: none;">
+                                <!-- Mesma estrutura de repetição do modal original -->
+                                <div class="mb-2">
+                                    <label class="form-label">Repetir a cada</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" value="1" min="1" id="editarIntervalo">
+                                        <select class="form-select" id="editarPeriodicidade">
+                                            <option value="month">Mês(es)</option>
+                                            <option value="year">Ano(s)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Até</label>
+                                    <div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="editarRepetirAte" id="editarRepetirAteData" checked>
+                                            <label class="form-check-label" for="editarRepetirAteData">
+                                                Data específica
+                                            </label>
+                                            <input type="date" class="form-control mt-1" id="editarRepetirAteData">
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="editarRepetirAte" id="editarRepetirAteVezes">
+                                            <label class="form-check-label" for="editarRepetirAteVezes">
+                                                Número de ocorrências
+                                            </label>
+                                            <input type="number" class="form-control mt-1" id="editarRepetirAteVezes" min="2" value="12" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
                     </div>
                 </form>
             </div>
