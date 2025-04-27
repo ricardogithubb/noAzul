@@ -197,11 +197,6 @@ $('.transactions-list').on('click', '.transaction-item', function() {
             limparFiltros();
         });
 
-        // Delegation para botões de editar/excluir (já que são dinâmicos)
-        $('#receitasTable').on('click', '.btn-editar', function() {
-            const id = $(this).closest('tr').data('id');
-            editarReceita(id);
-        });
 
         $('#receitasTable').on('click', '.btn-excluir', function() {
             const id = $(this).closest('tr').data('id');
@@ -219,7 +214,7 @@ $('.transactions-list').on('click', '.transaction-item', function() {
         console.log("salvarReceita");
         // Obter valores do formulário
         const descricao = $('#receitaDescricao').val().trim();
-        const valor = parseFloat($('#receitaValor').val());
+        const valor = parseFloat($('#receitaValor').val().replace('.', '').replace(',', '.'));
         const data = $('#receitaData').val();
         const categoria_id = $('#receitaCategoria').val();
         const efetivada = $('#receitaEfetivada').is(':checked');
