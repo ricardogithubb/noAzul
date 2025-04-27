@@ -289,6 +289,7 @@ $(document).ready(function() {
             // Atualiza a interface
             exibirReceitas(receitas);
             $('#novaReceitaModal').modal('hide');
+            e.preventDefault();
             resetarFormulario();
             atualizarTotalReceitas();
     

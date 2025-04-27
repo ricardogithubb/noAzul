@@ -1,4 +1,5 @@
 // Funções globais compartilhadas por todas as páginas
+apiURL = 'https://apinoazul.markethubplace.com/api';
 
 // Inicializa tooltips
 $(function () {
@@ -153,7 +154,7 @@ function appendModalToBody() {
 function getTotalDespesas(mes, ano) {
     return new Promise((resolve, reject) => {
         const token = localStorage.getItem('authToken');
-        const url = `https://apinoazul.markethubplace.com/api/total-despesas/${mes}/${ano}`;
+        const url = `${apiURL}/total-despesas/${mes}/${ano}`;
 
         $.ajax({
             url: url,
@@ -174,12 +175,13 @@ function getTotalDespesas(mes, ano) {
 
 async function carregarContas() {
     try {
-        const response = await fetch('https://apinoazul.markethubplace.com/api/contas', {
+        const response = await fetch(apiURL + '/contas', {
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('authToken')
             }
         });
         const contas = await response.json();
+        
         
         const $select = $('#receitaConta');
         $select.empty();
@@ -194,7 +196,7 @@ async function carregarContas() {
 }
 
 function carregarCategorias() {
-    fetch('https://apinoazul.markethubplace.com/api/categorias', {
+    fetch(apiURL + '/categorias', {
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('authToken')
         }
@@ -218,7 +220,7 @@ function carregarCategorias() {
 function getTotalReceitas(mes, ano) {
     return new Promise((resolve, reject) => {
         const token = localStorage.getItem('authToken');
-        const url = `https://apinoazul.markethubplace.com/api/total-receitas/${mes}/${ano}`;
+        const url = `${apiURL}/total-receitas/${mes}/${ano}`;
 
         console.log(url);
 
