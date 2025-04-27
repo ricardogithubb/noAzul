@@ -14,6 +14,7 @@ function formatMoney(value) {
 function updateMonthYear(month, year) { 
     const months = ["", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
                    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
     
     month !== undefined ? month : month = new Date().getMonth()+1;
     year !== undefined ? year : year = new Date().getFullYear();
@@ -64,6 +65,7 @@ function setupMonthYearSelector() {
         const selectedMonth = $('.month-btn.btn-primary').data('month');
         const selectedYear = $('#currentYear').text();
         updateMonthYear(selectedMonth, selectedYear);
+        document.getElementById('confirmMonthYear').blur();
         $('#monthYearModal').modal('hide');
 
         $('#currentYear').text(selectedYear);
@@ -72,7 +74,8 @@ function setupMonthYearSelector() {
         // Atualiza os dados conforme o mês/ano selecionado
         if (typeof loadData === 'function') {
             loadData(selectedMonth, selectedYear);
-        }
+        }      
+        
     });
 }
 

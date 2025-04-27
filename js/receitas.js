@@ -2,8 +2,8 @@ $(document).ready(function() {
     // Variáveis globais
     let receitas = [];
     let categorias = ['Salário', 'Freelance', 'Investimentos', 'Outros'];
-    let mesAtual = new Date().getMonth();
-    let anoAtual = new Date().getFullYear();
+    let mesAtual = localStorage.getItem('selectedMonth'); // || new Date().getMonth();
+    let anoAtual = localStorage.getItem('selectedYear'); // || new Date().getFullYear();
 
     // Inicialização
     init();
@@ -14,6 +14,10 @@ $(document).ready(function() {
         atualizarTotalReceitas();
         popularFiltros();
     }
+
+    $('#confirmMonthYear').click(function() {
+        init();
+    });
 
     // Botão que abre o modal de filtro
     $('#filtroAvancadoBtn').click(function() {
@@ -35,9 +39,35 @@ $(document).ready(function() {
         limparFiltrosAvancados();
     });
 
+    // function para carregar dados de api 
+    async function carregarReceitasApi(mes, ano) {
+        return new Promise((resolve, reject) => {
+            const token = localStorage.getItem('authToken');
+            const url = `https://apinoazul.markethubplace.com/api/receitas/periodo/${mes}/${ano}`;
+    
+            $.ajax({
+                url: url,
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                method: 'GET',
+                success: function(response) {
+                    //converter objeto para json
+                    resolve(localStorage.setItem('noAzulReceitas', JSON.stringify(response)));
+                },
+                error: function(xhr, status, error) {
+                    console.log('Erro ao obter o total de despesas:', error);
+                    reject(error);
+                }
+            });
+        });
+    }
+
     // Carrega as receitas do localStorage (simulação)
     function carregarReceitas() {
+        // console.log(localStorage.getItem('noAzulReceitas'));
         const dadosSalvos = localStorage.getItem('noAzulReceitas');
+
         if (dadosSalvos) {
             receitas = JSON.parse(dadosSalvos);
         } else {
@@ -45,8 +75,17 @@ $(document).ready(function() {
             receitas = [
                 {
                     id: 1,
+                    descricao: 'Salário SENAI',
+                    valor: 13060,
+                    data: '2023-03-05',
+                    categoria: 'Salário',
+                    efetivada: true,
+                    conta: 'Santander'
+                },
+                {
+                    id: 1,
                     descricao: 'Salário ACME',
-                    valor: 2500,
+                    valor: 13060,
                     data: '2023-03-05',
                     categoria: 'Salário',
                     efetivada: true,
@@ -69,40 +108,79 @@ $(document).ready(function() {
     }
 
     // Exibe as receitas na tabela
-    function exibirReceitas(listaReceitas) {
-        const $tbody = $('#receitasTable tbody');
-        $tbody.empty();
-
-        if (listaReceitas.length === 0) {
-            $tbody.append('<tr><td colspan="6" class="text-center">Nenhuma receita encontrada</td></tr>');
+    function exibirReceitas(listaTransacoes) {
+        const $container = $('.transactions-list');
+        $container.empty();
+    
+        if (listaTransacoes.length === 0) {
+            $container.append('<div class="text-center text-muted mt-3">Nenhuma transação encontrada</div>');
             return;
         }
 
-        listaReceitas.forEach(receita => {
-            const dataFormatada = formatarData(receita.data);
+        
+        let printData = "";
+
+        listaTransacoes.forEach(receita => {
+            const dataFormatada = formatarDataExtenso(receita.data_vencimento);
             const valorFormatado = formatMoney(receita.valor);
             const status = receita.efetivada ? 
                 '<span class="badge bg-success">Efetivada</span>' : 
                 '<span class="badge bg-secondary">Pendente</span>';
-
-            $tbody.append(`
-                <tr data-id="${receita.id}">
-                    <td>${dataFormatada}</td>
-                    <td>${receita.descricao}</td>
-                    <td><span class="badge bg-primary">${receita.categoria}</span></td>
-                    <td class="text-success">${valorFormatado}</td>
-                    <td>${status}</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary btn-editar me-1">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger btn-excluir">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
-                </tr>
+            
+            //verificar se dataFormatada é diferente de printData
+            console.log(dataFormatada+" != "+printData);
+            if (dataFormatada != printData) {
+                if(printData != "") {
+                    printData = dataFormatada;
+                    $container.append(`</div>
+                            <div class="transaction-group">
+                                <div class="transaction-date bg-light">${dataFormatada}</div>                   
+                            `);
+                } else {    
+                    printData = dataFormatada;
+                    $container.append(`<div class="transaction-group">
+                                         <div class="transaction-date bg-light">${dataFormatada}</div>                    
+                            `);
+                }
+            }
+    
+            $container.append(`
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">${receita.descricao}</div>
+                        <div class="transaction-details small text-muted">${receita.categoria} | ${receita.conta}</div> <!-- Texto menor e baixa densidade -->
+                    </div>
+                    <div class="transaction-amount text-danger">${valorFormatado}</div>
+                </div>
             `);
         });
+    
+        // listaTransacoes.forEach(grupo => {
+        //     const $grupo = $(`
+        //         <div class="transaction-group">
+        //             <div class="transaction-date bg-light">${grupo.data}</div>
+        //         </div>
+        //     `);
+    
+        //     grupo.transacoes.forEach(transacao => {
+        //         const valorClass = transacao.valor < 0 ? 'text-danger' : 'text-success';
+        //         const valorFormatado = formatMoney(Math.abs(transacao.valor));
+    
+        //         const $transacao = $(`
+        //             <div class="transaction-item">
+        //                 <div class="transaction-main">
+        //                     <div class="transaction-title">${transacao.descricao}</div>
+        //                     <div class="transaction-details small text-muted">${transacao.detalhes}</div>
+        //                 </div>
+        //                 <div class="transaction-amount ${valorClass}">R$ ${valorFormatado}</div>
+        //             </div>
+        //         `);
+    
+        //         $grupo.append($transacao);
+        //     });
+    
+        //     $container.append($grupo);
+        // });
     }
 
     // Configura os event listeners
@@ -374,7 +452,7 @@ $(document).ready(function() {
 
     // Atualizar o total de receitas exibido
     async function atualizarTotalReceitas() {
-        const total = await getTotalReceitas(mesAtual, anoAtual);
+        const total = await getTotalReceitas(localStorage.getItem('selectedMonth'), localStorage.getItem('selectedYear'), anoAtual);
         $('#totalReceitas').text(total);
     }
 
@@ -395,12 +473,27 @@ $(document).ready(function() {
 
     // Funções auxiliares
     function formatMoney(value) {
-        return 'R$ ' + value.toFixed(2).replace('.', ',').replace(/(\d)(?=(\d{3})+\,)/g, '$1.');
+        const number = Number(value) || 0;  // garante que value seja um número
+        return 'R$ ' + number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     function formatarData(dataString) {
         const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
         return new Date(dataString).toLocaleDateString('pt-BR', options);
+    }
+
+    function formatarDataExtenso(dataString) {
+        const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    
+        const partes = dataString.split('-');
+        const ano = parseInt(partes[0], 10);
+        const mes = parseInt(partes[1], 10) - 1; // mês no JS é de 0 a 11
+        const dia = parseInt(partes[2], 10);
+    
+        const data = new Date(ano, mes, dia);
+        const diaSemana = diasSemana[data.getDay()];
+    
+        return `${diaSemana}, ${dia}`;
     }
 
     carregarContas();

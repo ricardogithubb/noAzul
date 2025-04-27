@@ -1,6 +1,6 @@
 $(document).ready(function() {
     // Atualiza o mês/ano exibido
-    updateMonthYear();
+    updateMonthYear(localStorage.getItem('selectedMonth'), localStorage.getItem('selectedYear'));
 
     // Configura o seletor de mês/ano
     setupMonthYearSelector();
