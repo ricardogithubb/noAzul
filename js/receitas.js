@@ -5,10 +5,15 @@ $(document).ready(function() {
     let mesAtual = localStorage.getItem('selectedMonth'); // || new Date().getMonth();
     let anoAtual = localStorage.getItem('selectedYear'); // || new Date().getFullYear();
 
+    // Aplica a máscara de valor no campo de receitaValor
+    $('#receitaValor').mask('###.###.###.###.###,00', {reverse: true});
+
+    
+
     // Inicialização
     init();
 
-    async function init() {        
+    async function init() {                
         carregarReceitas();
         setupEventListeners();
         atualizarTotalReceitas();
@@ -44,7 +49,7 @@ $(document).ready(function() {
         return new Promise((resolve, reject) => {
             const token = localStorage.getItem('authToken');
             const url = `https://apinoazul.markethubplace.com/api/receitas/periodo/${mes}/${ano}`;
-    
+
             $.ajax({
                 url: url,
                 headers: {
@@ -64,44 +69,19 @@ $(document).ready(function() {
     }
 
     // Carrega as receitas do localStorage (simulação)
-    function carregarReceitas() {
-        // console.log(localStorage.getItem('noAzulReceitas'));
+    async function carregarReceitas() {
+        await carregarReceitasApi(localStorage.getItem('selectedMonth'), localStorage.getItem('selectedYear'));
         const dadosSalvos = localStorage.getItem('noAzulReceitas');
+
+        //ordernar dadosSalvos da maior data para a menor
+        
 
         if (dadosSalvos) {
             receitas = JSON.parse(dadosSalvos);
+            receitas.sort((a, b) => new Date(b.data_vencimento) - new Date(a.data_vencimento));
         } else {
             // Dados de exemplo
-            receitas = [
-                {
-                    id: 1,
-                    descricao: 'Salário SENAI',
-                    valor: 13060,
-                    data: '2023-03-05',
-                    categoria: 'Salário',
-                    efetivada: true,
-                    conta: 'Santander'
-                },
-                {
-                    id: 1,
-                    descricao: 'Salário ACME',
-                    valor: 13060,
-                    data: '2023-03-05',
-                    categoria: 'Salário',
-                    efetivada: true,
-                    conta: 'Santander'
-                },
-                {
-                    id: 2,
-                    descricao: 'Freelance Site',
-                    valor: 800,
-                    data: '2023-03-15',
-                    categoria: 'Freelance',
-                    efetivada: false,
-                    conta: 'Nubank'
-                }
-            ];
-            salvarReceitas();
+            receitas = [];
         }
         
         exibirReceitas(receitas);
@@ -119,13 +99,14 @@ $(document).ready(function() {
 
         
         let printData = "";
+        console.log(listaTransacoes);
 
         listaTransacoes.forEach(receita => {
             const dataFormatada = formatarDataExtenso(receita.data_vencimento);
             const valorFormatado = formatMoney(receita.valor);
-            const status = receita.efetivada ? 
-                '<span class="badge bg-success">Efetivada</span>' : 
-                '<span class="badge bg-secondary">Pendente</span>';
+            const status = receita.data_efetivacao != null ? 
+                '<span style="display: inline-block; width: 15px; height: 15px; background-color: green; border-radius: 50%; margin-top: 4px;margin-right: 10px"></span>' : 
+                '<span style="display: inline-block; width: 15px; height: 15px; background-color: red; border-radius: 50%; margin-top: 4px;margin-right: 10px"></span>';
             
             //verificar se dataFormatada é diferente de printData
             console.log(dataFormatada+" != "+printData);
@@ -139,7 +120,7 @@ $(document).ready(function() {
                 } else {    
                     printData = dataFormatada;
                     $container.append(`<div class="transaction-group">
-                                         <div class="transaction-date bg-light">${dataFormatada}</div>                    
+                                         <div class="transaction-date bg-light p-0 fw-bold">${dataFormatada}</div>                    
                             `);
                 }
             }
@@ -150,7 +131,10 @@ $(document).ready(function() {
                         <div class="transaction-title">${receita.descricao}</div>
                         <div class="transaction-details small text-muted">${receita.categoria} | ${receita.conta}</div> <!-- Texto menor e baixa densidade -->
                     </div>
-                    <div class="transaction-amount text-danger">${valorFormatado}</div>
+                    <div class="transaction-amount text-danger" style="display: flex; flex-direction: column; align-items: flex-end;">
+                        <span>${valorFormatado}</span>
+                        ${status}
+                    </div>
                 </div>
             `);
         });
@@ -226,6 +210,7 @@ $(document).ready(function() {
 
     // Salva uma nova receita
     async function salvarReceita() {
+        console.log("salvarReceita");
         // Obter valores do formulário
         const descricao = $('#receitaDescricao').val().trim();
         const valor = parseFloat($('#receitaValor').val());
@@ -256,8 +241,7 @@ $(document).ready(function() {
             observacao,
             efetivada
         };
-    
-        console.log(dadosReceita);
+
 
         try {
             // Mostrar indicador de carregamento
@@ -289,7 +273,6 @@ $(document).ready(function() {
             // Atualiza a interface
             exibirReceitas(receitas);
             $('#novaReceitaModal').modal('hide');
-            e.preventDefault();
             resetarFormulario();
             atualizarTotalReceitas();
     
