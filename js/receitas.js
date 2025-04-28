@@ -4,6 +4,8 @@ $(document).ready(function() {
     let categorias = ['Salário', 'Freelance', 'Investimentos', 'Outros'];
     let mesAtual = localStorage.getItem('selectedMonth'); // || new Date().getMonth();
     let anoAtual = localStorage.getItem('selectedYear'); // || new Date().getFullYear();
+    let isSubmitting = false; // <- Adiciona essa variável global no início do seu $(document).ready(function() { })
+
 
     // Aplica a máscara de valor no campo de receitaValor
     $('#receitaValor').mask('###.###.###.###.###,00', {reverse: true});
@@ -20,10 +22,10 @@ $(document).ready(function() {
         popularFiltros();
     }
 
-$('.transactions-list').on('click', '.transaction-item', function() {
-    const transactionId = $(this).data('id');
-    editarReceita(transactionId);
-});
+    $('.transactions-list').on('click', '.transaction-item', function() {
+        const transactionId = $(this).data('id');
+        editarReceita(transactionId);
+    });
 
 
     $('#confirmMonthYear').click(function() {
@@ -145,40 +147,24 @@ $('.transactions-list').on('click', '.transaction-item', function() {
             `);
         });
     
-        // listaTransacoes.forEach(grupo => {
-        //     const $grupo = $(`
-        //         <div class="transaction-group">
-        //             <div class="transaction-date bg-light">${grupo.data}</div>
-        //         </div>
-        //     `);
-    
-        //     grupo.transacoes.forEach(transacao => {
-        //         const valorClass = transacao.valor < 0 ? 'text-danger' : 'text-success';
-        //         const valorFormatado = formatMoney(Math.abs(transacao.valor));
-    
-        //         const $transacao = $(`
-        //             <div class="transaction-item">
-        //                 <div class="transaction-main">
-        //                     <div class="transaction-title">${transacao.descricao}</div>
-        //                     <div class="transaction-details small text-muted">${transacao.detalhes}</div>
-        //                 </div>
-        //                 <div class="transaction-amount ${valorClass}">R$ ${valorFormatado}</div>
-        //             </div>
-        //         `);
-    
-        //         $grupo.append($transacao);
-        //     });
-    
-        //     $container.append($grupo);
-        // });
     }
 
     // Configura os event listeners
     function setupEventListeners() {
         // Formulário de nova receita
-        $('#formNovaReceita').submit(function(e) {
+        $('#formNovaReceita').submit(async function(e) {
+            //desativar o botão de salvar
             e.preventDefault();
-            salvarReceita();
+
+            if (isSubmitting) return; // Se já estiver enviando, não faz nada
+
+            isSubmitting = true; // trava envio
+            $('#btnSalvarReceita').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...');
+
+            await salvarReceita(); // Aguarda o salvamento terminar
+
+            isSubmitting = false; // libera envio novamente
+            $('#btnSalvarReceita').prop('disabled', false).text('Salvar Receita');
         });
 
         // Botão de filtro avançado
@@ -211,7 +197,6 @@ $('.transactions-list').on('click', '.transaction-item', function() {
 
     // Salva uma nova receita
     async function salvarReceita() {
-        console.log("salvarReceita");
         // Obter valores do formulário
         const descricao = $('#receitaDescricao').val().trim();
         const valor = parseFloat($('#receitaValor').val().replace('.', '').replace(',', '.'));
@@ -336,6 +321,7 @@ $('.transactions-list').on('click', '.transaction-item', function() {
 
     // Atualizar receita existente
     function atualizarReceita(id) {
+        alert(id);
         const index = receitas.findIndex(r => r.id === id);
         if (index === -1) return;
 
