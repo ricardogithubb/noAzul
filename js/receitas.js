@@ -173,7 +173,8 @@ $(document).ready(function() {
             $('#receitaDescricao').val(''); // Limpa o campo de descrição
             $('#receitaValor').val(''); // Limpa o campo de valor
             //definir data atual
-            $('#receitaData').val('2025-01-01'); // Limpa o campo de data
+            const dataAtual = new Date().toISOString().split('T')[0];
+            $('#receitaData').val(dataAtual);
             $('#receitaConta').val(''); // Limpa o campo de conta
             $('#receitaCategoria').val(''); // Limpa o campo de categoria
             $('#receitaEfetivada').prop('checked', false); // Desmarca a opção de efetivada
