@@ -99,20 +99,20 @@
 
         <!-- Lista de receitas -->
         <div class="transactions-list">
-            <!-- Grupo por data - Sábado, 30 -->
-            <div class="transaction-group" id="receitasGroup">
+ 
+            <!-- <div class="transaction-group" id="receitasGroup">
                 <div class="transaction-date bg-light">Sábado, 30</div>
                 
                 <div class="transaction-item">
                     <div class="transaction-main">
                         <div class="transaction-title">Energia Elétrica (11/12)</div>
-                        <div class="transaction-details small text-muted">Casa | Santander</div> <!-- Texto menor e baixa densidade -->
+                        <div class="transaction-details small text-muted">Casa | Santander</div> 
                     </div>
                     <div class="transaction-amount text-danger">R$ 270,00</div>
                 </div>
             </div>
 
-            <!-- Grupo por data - Sexta, 29 -->
+
             <div class="transaction-group">
                 <div class="transaction-date bg-light">Sexta, 29</div>
                 
@@ -155,12 +155,12 @@
                     </div>
                     <div class="transaction-amount text-danger">R$ 250,00</div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 
     <!-- Modal de nova receita -->
-    <div class="modal fade" id="novaReceitaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="novaReceitaModal" tabindex="-1" aria-hidden="true" data-id="333">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -244,6 +244,12 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="d-flex align-items-center mt-3">
+                                <button type="button" class="btn btn-outline-danger btn-sm" id="btnExcluirReceita">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                <span class="ms-2">Excluir receita</span>
                             </div>
                         </div>
                     </div>

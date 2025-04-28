@@ -200,10 +200,11 @@ $(document).ready(function() {
         });
 
 
-        $('#receitasTable').on('click', '.btn-excluir', function() {
-            const id = $(this).closest('tr').data('id');
+        $('#btnExcluirReceita').click(function() {
+            const id = $("#novaReceitaModal").data('id');
             confirmarExclusao(id);
         });
+
 
         // Alternar opções de repetição
         $('#receitaRepetir').change(function() {
@@ -319,6 +320,7 @@ $(document).ready(function() {
         console.log(receita);
         if (!receita) return;
 
+        $('#novaReceitaModal').data('id', id);
         $('#receitaDescricao').val(receita.descricao);
         $('#receitaValor').val(receita.valor);
         $('#receitaData').val(receita.data_vencimento);
@@ -328,9 +330,20 @@ $(document).ready(function() {
         $('#receitaObservacao').val(receita.observacao || '');
 
         // Alterar o formulário para modo edição
-        $('#formNovaReceita').off('submit').submit(function(e) {
+        $('#formNovaReceita').off('submit').submit(async function(e) {
             e.preventDefault();
-            atualizarReceita(id);
+
+            if (isSubmitting) return; // Se já estiver enviando, não faz nada
+
+            isSubmitting = true; // trava envio
+            $('#btnSalvarReceita').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...');
+
+            console.log('Salvando 2');
+            await atualizarReceita(id); // Aguarda o salvamento terminar
+
+            isSubmitting = false; // libera envio novamente
+            $('#btnSalvarReceita').prop('disabled', false).text('Salvar Receita');
+            
         });
 
         //alterar o modal-title de um modal expecifico
@@ -346,7 +359,7 @@ $(document).ready(function() {
     async function atualizarReceita(id) {
         const receitaAtualizada = {
             descricao: $('#receitaDescricao').val(),
-            valor: parseFloat($('#receitaValor').val()),
+            valor: parseFloat($('#receitaValor').val().replace('.', '').replace(',', '.')),
             data_vencimento: $('#receitaData').val(),
             categoria_id: $('#receitaCategoria').val(),
             conta_id: $('#receitaConta').val(),
@@ -390,18 +403,57 @@ $(document).ready(function() {
     
 
     // Confirmar exclusão de receita
-    function confirmarExclusao(id) {
+    async function confirmarExclusao(id) {
         if (confirm('Tem certeza que deseja excluir esta receita?')) {
-            excluirReceita(id);
+            await excluirReceita(id);
+            $('#novaReceitaModal').modal('hide');
+        } else {
+            $('#novaReceitaModal').modal('hide');
         }
     }
 
     // Excluir receita
-    function excluirReceita(id) {
-        receitas = receitas.filter(r => r.id !== id);
-        salvarReceitas();
-        exibirReceitas(receitas);
-        atualizarTotalReceitas();
+    async function excluirReceita(id) {
+        try {
+            const receitaExcluida = {
+                descricao: $('#receitaDescricao').val(),
+                valor: parseFloat($('#receitaValor').val().replace('.', '').replace(',', '.')),
+                data_vencimento: $('#receitaData').val(),
+                categoria_id: $('#receitaCategoria').val(),
+                conta_id: $('#receitaConta').val(),
+                efetivada: $('#receitaEfetivada').is(':checked'),
+                observacao: $('#receitaObservacao').val()
+            };
+
+            const response = await fetch(`https://apinoazul.markethubplace.com/api/receitas/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('authToken') // Assumindo autenticação JWT
+                },
+                body: receitaExcluida
+            });
+    
+            if (!response.ok) {
+                throw new Error('Erro ao excluir a receita.');
+            }
+    
+            
+            await carregarReceitas();
+            salvarReceitas();
+            exibirReceitas(receitas);
+            $('#novaReceitaModal').modal('hide');
+            resetarFormulario();
+            atualizarTotalReceitas();
+    
+        } catch (error) {
+            console.error(error);
+            alert('Erro ao atualizar a receita. Tente novamente.');
+        }
+        // receitas = receitas.filter(r => r.id !== id);
+        // salvarReceitas();
+        // exibirReceitas(receitas);
+        // atualizarTotalReceitas();
     }
 
     // Aplicar filtros avançados
