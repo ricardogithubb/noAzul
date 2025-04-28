@@ -161,10 +161,25 @@ $(document).ready(function() {
             isSubmitting = true; // trava envio
             $('#btnSalvarReceita').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...');
 
+            console.log('Salvando 2');
             await salvarReceita(); // Aguarda o salvamento terminar
 
             isSubmitting = false; // libera envio novamente
             $('#btnSalvarReceita').prop('disabled', false).text('Salvar Receita');
+        });
+
+        //ao fechar o modal de nova receita, limpar os campos
+        $('#novaReceitaModal').on('hidden.bs.modal', function() {
+            $('#receitaDescricao').val(''); // Limpa o campo de descrição
+            $('#receitaValor').val(''); // Limpa o campo de valor
+            //definir data atual
+            $('#receitaData').val('2025-01-01'); // Limpa o campo de data
+            $('#receitaConta').val(''); // Limpa o campo de conta
+            $('#receitaCategoria').val(''); // Limpa o campo de categoria
+            $('#receitaEfetivada').prop('checked', false); // Desmarca a opção de efetivada
+            $('#receitaObservacao').val(''); // Limpa o campo de observação
+            //alterar o model-title de um modal expecifico
+            $('#novaReceitaModal .modal-title').text('Nova Receita');
         });
 
         // Botão de filtro avançado
@@ -257,7 +272,8 @@ $(document).ready(function() {
             // });
     
             // Atualiza a interface
-            exibirReceitas(receitas);
+            // exibirReceitas(receitas);
+            carregarReceitas();
             $('#novaReceitaModal').modal('hide');
             resetarFormulario();
             atualizarTotalReceitas();
@@ -299,12 +315,14 @@ $(document).ready(function() {
     // Editar receita existente
     function editarReceita(id) {
         const receita = receitas.find(r => r.id === id);
+        console.log(receita);
         if (!receita) return;
 
         $('#receitaDescricao').val(receita.descricao);
         $('#receitaValor').val(receita.valor);
-        $('#receitaData').val(receita.data);
-        $('#receitaCategoria').val(receita.categoria);
+        $('#receitaData').val(receita.data_vencimento);
+        $('#receitaConta').val(receita.conta_id);
+        $('#receitaCategoria').val(receita.categoria_id);
         $('#receitaEfetivada').prop('checked', receita.efetivada);
         $('#receitaObservacao').val(receita.observacao || '');
 
@@ -314,33 +332,61 @@ $(document).ready(function() {
             atualizarReceita(id);
         });
 
+        //alterar o modal-title de um modal expecifico
+        $('#novaReceitaModal .modal-title').text('Editar Receita');
+
+
         $('#novaReceitaModal').modal('show');
     }
 
     
 
     // Atualizar receita existente
-    function atualizarReceita(id) {
-        alert(id);
-        const index = receitas.findIndex(r => r.id === id);
-        if (index === -1) return;
-
-        receitas[index] = {
-            ...receitas[index],
+    async function atualizarReceita(id) {
+        const receitaAtualizada = {
             descricao: $('#receitaDescricao').val(),
             valor: parseFloat($('#receitaValor').val()),
-            data: $('#receitaData').val(),
-            categoria: $('#receitaCategoria').val(),
+            data_vencimento: $('#receitaData').val(),
+            categoria_id: $('#receitaCategoria').val(),
+            conta_id: $('#receitaConta').val(),
             efetivada: $('#receitaEfetivada').is(':checked'),
             observacao: $('#receitaObservacao').val()
         };
-
-        salvarReceitas();
-        exibirReceitas(receitas);
-        $('#novaReceitaModal').modal('hide');
-        resetarFormulario();
-        atualizarTotalReceitas();
+    
+        try {
+            const response = await fetch(`https://apinoazul.markethubplace.com/api/receitas/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('authToken') // Assumindo autenticação JWT
+                },
+                body: JSON.stringify(receitaAtualizada)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Erro ao atualizar a receita.');
+            }
+    
+            const receitaResposta = await response.json();
+    
+            // Atualiza localmente
+            const index = receitas.findIndex(r => r.id === id);
+            if (index !== -1) {
+                receitas[index] = receitaResposta;
+            }
+    
+            salvarReceitas();
+            exibirReceitas(receitas);
+            $('#novaReceitaModal').modal('hide');
+            resetarFormulario();
+            atualizarTotalReceitas();
+    
+        } catch (error) {
+            console.error(error);
+            alert('Erro ao atualizar a receita. Tente novamente.');
+        }
     }
+    
 
     // Confirmar exclusão de receita
     function confirmarExclusao(id) {
@@ -438,9 +484,10 @@ $(document).ready(function() {
     function resetarFormulario() {
         $('#formNovaReceita')[0].reset();
         $('#repeticaoOptions').hide();
-        $('#formNovaReceita').off('submit').submit(function(e) {
+        $('#formNovaReceita').off('submit').submit(async function(e) {
             e.preventDefault();
-            salvarReceita();
+            console.log('Salvando 1');
+            await salvarReceita();
         });
     }
 
