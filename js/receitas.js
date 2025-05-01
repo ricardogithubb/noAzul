@@ -1,3 +1,5 @@
+import { adicionar, listar, atualizar, deletar, listarReceitas, totalEfetivado, totalPendente } from './indexedDB.js';
+import { carregarContas, carregarCategorias } from './script.js';
 $(document).ready(function() {
     // Variáveis globais
     let receitas = [];
@@ -15,12 +17,23 @@ $(document).ready(function() {
     // Inicialização
     init();
 
-    async function init() {                
-        carregarReceitas();
+    async function init() {  
+        carregarReceitasIndexedDB();              
         setupEventListeners();
         atualizarTotalReceitas();
         popularFiltros();
     }
+
+    $('#receitaEfetivada').change(function() {
+        if ($(this).is(':checked')) {
+            $('#dataEfetivacaoContainer').show();
+            $('#dataEfetivacao').val($('#receitaData').val());
+        } else {
+            $('#dataEfetivacaoContainer').hide();
+            $('#dataEfetivacao').val('');
+        }
+    });
+
 
     $('.transactions-list').on('click', '.transaction-item', function() {
         const transactionId = $(this).data('id');
@@ -52,29 +65,26 @@ $(document).ready(function() {
         limparFiltrosAvancados();
     });
 
-    // function para carregar dados de api 
-    async function carregarReceitasApi(mes, ano) {
-        return new Promise((resolve, reject) => {
-            const token = localStorage.getItem('authToken');
-            const url = `https://apinoazul.markethubplace.com/api/receitas/periodo/${mes}/${ano}`;
 
-            $.ajax({
-                url: url,
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                method: 'GET',
-                success: function(response) {
-                    //converter objeto para json
-                    resolve(localStorage.setItem('noAzulReceitas', JSON.stringify(response)));
-                },
-                error: function(xhr, status, error) {
-                    console.log('Erro ao obter o total de despesas:', error);
-                    reject(error);
-                }
-            });
-        });
+    async function carregarReceitasIndexedDB() {
+        const listaReceitas = await listarReceitas(localStorage.getItem('selectedMonth'), localStorage.getItem('selectedYear'));
+        
+        const dadosSalvos = JSON.stringify(listaReceitas);
+
+        //ordernar dadosSalvos da maior data para a menor
+        
+
+        if (dadosSalvos) {
+            receitas = JSON.parse(dadosSalvos);
+            receitas.sort((a, b) => new Date(b.data_vencimento) - new Date(a.data_vencimento));
+        } else {
+            // Dados de exemplo
+            receitas = [];
+        }
+        
+        exibirReceitas(receitas);
     }
+    
 
     // Carrega as receitas do localStorage (simulação)
     async function carregarReceitas() {
@@ -93,10 +103,13 @@ $(document).ready(function() {
         }
         
         exibirReceitas(receitas);
+
     }
 
     // Exibe as receitas na tabela
     function exibirReceitas(listaTransacoes) {
+        console.log('Exibindo receitas...');
+        console.log(listaTransacoes);
         const $container = $('.transactions-list');
         $container.empty();
     
@@ -123,7 +136,7 @@ $(document).ready(function() {
                     printData = dataFormatada;
                     $container.append(`</div>
                             <div class="transaction-group">
-                                <div class="transaction-date bg-light">${dataFormatada}</div>                   
+                                <div class="transaction-date bg-light p-0">${dataFormatada}</div>                   
                             `);
                 } else {    
                     printData = dataFormatada;
@@ -164,6 +177,8 @@ $(document).ready(function() {
             console.log('Salvando 2');
             await salvarReceita(); // Aguarda o salvamento terminar
 
+            await carregarReceitasIndexedDB();
+
             isSubmitting = false; // libera envio novamente
             $('#btnSalvarReceita').prop('disabled', false).text('Salvar Receita');
         });
@@ -175,12 +190,15 @@ $(document).ready(function() {
             //definir data atual
             const dataAtual = new Date().toISOString().split('T')[0];
             $('#receitaData').val(dataAtual);
+            $('#dataEfetivacao').val('');
             $('#receitaConta').val(''); // Limpa o campo de conta
             $('#receitaCategoria').val(''); // Limpa o campo de categoria
             $('#receitaEfetivada').prop('checked', false); // Desmarca a opção de efetivada
             $('#receitaObservacao').val(''); // Limpa o campo de observação
             //alterar o model-title de um modal expecifico
             $('#novaReceitaModal .modal-title').text('Nova Receita');
+            $('#dataEfetivacaoContainer').hide();
+            $('#repeticaoSwitch').show();
         });
 
         // Botão de filtro avançado
@@ -223,6 +241,7 @@ $(document).ready(function() {
         const observacao = $('#receitaObservacao').val().trim();
         const conta_id = $('#receitaConta').val(); // Adicione um select para contas no formulário
         const repetir = $('#receitaRepetir').is(':checked');
+        const tipo = 'R';
     
         // Validação dos campos obrigatórios
         if (!descricao || isNaN(valor) || !data || !categoria_id || !conta_id) {
@@ -236,6 +255,7 @@ $(document).ready(function() {
     
         // Objeto com os dados para a API
         const dadosReceita = {
+            tipo,
             descricao,
             conta_id: parseInt(conta_id),
             categoria_id: parseInt(categoria_id),
@@ -249,43 +269,39 @@ $(document).ready(function() {
         try {
             // Mostrar indicador de carregamento
             $('#btnSalvarReceita').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...');
-    
-            // Chamada à API
-            const response = await fetch('https://apinoazul.markethubplace.com/api/receitas', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('authToken') // Assumindo autenticação JWT
-                },
-                body: JSON.stringify(dadosReceita)
-            });
-    
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Erro ao salvar receita');
-            }
-    
-            const receitaSalva = await response.json();
-    
-            // Adiciona a receita na lista local (opcional)
-            // receitas.push({
-            //     id: receitaSalva.id,
-            //     ...dadosReceita
-            // });
-    
-            // Atualiza a interface
-            // exibirReceitas(receitas);
-            carregarReceitas();
+            
+            console.log(dadosReceita);
+            adicionar('transacoes', dadosReceita);
+            
             $('#novaReceitaModal').modal('hide');
             resetarFormulario();
             atualizarTotalReceitas();
+            exibirReceitas(receitas);
     
             // Feedback de sucesso
             mostrarAlerta('Receita salva com sucesso!', 'success');
+
+            alert($('#repetirReceita').val());
     
             // Lógica para receitas recorrentes
             if (repetir) {
                 // Implementar lógica de repetição conforme necessário
+                var receitaRepetir = $('#repetirReceita').val();
+                alert(receitaRepetir);
+                // for (let i = 1; i <= parseInt(receitaRepetir); i++) {
+                //     const novaDataVencimento = new Date(dataVencimento);
+                //     novaDataVencimento.setMonth(novaDataVencimento.getMonth() + i);
+                //     const novaDataVencimentoFormatada = novaDataVencimento.toISOString().split('T')[0];
+                //     alert(novaDataVencimentoFormatada);
+                //     const novaReceita = {
+                //         ...dadosReceita,
+                //         data_vencimento: novaDataVencimentoFormatada
+                //     };
+                //     console.log(novaReceita);
+                //     // adicionar('transacoes', novaReceita);
+                // }
+                
+
             }
     
         } catch (error) {
@@ -317,17 +333,27 @@ $(document).ready(function() {
     // Editar receita existente
     function editarReceita(id) {
         const receita = receitas.find(r => r.id === id);
-        console.log(receita);
+
         if (!receita) return;
+
+        var valorFormatado = receita.valor.toFixed(2).replace('.', ',');
 
         $('#novaReceitaModal').data('id', id);
         $('#receitaDescricao').val(receita.descricao);
-        $('#receitaValor').val(receita.valor);
+        $('#receitaValor').val(valorFormatado);
         $('#receitaData').val(receita.data_vencimento);
         $('#receitaConta').val(receita.conta_id);
         $('#receitaCategoria').val(receita.categoria_id);
         $('#receitaEfetivada').prop('checked', receita.efetivada);
         $('#receitaObservacao').val(receita.observacao || '');
+        $('#dataEfetivacao').val(receita.data_efetivacao);
+        $('#repeticaoSwitch').hide();
+        
+        if (receita.efetivada) {
+            $('#dataEfetivacaoContainer').show();
+        } else {
+            $('#dataEfetivacaoContainer').hide();
+        }
 
         // Alterar o formulário para modo edição
         $('#formNovaReceita').off('submit').submit(async function(e) {
@@ -361,33 +387,41 @@ $(document).ready(function() {
             descricao: $('#receitaDescricao').val(),
             valor: parseFloat($('#receitaValor').val().replace('.', '').replace(',', '.')),
             data_vencimento: $('#receitaData').val(),
-            categoria_id: $('#receitaCategoria').val(),
-            conta_id: $('#receitaConta').val(),
+            data_efetivacao: $('#receitaEfetivada').is(':checked') ? $('#dataEfetivacao').val() : null,
+            categoria_id: parseInt($('#receitaCategoria').val()), // Converte para inteiro $('#receitaCategoria').val(),
+            conta_id: parseInt($('#receitaConta').val()), // Converte para inteiro $('#receitaConta').val(),
             efetivada: $('#receitaEfetivada').is(':checked'),
             observacao: $('#receitaObservacao').val()
         };
+
+        console.log(receitaAtualizada);
     
         try {
-            const response = await fetch(`https://apinoazul.markethubplace.com/api/receitas/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('authToken') // Assumindo autenticação JWT
-                },
-                body: JSON.stringify(receitaAtualizada)
-            });
+
+            await atualizar('transacoes', id, receitaAtualizada);
+
+            // const response = await fetch(`https://apinoazul.markethubplace.com/api/receitas/${id}`, {
+            //     method: 'PUT',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Authorization': 'Bearer ' + localStorage.getItem('authToken') // Assumindo autenticação JWT
+            //     },
+            //     body: JSON.stringify(receitaAtualizada)
+            // });
     
-            if (!response.ok) {
-                throw new Error('Erro ao atualizar a receita.');
-            }
+            // if (!response.ok) {
+            //     throw new Error('Erro ao atualizar a receita.');
+            // }
     
-            const receitaResposta = await response.json();
+            // const receitaResposta = await response.json();
     
             // Atualiza localmente
             const index = receitas.findIndex(r => r.id === id);
             if (index !== -1) {
-                receitas[index] = receitaResposta;
+                receitas[index] = receitaAtualizada;
             }
+
+            await carregarReceitasIndexedDB();
     
             salvarReceitas();
             exibirReceitas(receitas);
@@ -419,27 +453,28 @@ $(document).ready(function() {
                 descricao: $('#receitaDescricao').val(),
                 valor: parseFloat($('#receitaValor').val().replace('.', '').replace(',', '.')),
                 data_vencimento: $('#receitaData').val(),
+                data_efetivacao: $('#dataEfetivacao').val(),
                 categoria_id: $('#receitaCategoria').val(),
                 conta_id: $('#receitaConta').val(),
                 efetivada: $('#receitaEfetivada').is(':checked'),
                 observacao: $('#receitaObservacao').val()
             };
 
-            const response = await fetch(`https://apinoazul.markethubplace.com/api/receitas/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('authToken') // Assumindo autenticação JWT
-                },
-                body: receitaExcluida
-            });
+            // const response = await fetch(`https://apinoazul.markethubplace.com/api/receitas/${id}`, {
+            //     method: 'DELETE',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Authorization': 'Bearer ' + localStorage.getItem('authToken') // Assumindo autenticação JWT
+            //     },
+            //     body: receitaExcluida
+            // });
     
-            if (!response.ok) {
-                throw new Error('Erro ao excluir a receita.');
-            }
-    
-            
-            await carregarReceitas();
+            // if (!response.ok) {
+            //     throw new Error('Erro ao excluir a receita.');
+            // }
+
+            deletar('transacoes', id);
+            await carregarReceitasIndexedDB();
             salvarReceitas();
             exibirReceitas(receitas);
             $('#novaReceitaModal').modal('hide');
@@ -524,8 +559,13 @@ $(document).ready(function() {
 
     // Atualizar o total de receitas exibido
     async function atualizarTotalReceitas() {
-        const total = await getTotalReceitas(localStorage.getItem('selectedMonth'), localStorage.getItem('selectedYear'), anoAtual);
-        $('#totalReceitas').text(total);
+        // const total = await getTotalReceitas(localStorage.getItem('selectedMonth'), localStorage.getItem('selectedYear'), anoAtual);
+        const totalE = await totalEfetivado(localStorage.getItem('selectedMonth'), localStorage.getItem('selectedYear'),'R');
+        $('#receitasEfetivada').text( formatMoney(totalE) ); // Atualiza o elemento com o valor do total de receitas (total);
+        // const total = await getTotalReceitas(localStorage.getItem('selectedMonth'), localStorage.getItem('selectedYear'), anoAtual);
+
+        const totalP = await totalPendente(localStorage.getItem('selectedMonth'), localStorage.getItem('selectedYear'),'R');
+        $('#receitasPendente').text( formatMoney(totalP) ); // Atualiza o elemento com o valor do total de receitas (total);
     }
 
     // Salvar receitas no localStorage

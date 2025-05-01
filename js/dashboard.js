@@ -1,3 +1,7 @@
+//importar funcoes do arquivo IndexedDB.js
+import { adicionar, listar, atualizar, deletar, totalTransacao, ultimasTransacoes } from './indexedDB.js';
+import { updateMonthYear, formatMoney, setupMonthYearSelector } from './script.js';
+
 $(document).ready(function() {
     // Atualiza o mês/ano exibido
     updateMonthYear(localStorage.getItem('selectedMonth'), localStorage.getItem('selectedYear'));
@@ -37,6 +41,7 @@ $(document).ready(function() {
     $('#confirmMonthYear').click(function() {
         Inicializacao();
     });
+    
 
     // executar endpoint para carregar total despesa com token
      function endpointTotalDespesas(mes, ano) {
@@ -84,6 +89,16 @@ $(document).ready(function() {
         })
     }
 
+    //total receitas usando function totalReceitas
+    async function totalReceitasIndexedDB(mes, ano) {
+        const totalReceita = await totalTransacao(mes, ano, 'R');
+        $('#totalReceitas').text(formatMoney(totalReceita));
+    }
+    async function totalDespesasIndexedDB(mes, ano) {
+        const totalReceita = await totalTransacao(mes, ano, 'D');
+        $('#totalDespesas').text(formatMoney(totalReceita));
+    }
+
     //endpoint para criar um array de totas as tranações conforme na função loadUltimasTransacoes
     function endpointTodasTransacoes(mes, ano) {
         const token = localStorage.getItem('authToken');
@@ -125,11 +140,15 @@ $(document).ready(function() {
 
 
     // Carrega as últimas transações
-    function loadUltimasTransacoes(todasTransacoes) {
+    async function loadUltimasTransacoes(mes,ano) {
+
+        const todasTransacoes = await ultimasTransacoes(mes,ano);
+        console.log(todasTransacoes);
 
         const transacoes = [];
         
         todasTransacoes.forEach(transacao => {
+            console.log(transacao.tipo);
             transacoes.push({
                 tipo: transacao.tipo === 'R' ? 'receita' : 'despesa',
                 descricao: transacao.descricao,
@@ -146,7 +165,10 @@ $(document).ready(function() {
             const icon = transacao.tipo === 'receita' ? 
                 '<i class="bi bi-arrow-down-circle text-success me-2"></i>' : 
                 '<i class="bi bi-arrow-up-circle text-danger me-2"></i>';
-            
+            //formatar transacao.data 2025-04-15 para 15/04
+            const dataStr = transacao.data;
+            const dataParts = dataStr.split('-');
+            const data = `${dataParts[2]}/${dataParts[1]}`;
             const valorClass = transacao.tipo === 'receita' ? 'text-success' : 'text-danger';
             const efetivadaClass = transacao.efetivada ? '' : 'text-muted';
             const efetivadaBadge = transacao.efetivada ? 
@@ -160,7 +182,7 @@ $(document).ready(function() {
                             ${icon}
                             <div>
                                 <h6 class="mb-0">${transacao.descricao}</h6>
-                                <small class="text-muted">${transacao.categoria} • ${transacao.data}</small>
+                                <small class="text-muted">${transacao.categoria} • ${data}</small>
                             </div>                            
                         </div>
                         <span class="${valorClass}">${formatMoney(transacao.valor)} ${efetivadaBadge}</span>
@@ -173,13 +195,16 @@ $(document).ready(function() {
         $('#ultimasTransacoes').html(html);
     }
 
-    function Inicializacao() {
+    async function Inicializacao() {
         var mes = localStorage.getItem('selectedMonth');
         var ano = localStorage.getItem('selectedYear');
 
-        endpointTotalDespesas(mes, ano);
-        endpointTotalReceitas(mes, ano);
-        endpointTodasTransacoes(mes, ano);
+        // endpointTotalDespesas(mes, ano);
+        // endpointTotalReceitas(mes, ano);
+        await totalReceitasIndexedDB(mes, ano);
+        await totalDespesasIndexedDB(mes, ano);
+        await loadUltimasTransacoes(mes,ano);
+        // endpointTodasTransacoes(mes, ano);
 
     }
 

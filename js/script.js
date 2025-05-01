@@ -1,5 +1,6 @@
+import { adicionar, listar, atualizar, deletar, totalTransacao, ultimasTransacoes } from './indexedDB.js';
 // Funções globais compartilhadas por todas as páginas
-apiURL = 'https://apinoazul.markethubplace.com/api';
+// apiURL = 'https://apinoazul.markethubplace.com/api';
 
 // Inicializa tooltips
 $(function () {
@@ -7,21 +8,29 @@ $(function () {
 });
 
 // Formata valores monetários
-function formatMoney(value) {
+export function formatMoney(value) {
     return 'R$ ' + parseFloat(value).toFixed(2).replace('.', ',').replace(/(\d)(?=(\d{3})+\,)/g, '$1.');
 }
 
 // Atualiza o mês/ano exibido
-function updateMonthYear(month, year) { 
+export function updateMonthYear(month, year) { 
     const months = ["", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
                    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-
     
     month !== undefined ? month : month = new Date().getMonth()+1;
     year !== undefined ? year : year = new Date().getFullYear();
 
+    month !== 'null' ? month : month = new Date().getMonth()+1;
+    year !== 'null' ? year : year = new Date().getFullYear();
+
+    isNaN(month) ? month = new Date().getMonth()+1 : month = month;
+    isNaN(year) ? year = new Date().getFullYear() : year = year;
+
+    //verificar se o mes e ano sao numericos
+
+
     localStorage.setItem('selectedMonth', parseInt(month));
-    localStorage.setItem('selectedYear', year);
+    localStorage.setItem('selectedYear', parseInt(year));
 
     $('#currentYear').text(year);
 
@@ -32,7 +41,7 @@ function updateMonthYear(month, year) {
 }
 
 // Configuração do seletor de mês/ano
-function setupMonthYearSelector() {
+export function setupMonthYearSelector() {
 
     $('.month-btn').removeClass('btn-primary').addClass('btn-outline-primary');
     
@@ -173,46 +182,43 @@ function getTotalDespesas(mes, ano) {
     });
 }
 
-async function carregarContas() {
+export async function carregarContas() {
     try {
-        const response = await fetch(apiURL + '/contas', {
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('authToken')
-            }
+        await listar('contas',(contas) => {
+            
+            const $select = $('#receitaConta');
+            $select.empty();
+            $select.append('<option value="">Selecione uma conta...</option>');
+            
+            contas.forEach(conta => {
+                $select.append(`<option value="${conta.id}">${conta.nome}</option>`);
+            });
         });
-        const contas = await response.json();
-        
-        
-        const $select = $('#receitaConta');
-        $select.empty();
-        $select.append('<option value="">Selecione uma conta...</option>');
-        
-        contas.forEach(conta => {
-            $select.append(`<option value="${conta.id}">${conta.nome}</option>`);
-        });
+
     } catch (error) {
         console.error('Erro ao carregar contas:', error);
     }
 }
 
-function carregarCategorias() {
-    fetch(apiURL + '/categorias', {
-        headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('authToken')
-        }
-    })
-    .then(response => response.json())
-    .then(categorias => {
-        const $select = $('#receitaCategoria');
-        $select.empty();
-        $select.append('<option value="">Selecione uma categoria...</option>');
-        categorias.forEach(categoria => {
-            $select.append(`<option value="${categoria.id}">${categoria.nome}</option>`);
-        });
-    })
-    .catch(error => {
+export async function carregarCategorias() {
+    
+    try {
+        await listar('categorias',(categorias) => {
+
+            const $select = $('#receitaCategoria');
+            $select.empty();
+            $select.append('<option value="">Selecione uma categoria...</option>');
+            
+            categorias.forEach(categoria => {
+                $select.append(`<option value="${categoria.id}">${categoria.nome}</option>`);
+            });
+        })
+
+    } catch (error) {
         console.error('Erro ao carregar categorias:', error);
-    });
+    }
+        
+
 }
 
 

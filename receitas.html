@@ -9,7 +9,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
     <link href="css/receitas.css" rel="stylesheet">
-    <script src="js/script.js"></script>
+    <script type="module" src="js/indexedDB.js"></script>
+    <script type="module" src="js/script.js"></script>
 </head>
 <body id="telaReceita">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow">
@@ -50,112 +51,42 @@
                 <i class="bi bi-plus-lg"></i> Nova Receita
             </button>
         </div>
-
-        <!-- Filtros e estatísticas -->
-        <div class="row mb-4">
-            <!-- <div class="col-md-8">
-                <div class="card shadow">
-                    <div class="card-body py-3">
-                        <div class="d-flex align-items-center">
-                            <button class="btn btn-outline-secondary me-2" id="filtroAvancadoBtn">
-                                <i class="bi bi-funnel"></i> Filtros
-                            </button>
-                            <div class="input-group me-2" style="width: 200px;">
-                                <span class="input-group-text"><i class="bi bi-calendar"></i></span>
-                                <select class="form-select" id="periodoSelect">
-                                    <option value="este-mes">Este Mês</option>
-                                    <option value="mes-passado">Mês Passado</option>
-                                    <option value="ultimos-3-meses">Últimos 3 Meses</option>
-                                    <option value="personalizado">Personalizado</option>
-                                </select>
-                            </div>
-                            <div class="input-group" style="width: 200px;">
-                                <span class="input-group-text"><i class="bi bi-tag"></i></span>
-                                <select class="form-select" id="categoriaSelect">
-                                    <option value="">Todas Categorias</option>
-                                    <option value="salario">Salário</option>
-                                    <option value="freelance">Freelance</option>
-                                    <option value="investimentos">Investimentos</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-            <div class="col-md-4">
-                <div class="card bg-primary text-white shadow">
+    
+        <div class="row g-3">  <!-- Adicionado g-3 para espaçamento entre colunas -->
+            <!-- Bloco Efetivadas -->
+            <div class="col-6">  <!-- Alterado para col-md-6 para ocupar metade do espaço -->
+                <div class="card bg-primary text-white shadow h-100">
                     <div class="card-body py-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0">Total Receitas</h6>
-                                <h3 class="mb-0" id="totalReceitas">0</h3>
+                                <h6 class="mb-0">Efetivadas</h6>
+                                <h3 class="mb-0" id="receitasEfetivada">R$ 0</h3>
                             </div>
                             <i class="bi bi-currency-dollar display-6 opacity-50"></i>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Lista de receitas -->
-        <div class="transactions-list">
- 
-            <!-- <div class="transaction-group" id="receitasGroup">
-                <div class="transaction-date bg-light">Sábado, 30</div>
-                
-                <div class="transaction-item">
-                    <div class="transaction-main">
-                        <div class="transaction-title">Energia Elétrica (11/12)</div>
-                        <div class="transaction-details small text-muted">Casa | Santander</div> 
+            
+            <!-- Bloco Pendentes -->
+            <div class="col-6">  <!-- Alterado para col-md-6 para ocupar metade do espaço -->
+                <div class="card bg-warning text-dark shadow h-100"> 
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">Pendentes</h6>
+                                <h3 class="mb-0" id="receitasPendente">R$ 0</h3>
+                            </div>
+                            <i class="bi bi-clock-history display-6 opacity-50"></i>
+                        </div>
                     </div>
-                    <div class="transaction-amount text-danger">R$ 270,00</div>
                 </div>
             </div>
-
-
-            <div class="transaction-group">
-                <div class="transaction-date bg-light">Sexta, 29</div>
-                
-                <div class="transaction-item">
-                    <div class="transaction-main">
-                        <div class="transaction-title">Dizimo (11/12)</div>
-                        <div class="transaction-details small text-muted">Igreja | Santander</div>
-                    </div>
-                    <div class="transaction-amount text-danger">R$ 300,00</div>
-                </div>
-
-                <div class="transaction-item">
-                    <div class="transaction-main">
-                        <div class="transaction-title">Alimentos Diversos (11/12)</div>
-                        <div class="transaction-details small text-muted">Casa | Santander</div>
-                    </div>
-                    <div class="transaction-amount text-danger">R$ 1.000,00</div>
-                </div>
-
-                <div class="transaction-item">
-                    <div class="transaction-main">
-                        <div class="transaction-title">Estefane (11/12)</div>
-                        <div class="transaction-details small text-muted">Familia | Santander</div>
-                    </div>
-                    <div class="transaction-amount text-danger">R$ 1.200,00</div>
-                </div>
-
-                <div class="transaction-item">
-                    <div class="transaction-main">
-                        <div class="transaction-title">Meu Primeiro Milhão (11/12)</div>
-                        <div class="transaction-details small text-muted">Investimentos | Santander</div>
-                    </div>
-                    <div class="transaction-amount text-danger">R$ 1.000,00</div>
-                </div>
-
-                <div class="transaction-item">
-                    <div class="transaction-main">
-                        <div class="transaction-title">Combustível (11/12)</div>
-                        <div class="transaction-details small text-muted">Carro | Santander</div>
-                    </div>
-                    <div class="transaction-amount text-danger">R$ 250,00</div>
-                </div>
-            </div> -->
+        </div>
+    
+        <!-- Lista de receitas -->
+        <div class="transactions-list mt-4">  <!-- Adicionado mt-4 para margem superior -->
+     
         </div>
     </div>
 
@@ -208,9 +139,14 @@
                         <div class="mb-3 form-check">
                             <input type="checkbox" class="form-check-input" id="receitaEfetivada">
                             <label class="form-check-label" for="receitaEfetivada">Receita efetivada</label>
-                        </div>
+                            <div id="dataEfetivacaoContainer" style="display: none;" class="mb-3">
+                                <!-- <label for="dataEfetivacao" class="form-label">Data de efetivação</label> -->
+                                <input type="date" class="form-control" id="dataEfetivacao">
+                            </div>
+                        </div>                        
+                        
                         <div class="mb-3">
-                            <div class="form-check form-switch">
+                            <div class="form-check form-switch" id="repeticaoSwitch">
                                 <input class="form-check-input" type="checkbox" id="receitaRepetir">
                                 <label class="form-check-label" for="receitaRepetir">Repetir receita</label>
                             </div>
@@ -218,14 +154,14 @@
                                 <div class="mb-2">
                                     <label class="form-label">Repetir a cada</label>
                                     <div class="input-group">
-                                        <input type="number" class="form-control" value="1" min="1">
+                                        <input type="number" class="form-control" value="1" min="1" id="repetirReceita">
                                         <select class="form-select">
                                             <option value="month">Mês(es)</option>
-                                            <option value="year">Ano(s)</option>
+                                            <!-- <option value="year">Ano(s)</option> -->
                                         </select>
                                     </div>
                                 </div>
-                                <div class="mb-2">
+                                <!-- <div class="mb-2">
                                     <label class="form-label">Até</label>
                                     <div>
                                         <div class="form-check">
@@ -243,7 +179,7 @@
                                             <input type="number" class="form-control mt-1" id="repetirAteVezesValue" min="2" value="12" disabled>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="d-flex align-items-center mt-3">
                                 <button type="button" class="btn btn-outline-danger btn-sm" id="btnExcluirReceita">
@@ -425,7 +361,7 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/receitas.js"></script>
+    <script type="module" src="js/receitas.js"></script>
 
 </body>
 </html>
