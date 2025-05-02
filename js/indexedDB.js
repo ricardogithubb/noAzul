@@ -16,6 +16,7 @@ request.onupgradeneeded = function(event) {
     if (!db.objectStoreNames.contains('contas')) {
         const contaStore = db.createObjectStore('contas', { keyPath: 'id', autoIncrement: true });
         contaStore.createIndex('nome', 'nome', { unique: false });
+        contaStore.createIndex('saldo_inicial', 'saldo_inicial', { unique: false });
         contaStore.createIndex('user_id', 'user_id', { unique: false });
     }
 
@@ -98,6 +99,21 @@ function listar(storeName, callback) {
     };
 }
 
+export function listarCategorias(storeName,type, callback) {
+    const request = indexedDB.open('noAzul', 1);
+
+    request.onsuccess = function(event) {
+        const db = event.target.result;
+        const transaction = db.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
+        const getAll = store.index('tipo').getAll(type); 
+
+        getAll.onsuccess = function() {
+            callback(getAll.result);
+        };
+    };
+}
+
 export async function listarReceitas(mes, ano) {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open('noAzul', 1);
@@ -111,6 +127,112 @@ export async function listarReceitas(mes, ano) {
 
             //filtrar somentes as receitas
             const query = transacoesStore.index('tipo').getAll('R');
+
+            query.onsuccess = async function() {
+                const transacoes = query.result || [];
+
+                // Ordenar as transações pela data (mais recente primeiro)
+                const transacoesOrdenadas = transacoes.sort((a, b) => {
+                    const dataA = new Date(a.data_efetivacao || a.data_vencimento);
+                    const dataB = new Date(b.data_efetivacao || b.data_vencimento);
+                    return dataB - dataA;
+                });
+
+                const receitasNoMes = transacoes.filter(transacao => {
+
+                    const dataStr = transacao.data_efetivacao || transacao.data_vencimento;
+                    if (!dataStr) return false;
+
+                    const data = new Date(dataStr.replace(/-/g, '/'));
+
+
+                    const dataMes = data.getMonth() + 1;
+                    const dataAno = data.getFullYear();
+                    // console.log(dataMes, mes, dataAno, ano);
+                    return dataMes === parseInt(mes) && dataAno === parseInt(ano);
+                });
+
+                // Buscar os nomes das categorias
+                const transacoesComCategoria = await Promise.all(
+                    receitasNoMes.map(transacao => {
+                        return new Promise((resolveCategoria) => {
+                            if (!transacao.categoria_id) {
+                                transacao.categoria = null;
+                                resolveCategoria(transacao);
+                                return;
+                            }
+
+                            const categoriaRequest = categoriasStore.get(transacao.categoria_id);
+
+                            categoriaRequest.onsuccess = function() {
+                                const categoria = categoriaRequest.result;
+                                transacao.categoria = categoria ? categoria.nome : null;
+                                resolveCategoria(transacao);
+                            };
+
+                            categoriaRequest.onerror = function() {
+                                transacao.categoria = null;
+                                resolveCategoria(transacao);
+                            };
+                        });
+                    })
+                );
+
+                // Buscar os nomes das contas
+                const transacoesComConta = await Promise.all(
+                    transacoesComCategoria.map(transacao => {
+                        return new Promise((resolveConta) => {
+                            if (!transacao.conta_id) {
+                                transacao.conta = null;
+                                resolveConta(transacao);
+                                return;
+                            }
+
+                            const contaRequest = contaStore.get(transacao.conta_id);
+
+                            contaRequest.onsuccess = function() {
+                                const conta = contaRequest.result;
+                                transacao.conta = conta ? conta.nome : null;
+                                resolveConta(transacao);
+                            };
+
+                            contaRequest.onerror = function() {
+                                transacao.conta = null;
+                                resolveConta(transacao);
+                            };
+                        });
+                    })
+                );
+
+                resolve(transacoesComCategoria);
+            };
+
+            query.onerror = function(event) {
+                console.error('Erro ao buscar Receitas:', event.target.error);
+                reject(event.target.error);
+            };
+        };
+
+        request.onerror = function(event) {
+            console.error('Erro ao abrir o banco IndexedDB:', event.target.error);
+            reject(event.target.error);
+        };
+    });
+}
+
+export async function listarDespesas(mes, ano) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('noAzul', 1);
+
+        request.onsuccess = async function(event) {
+            const db = event.target.result;
+            const transaction = db.transaction(['transacoes', 'categorias', 'contas'], 'readonly');
+            const transacoesStore = transaction.objectStore('transacoes');
+            const categoriasStore = transaction.objectStore('categorias');
+            const contaStore = transaction.objectStore('contas');
+
+            //filtrar somentes as receitas
+            const query = transacoesStore.index('tipo').getAll('D');
 
             query.onsuccess = async function() {
                 const transacoes = query.result || [];

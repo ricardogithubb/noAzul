@@ -1,4 +1,4 @@
-import { adicionar, listar, atualizar, deletar, totalTransacao, ultimasTransacoes } from './indexedDB.js';
+import { adicionar, listar, atualizar, deletar, totalTransacao, ultimasTransacoes, listarCategorias } from './indexedDB.js';
 // Funções globais compartilhadas por todas as páginas
 // apiURL = 'https://apinoazul.markethubplace.com/api';
 
@@ -87,6 +87,7 @@ export function setupMonthYearSelector() {
         }      
         
     });
+
 }
 
 // Função para alternar opções de repetição
@@ -182,11 +183,12 @@ function getTotalDespesas(mes, ano) {
     });
 }
 
-export async function carregarContas() {
+export async function carregarContas(tipo) {
     try {
         await listar('contas',(contas) => {
             
-            const $select = $('#receitaConta');
+            let $select = '';
+            tipo === 'R' ? $select = $('#receitaConta') : $select = $('#despesaConta');
             $select.empty();
             $select.append('<option value="">Selecione uma conta...</option>');
             
@@ -200,12 +202,13 @@ export async function carregarContas() {
     }
 }
 
-export async function carregarCategorias() {
+export async function carregarCategorias(tipo) {
     
     try {
-        await listar('categorias',(categorias) => {
+        await listarCategorias('categorias',tipo,(categorias) => {
 
-            const $select = $('#receitaCategoria');
+            let $select = '';
+            tipo === 'R' ? $select = $('#receitaCategoria') : $select = $('#despesaCategoria');
             $select.empty();
             $select.append('<option value="">Selecione uma categoria...</option>');
             
@@ -250,6 +253,122 @@ function getTotalReceitas(mes, ano) {
 }
 
 
+
+function setupModalsContaCategoria() {
+
+    $('#saldoInicial').mask('###.###.###.###.###,00', {reverse: true});
+
+    // Evento para abrir modal de nova conta
+    $('#btnNovaConta').click(function() {
+        $('#novaContaModal').modal('show');
+    });
+    
+    // Evento para abrir modal de nova categoria
+    $('#btnNovaCategoria').click(function() {
+        $('#novaCategoriaModal').modal('show');
+    });
+    
+    // Evento para salvar nova conta
+    $('#formNovaConta').submit(function(e) {
+        e.preventDefault();
+        
+        // Obter valores do formulário
+        const nomeConta = $('#nomeConta').val();
+        const saldoInicial = $('#saldoInicial').val();
+        const tipo =$('#novaContaModal').data('tipo');
+        
+        console.log('Nova conta a ser salva:', { nomeConta, saldoInicial });
+
+        adicionar('contas', { nome: nomeConta, saldo_inicial: saldoInicial, user_id: 1 });
+
+        // Limpar o formulário
+        $('#formNovaConta')[0].reset();
+        
+        // Mostrar mensagem de sucesso
+        alert('Conta cadastrada com sucesso!');
+
+        // Atualizar a lista de contas
+        carregarContas(tipo);
+
+        // Fechar o modal
+        $('#novaContaModal').modal('hide');
+
+        
+        // Simulação de chamada AJAX
+        // $.ajax({
+        //     url: '/api/contas', // Substitua pela sua URL real
+        //     method: 'POST',
+        //     data: { nome: nomeConta, saldo_inicial: saldoInicial },
+        //     success: function(response) {
+        //         // Fechar o modal
+        //         $('#novaContaModal').modal('hide');
+                
+        //         // Adicionar a nova conta ao select
+        //         $('#receitaConta').append(
+        //             $('<option>', {
+        //                 value: response.id,
+        //                 text: response.nome
+        //             })
+        //         ).val(response.id);
+                
+        //         // Limpar o formulário
+        //         $('#formNovaConta')[0].reset();
+                
+        //         // Mostrar mensagem de sucesso
+        //         alert('Conta cadastrada com sucesso!');
+        //     },
+        //     error: function(xhr) {
+        //         alert('Erro ao cadastrar conta: ' + xhr.responseText);
+        //     }
+        // });
+    });
+    
+    // Evento para salvar nova categoria
+    $('#formNovaCategoria').submit(async function(e) {
+        e.preventDefault();
+        
+        // Obter valores do formulário
+        const nomeCategoria = $('#nomeCategoria').val();
+        const tipoCategoria =$('#novaCategoriaModal').data('tipo');
+        
+        console.log('Nova categoria a ser salva:', { nomeCategoria});
+        
+        // Simulação de chamada AJAX
+        await adicionar('categorias', { nome: nomeCategoria, tipo: tipoCategoria, user_id: 1 });
+
+        // Limpar o formulário
+        $('#formNovaCategoria')[0].reset();
+                
+        // Mostrar mensagem de sucesso
+        alert('Categoria cadastrada com sucesso!');
+
+        carregarCategorias(tipoCategoria);
+
+        // Fechar o modal
+        $('#novaCategoriaModal').modal('hide');
+
+    });
+    
+    // Evento para mostrar/ocultar data de efetivação
+    $('#receitaEfetivada').change(function() {
+        if($(this).is(':checked')) {
+            $('#dataEfetivacaoContainer').show();
+        } else {
+            $('#dataEfetivacaoContainer').hide();
+        }
+    });
+    
+    // Evento para mostrar/ocultar opções de repetição
+    $('#receitaRepetir').change(function() {
+        if($(this).is(':checked')) {
+            $('#repeticaoOptions').show();
+        } else {
+            $('#repeticaoOptions').hide();
+        }
+    });
+}
+
+
 // Inicializa funções globais quando o DOM estiver pronto
 $(document).ready(function() {
     appendModalToBody();
@@ -259,4 +378,7 @@ $(document).ready(function() {
 
     setupMonthYearSelector();
     setupRepeatOptions();
+
+    setupModalsContaCategoria();
+
 });

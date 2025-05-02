@@ -7,12 +7,11 @@ $(document).ready(function() {
     let mesAtual = localStorage.getItem('selectedMonth'); // || new Date().getMonth();
     let anoAtual = localStorage.getItem('selectedYear'); // || new Date().getFullYear();
     let isSubmitting = false; // <- Adiciona essa variável global no início do seu $(document).ready(function() { })
-
+    const dataAtual = new Date().toISOString().split('T')[0];
+    let repetirReceita = 1;
 
     // Aplica a máscara de valor no campo de receitaValor
-    $('#receitaValor').mask('###.###.###.###.###,00', {reverse: true});
-
-    
+    $('#receitaValor').mask('###.###.###.###.###,00', {reverse: true});   
 
     // Inicialização
     init();
@@ -183,12 +182,16 @@ $(document).ready(function() {
             $('#btnSalvarReceita').prop('disabled', false).text('Salvar Receita');
         });
 
+        //ao abrir o modal de nova receita, limpar os campos
+        $('#novaReceitaModal').on('show.bs.modal', function() {
+            $('#receitaData').val(dataAtual);
+        });
+
         //ao fechar o modal de nova receita, limpar os campos
         $('#novaReceitaModal').on('hidden.bs.modal', function() {
             $('#receitaDescricao').val(''); // Limpa o campo de descrição
             $('#receitaValor').val(''); // Limpa o campo de valor
             //definir data atual
-            const dataAtual = new Date().toISOString().split('T')[0];
             $('#receitaData').val(dataAtual);
             $('#dataEfetivacao').val('');
             $('#receitaConta').val(''); // Limpa o campo de conta
@@ -200,6 +203,7 @@ $(document).ready(function() {
             $('#dataEfetivacaoContainer').hide();
             $('#repeticaoSwitch').show();
         });
+
 
         // Botão de filtro avançado
         $('#filtroAvancadoBtn').click(function() {
@@ -228,6 +232,11 @@ $(document).ready(function() {
         $('#receitaRepetir').change(function() {
             $('#repeticaoOptions').toggle(this.checked);
         });
+
+        // Alterar repetirDespesa ao alterar input de repetição
+        $('#repetirReceita').on('change', function() {
+            repetirReceita = $('#repetirReceita').val();
+        })
     }
 
     // Salva uma nova receita
@@ -280,26 +289,22 @@ $(document).ready(function() {
     
             // Feedback de sucesso
             mostrarAlerta('Receita salva com sucesso!', 'success');
-
-            alert($('#repetirReceita').val());
     
             // Lógica para receitas recorrentes
             if (repetir) {
                 // Implementar lógica de repetição conforme necessário
-                var receitaRepetir = $('#repetirReceita').val();
-                alert(receitaRepetir);
-                // for (let i = 1; i <= parseInt(receitaRepetir); i++) {
-                //     const novaDataVencimento = new Date(dataVencimento);
-                //     novaDataVencimento.setMonth(novaDataVencimento.getMonth() + i);
-                //     const novaDataVencimentoFormatada = novaDataVencimento.toISOString().split('T')[0];
-                //     alert(novaDataVencimentoFormatada);
-                //     const novaReceita = {
-                //         ...dadosReceita,
-                //         data_vencimento: novaDataVencimentoFormatada
-                //     };
-                //     console.log(novaReceita);
-                //     // adicionar('transacoes', novaReceita);
-                // }
+                for (let i = 1; i <= parseInt(repetirReceita-1); i++) {
+                    const novaDataVencimento = new Date(dataVencimento);
+                    novaDataVencimento.setMonth(novaDataVencimento.getMonth() + i);
+                    const novaDataVencimentoFormatada = novaDataVencimento.toISOString().split('T')[0];
+                 alert(novaDataVencimentoFormatada);
+                    const novaReceita = {
+                        ...dadosReceita,
+                        data_vencimento: novaDataVencimentoFormatada
+                    };
+                    console.log(novaReceita);
+                    adicionar('transacoes', novaReceita);
+                }
                 
 
             }
@@ -609,9 +614,9 @@ $(document).ready(function() {
         return `${diaSemana}, ${dia}`;
     }
 
-    carregarContas();
+    carregarContas('R');
 
-    carregarCategorias();
+    carregarCategorias('R');
 
 
 });

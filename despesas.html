@@ -5,19 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>noAzul - Despesas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="js/script.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
     <link href="css/despesas.css" rel="stylesheet">
+    <script type="module" src="js/indexedDB.js"></script>
+    <script type="module" src="js/script.js"></script>
 </head>
-<body>
+<body id="telaDespesa">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow">
         <div class="container-fluid">
             <a class="navbar-brand" href="dashboard.html">
                 <i class="bi bi-wallet2"></i> noAzul
             </a>
             <button class="btn btn-outline-light ms-auto" id="monthYearBtn">
-                <span id="currentMonthYear">Março 2023</span>
+                <span id="currentMonthYear"></span>
                 <i class="bi bi-chevron-down ms-1"></i>
             </button>
             <div class="dropdown ms-2">
@@ -49,170 +51,295 @@
                 <i class="bi bi-plus-lg"></i> Nova Despesa
             </button>
         </div>
-
-        <!-- Filtros e estatísticas -->
-        <div class="row mb-4">
-            <!-- <div class="col-md-8">
-                <div class="card shadow">
-                    <div class="card-body py-3">
-                        <div class="d-flex align-items-center">
-                            <button class="btn btn-outline-secondary me-2" id="filtroAvancadoBtn">
-                                <i class="bi bi-funnel"></i> Filtros
-                            </button>
-                            <div class="input-group me-2" style="width: 200px;">
-                                <span class="input-group-text"><i class="bi bi-calendar"></i></span>
-                                <select class="form-select" id="periodoSelect">
-                                    <option value="este-mes">Este Mês</option>
-                                    <option value="mes-passado">Mês Passado</option>
-                                    <option value="ultimos-3-meses">Últimos 3 Meses</option>
-                                    <option value="personalizado">Personalizado</option>
-                                </select>
-                            </div> 
-                            <div class="input-group" style="width: 200px;">
-                                <span class="input-group-text"><i class="bi bi-tag"></i></span>
-                                <select class="form-select" id="categoriaSelect">
-                                    <option value="">Todas Categorias</option>
-                                    <option value="alimentacao">Alimentação</option>
-                                    <option value="moradia">Moradia</option>
-                                    <option value="transporte">Transporte</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-            <div class="col-md-4">
-                <div class="card bg-danger text-white shadow">
+    
+        <div class="row g-3 px-2">  <!-- Adicionado g-3 para espaçamento entre colunas -->
+            <!-- Bloco Efetivadas -->
+            <div class="col-6">  <!-- Alterado para col-md-6 para ocupar metade do espaço -->
+                <div class="card bg-danger text-white shadow h-100">
                     <div class="card-body py-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0">Total Despesas</h6>
-                                <h3 class="mb-0" id="totalDespesas">R$ 3.780,00</h3>
+                                <h6 class="mb-0">Efetivadas</h6>
+                                <h3 class="mb-0" id="despesasEfetivada">R$ 0</h3>
                             </div>
-                            <i class="bi bi-cash-stack display-6 opacity-50"></i>
+                            <i class="bi bi-currency-dollar display-6 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bloco Pendentes -->
+            <div class="col-6">  <!-- Alterado para col-md-6 para ocupar metade do espaço -->
+                <div class="card bg-warning text-dark shadow h-100"> 
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">Pendentes</h6>
+                                <h3 class="mb-0" id="despesasPendente">R$ 0</h3>
+                            </div>
+                            <i class="bi bi-clock-history display-6 opacity-50"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
+    
         <!-- Lista de despesas -->
-        <div class="transactions-list">
-            <!-- Grupo por data - Sábado, 30 -->
-            <div class="transaction-group">
-                <div class="transaction-date bg-light">Sábado, 30</div>
-                
-                <div class="transaction-item">
-                    <div class="transaction-main">
-                        <div class="transaction-title">Energia Elétrica (11/12)</div>
-                        <div class="transaction-details small text-muted">Casa | Santander</div> <!-- Texto menor e baixa densidade -->
-                    </div>
-                    <div class="transaction-amount text-danger">R$ 270,00</div>
-                </div>
-            </div>
+        <div class="transactions-list mt-4">  <!-- Adicionado mt-4 para margem superior -->
+     
+        </div>
+    </div>
 
-            <!-- Grupo por data - Sexta, 29 -->
-            <div class="transaction-group">
-                <div class="transaction-date bg-light">Sexta, 29</div>
-                
-                <div class="transaction-item">
-                    <div class="transaction-main">
-                        <div class="transaction-title">Dizimo (11/12)</div>
-                        <div class="transaction-details small text-muted">Igreja | Santander</div>
-                    </div>
-                    <div class="transaction-amount text-danger">R$ 300,00</div>
+    <!-- Modal de nova despesa - Versão final -->
+    <div class="modal fade" id="novaDespesaModal" tabindex="-1" aria-hidden="true" data-id="333">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-cash-stack me-2"></i>Nova Despesa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-
-                <div class="transaction-item">
-                    <div class="transaction-main">
-                        <div class="transaction-title">Alimentos Diversos (11/12)</div>
-                        <div class="transaction-details small text-muted">Casa | Santander</div>
+                <form id="formNovaDespesa">
+                    <div class="modal-body">
+                        <!-- Descrição -->
+                        <div class="mb-3 input-group">
+                            <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                            <input type="text" class="form-control" id="despesaDescricao" placeholder="Descrição da despesa" required>
+                        </div>
+                        
+                        <!-- Valor e Data -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                    <input type="text" step="0.01" class="form-control" id="despesaValor" placeholder="Valor (R$)" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                    <input type="date" class="form-control" id="despesaData" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Conta -->
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-bank"></i></span>
+                                <select class="form-select" id="despesaConta" required>
+                                    <option value="" selected disabled>Selecione uma conta...</option>
+                                    <option value="1">Santander</option>
+                                    <option value="2">Nubank</option>
+                                </select>
+                                <button class="btn btn-outline-secondary" type="button" id="btnNovaConta">
+                                    <i class="bi bi-plus-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Categoria -->
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                                <select class="form-select" id="despesaCategoria" required>
+                                    <option value="" selected disabled>Selecione uma categoria...</option>
+                                    <option value="1">Salário</option>
+                                    <option value="2">Freelance</option>
+                                </select>
+                                <button class="btn btn-outline-secondary" type="button" id="btnNovaCategoria">
+                                    <i class="bi bi-plus-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Observação -->
+                        <div class="mb-3 input-group">
+                            <span class="input-group-text"><i class="bi bi-chat-left-text"></i></span>
+                            <textarea class="form-control" id="despesaObservacao" rows="2" placeholder="Observações"></textarea>
+                        </div>
+                        
+                        <!-- Despesa efetivada -->
+                        <div class="mb-3 form-check form-switch">
+                            <input type="checkbox" class="form-check-input" id="despesaEfetivada">
+                            <label class="form-check-label" for="despesaEfetivada">
+                                <i class="bi bi-check-circle me-1"></i>Despesa efetivada
+                            </label>
+                            <div id="dataEfetivacaoContainer" style="display: none;" class="mt-2 input-group">
+                                <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+                                <input type="date" class="form-control" id="dataEfetivacao" placeholder="Data de efetivação">
+                            </div>
+                        </div>
+                        
+                        <!-- Repetição -->
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="despesaRepetir">
+                                <label class="form-check-label" for="despesaRepetir">
+                                    <i class="bi bi-arrow-repeat me-1"></i>Repetir despesa
+                                </label>
+                            </div>
+                            <div id="repeticaoOptions" class="mt-2 p-3 bg-light rounded" style="display: none;">
+                                <div class="mb-2">
+                                    <div class="input-group">
+                                        <span class="input-group-text">Repetir a cada</span>
+                                        <input type="number" class="form-control" value="1" min="1" id="repetirDespesa">
+                                        <select class="form-select">
+                                            <option value="month">Mês(es)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Botão de exclusão -->
+                        <div class="d-flex align-items-center mt-3">
+                            <button type="button" class="btn btn-outline-danger btn-sm" id="btnExcluirDespesa">
+                                <i class="bi bi-trash"></i> Excluir despesa
+                            </button>
+                        </div>
                     </div>
-                    <div class="transaction-amount text-danger">R$ 1.000,00</div>
-                </div>
-
-                <div class="transaction-item">
-                    <div class="transaction-main">
-                        <div class="transaction-title">Estefane (11/12)</div>
-                        <div class="transaction-details small text-muted">Familia | Santander</div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="btnSalvarDespesa">
+                            <i class="bi bi-save me-1"></i>Salvar Despesa
+                        </button>
                     </div>
-                    <div class="transaction-amount text-danger">R$ 1.200,00</div>
-                </div>
-
-                <div class="transaction-item">
-                    <div class="transaction-main">
-                        <div class="transaction-title">Meu Primeiro Milhão (11/12)</div>
-                        <div class="transaction-details small text-muted">Investimentos | Santander</div>
-                    </div>
-                    <div class="transaction-amount text-danger">R$ 1.000,00</div>
-                </div>
-
-                <div class="transaction-item">
-                    <div class="transaction-main">
-                        <div class="transaction-title">Combustível (11/12)</div>
-                        <div class="transaction-details small text-muted">Carro | Santander</div>
-                    </div>
-                    <div class="transaction-amount text-danger">R$ 250,00</div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- Modal de nova despesa -->
-    <div class="modal fade" id="novaDespesaModal" tabindex="-1" aria-hidden="true">
+    <!-- Modal para Nova Conta -->
+    <div class="modal fade" style="background-color: rgb(0, 0, 0, 0.5);" id="novaContaModal" data-tipo="D" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="bi bi-bank me-2"></i>Nova Conta</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formNovaConta">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                                <input type="text" class="form-control" id="nomeConta" placeholder="Nome da conta" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                <input type="text" class="form-control" id="saldoInicial" placeholder="Saldo inicial">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-info text-white">
+                            <i class="bi bi-save me-1"></i>Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Nova Categoria -->
+    <div class="modal fade" style="background-color: rgb(0, 0, 0, 0.5);" id="novaCategoriaModal" data-tipo="D" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-tag me-2"></i>Nova Categoria</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formNovaCategoria">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                                <input type="text" class="form-control" id="nomeCategoria" placeholder="Nome da categoria" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save me-1"></i>Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de edição de despesa -->
+    <div class="modal fade" id="editarDespesaModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Nova Despesa</h5>
+                    <h5 class="modal-title">Editar Despesa</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="formNovaDespesa">
+                <form id="formEditarDespesa">
                     <div class="modal-body">
+                        <input type="hidden" id="editarId">
                         <div class="mb-3">
-                            <label for="despesaDescricao" class="form-label">Descrição</label>
-                            <input type="text" class="form-control" id="despesaDescricao" required>
+                            <label for="editarDescricao" class="form-label">Descrição</label>
+                            <input type="text" class="form-control" id="editarDescricao" required>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="despesaValor" class="form-label">Valor (R$)</label>
-                                <input type="number" step="0.01" class="form-control" id="despesaValor" required>
+                                <label for="editarValor" class="form-label">Valor (R$)</label>
+                                <input type="text" step="0.01" class="form-control" id="editarValor" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="despesaData" class="form-label">Data</label>
-                                <input type="date" class="form-control" id="despesaData" required>
+                                <label for="editarData" class="form-label">Data</label>
+                                <input type="date" class="form-control" id="editarData" required>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="despesaCategoria" class="form-label">Categoria</label>
-                            <select class="form-select" id="despesaCategoria" required>
-                                <option value="">Selecione...</option>
-                                <option value="alimentacao">Alimentação</option>
-                                <option value="moradia">Moradia</option>
-                                <option value="transporte">Transporte</option>
-                                <option value="lazer">Lazer</option>
-                                <option value="saude">Saúde</option>
-                                <option value="outros">Outros</option>
+                            <label for="editarConta" class="form-label">Conta</label>
+                            <select class="form-select" id="editarConta" required>
+                                <option value="">Selecione uma conta...</option>
+                                <option value="1">Santander</option>
+                                <option value="2">Nubank</option>
+                                <!-- Opções preenchidas via API -->
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="despesaObservacao" class="form-label">Observação</label>
-                            <textarea class="form-control" id="despesaObservacao" rows="2"></textarea>
+                            <label for="editarCategoria" class="form-label">Categoria</label>
+                            <select class="form-select" id="editarCategoria" required>
+                                <option value="">Selecione uma categoria...</option>
+                                <option value="1">Salário</option>
+                                <option value="2">Freelance</option>
+                                <!-- Opções preenchidas via API -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editarObservacao" class="form-label">Observação</label>
+                            <textarea class="form-control" id="editarObservacao" rows="2"></textarea>
                         </div>
                         <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="despesaEfetivada">
-                            <label class="form-check-label" for="despesaEfetivada">Despesa efetivada</label>
+                            <input type="checkbox" class="form-check-input" id="editarEfetivada">
+                            <label class="form-check-label" for="editarEfetivada">Despesa efetivada</label>
                         </div>
                         <div class="mb-3">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="despesaRepetir">
-                                <label class="form-check-label" for="despesaRepetir">Repetir despesa</label>
+                                <input class="form-check-input" type="checkbox" id="editarRepetir">
+                                <label class="form-check-label" for="editarRepetir">Repetir despesa</label>
                             </div>
-                            <div id="repeticaoOptions" class="mt-2 p-3 bg-light rounded" style="display: none;">
+                            <div id="editarRepeticaoOptions" class="mt-2 p-3 bg-light rounded" style="display: none;">
+                                <!-- Mesma estrutura de repetição do modal original -->
                                 <div class="mb-2">
                                     <label class="form-label">Repetir a cada</label>
                                     <div class="input-group">
-                                        <input type="number" class="form-control" value="1" min="1">
-                                        <select class="form-select">
+                                        <input type="number" class="form-control" value="1" min="1" id="editarIntervalo">
+                                        <select class="form-select" id="editarPeriodicidade">
                                             <option value="month">Mês(es)</option>
                                             <option value="year">Ano(s)</option>
                                         </select>
@@ -222,18 +349,18 @@
                                     <label class="form-label">Até</label>
                                     <div>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="repetirAte" id="repetirAteData" checked>
-                                            <label class="form-check-label" for="repetirAteData">
+                                            <input class="form-check-input" type="radio" name="editarRepetirAte" id="editarRepetirAteData" checked>
+                                            <label class="form-check-label" for="editarRepetirAteData">
                                                 Data específica
                                             </label>
-                                            <input type="date" class="form-control mt-1" id="repetirAteDataValue">
+                                            <input type="date" class="form-control mt-1" id="editarRepetirAteData">
                                         </div>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="repetirAte" id="repetirAteVezes">
-                                            <label class="form-check-label" for="repetirAteVezes">
+                                            <input class="form-check-input" type="radio" name="editarRepetirAte" id="editarRepetirAteVezes">
+                                            <label class="form-check-label" for="editarRepetirAteVezes">
                                                 Número de ocorrências
                                             </label>
-                                            <input type="number" class="form-control mt-1" id="repetirAteVezesValue" min="2" value="12" disabled>
+                                            <input type="number" class="form-control mt-1" id="editarRepetirAteVezes" min="2" value="12" disabled>
                                         </div>
                                     </div>
                                 </div>
@@ -242,7 +369,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-danger">Salvar Despesa</button>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
                     </div>
                 </form>
             </div>
@@ -272,11 +399,9 @@
                         <div class="mb-3">
                             <label for="filtroCategoria" class="form-label">Categoria</label>
                             <select class="form-select" id="filtroCategoria" multiple>
-                                <option value="alimentacao">Alimentação</option>
-                                <option value="moradia">Moradia</option>
-                                <option value="transporte">Transporte</option>
-                                <option value="lazer">Lazer</option>
-                                <option value="saude">Saúde</option>
+                                <option value="salario">Salário</option>
+                                <option value="freelance">Freelance</option>
+                                <option value="investimentos">Investimentos</option>
                                 <option value="outros">Outros</option>
                             </select>
                         </div>
@@ -305,35 +430,17 @@
                             <label for="filtroDescricao" class="form-label">Palavra-chave</label>
                             <input type="text" class="form-control" id="filtroDescricao" placeholder="Pesquisar na descrição">
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Forma de Pagamento</label>
-                            <div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" id="filtroPagamentoDinheiro" checked>
-                                    <label class="form-check-label" for="filtroPagamentoDinheiro">Dinheiro</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" id="filtroPagamentoCartao" checked>
-                                    <label class="form-check-label" for="filtroPagamentoCartao">Cartão</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" id="filtroPagamentoPix" checked>
-                                    <label class="form-check-label" for="filtroPagamentoPix">PIX</label>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" id="limparFiltros">Limpar Filtros</button>
-                        <button type="submit" class="btn btn-danger">Aplicar Filtros</button>
+                        <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/despesas.js"></script>
+    <script type="module" src="js/despesas.js"></script>
+
 </body>
 </html>

@@ -16,6 +16,10 @@ body {
     color: #333;
 }
 
+.bg-modal {
+    background-color: rgba(0, 0, 0, 0);
+}
+
 /* Estilo da página de login */
 .login-page {
     display: flex;

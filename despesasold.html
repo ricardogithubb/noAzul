@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>noAzul - Despesas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/script.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/despesas.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="bi bi-wallet2"></i> noAzul
+            </a>
+            <button class="btn btn-outline-light ms-auto" id="monthYearBtn">
+                <span id="currentMonthYear">Março 2023</span>
+                <i class="bi bi-chevron-down ms-1"></i>
+            </button>
+            <div class="dropdown ms-2">
+                <button class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Perfil</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Configurações</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="index.html"><i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container-fluid mt-5 pt-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+                <h2 class="mb-1">Despesas</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Despesas</li>
+                    </ol>
+                </nav>
+            </div>
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#novaDespesaModal">
+                <i class="bi bi-plus-lg"></i> Nova Despesa
+            </button>
+        </div>
+
+        <!-- Filtros e estatísticas -->
+        <div class="row mb-4">
+            <!-- <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-outline-secondary me-2" id="filtroAvancadoBtn">
+                                <i class="bi bi-funnel"></i> Filtros
+                            </button>
+                            <div class="input-group me-2" style="width: 200px;">
+                                <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                <select class="form-select" id="periodoSelect">
+                                    <option value="este-mes">Este Mês</option>
+                                    <option value="mes-passado">Mês Passado</option>
+                                    <option value="ultimos-3-meses">Últimos 3 Meses</option>
+                                    <option value="personalizado">Personalizado</option>
+                                </select>
+                            </div> 
+                            <div class="input-group" style="width: 200px;">
+                                <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                                <select class="form-select" id="categoriaSelect">
+                                    <option value="">Todas Categorias</option>
+                                    <option value="alimentacao">Alimentação</option>
+                                    <option value="moradia">Moradia</option>
+                                    <option value="transporte">Transporte</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+            <div class="col-md-4">
+                <div class="card bg-danger text-white shadow">
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">Total Despesas</h6>
+                                <h3 class="mb-0" id="totalDespesas">R$ 3.780,00</h3>
+                            </div>
+                            <i class="bi bi-cash-stack display-6 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de despesas -->
+        <div class="transactions-list">
+            <!-- Grupo por data - Sábado, 30 -->
+            <div class="transaction-group">
+                <div class="transaction-date bg-light">Sábado, 30</div>
+                
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Energia Elétrica (11/12)</div>
+                        <div class="transaction-details small text-muted">Casa | Santander</div> <!-- Texto menor e baixa densidade -->
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 270,00</div>
+                </div>
+            </div>
+
+            <!-- Grupo por data - Sexta, 29 -->
+            <div class="transaction-group">
+                <div class="transaction-date bg-light">Sexta, 29</div>
+                
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Dizimo (11/12)</div>
+                        <div class="transaction-details small text-muted">Igreja | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 300,00</div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Alimentos Diversos (11/12)</div>
+                        <div class="transaction-details small text-muted">Casa | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 1.000,00</div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Estefane (11/12)</div>
+                        <div class="transaction-details small text-muted">Familia | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 1.200,00</div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Meu Primeiro Milhão (11/12)</div>
+                        <div class="transaction-details small text-muted">Investimentos | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 1.000,00</div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-main">
+                        <div class="transaction-title">Combustível (11/12)</div>
+                        <div class="transaction-details small text-muted">Carro | Santander</div>
+                    </div>
+                    <div class="transaction-amount text-danger">R$ 250,00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de nova despesa -->
+    <div class="modal fade" id="novaDespesaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova Despesa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formNovaDespesa">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="despesaDescricao" class="form-label">Descrição</label>
+                            <input type="text" class="form-control" id="despesaDescricao" required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="despesaValor" class="form-label">Valor (R$)</label>
+                                <input type="number" step="0.01" class="form-control" id="despesaValor" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="despesaData" class="form-label">Data</label>
+                                <input type="date" class="form-control" id="despesaData" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="despesaCategoria" class="form-label">Categoria</label>
+                            <select class="form-select" id="despesaCategoria" required>
+                                <option value="">Selecione...</option>
+                                <option value="alimentacao">Alimentação</option>
+                                <option value="moradia">Moradia</option>
+                                <option value="transporte">Transporte</option>
+                                <option value="lazer">Lazer</option>
+                                <option value="saude">Saúde</option>
+                                <option value="outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="despesaObservacao" class="form-label">Observação</label>
+                            <textarea class="form-control" id="despesaObservacao" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="despesaEfetivada">
+                            <label class="form-check-label" for="despesaEfetivada">Despesa efetivada</label>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="despesaRepetir">
+                                <label class="form-check-label" for="despesaRepetir">Repetir despesa</label>
+                            </div>
+                            <div id="repeticaoOptions" class="mt-2 p-3 bg-light rounded" style="display: none;">
+                                <div class="mb-2">
+                                    <label class="form-label">Repetir a cada</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" value="1" min="1">
+                                        <select class="form-select">
+                                            <option value="month">Mês(es)</option>
+                                            <option value="year">Ano(s)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Até</label>
+                                    <div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="repetirAte" id="repetirAteData" checked>
+                                            <label class="form-check-label" for="repetirAteData">
+                                                Data específica
+                                            </label>
+                                            <input type="date" class="form-control mt-1" id="repetirAteDataValue">
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="repetirAte" id="repetirAteVezes">
+                                            <label class="form-check-label" for="repetirAteVezes">
+                                                Número de ocorrências
+                                            </label>
+                                            <input type="number" class="form-control mt-1" id="repetirAteVezesValue" min="2" value="12" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Salvar Despesa</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de filtro avançado -->
+    <div class="modal fade" id="filtroAvancadoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Filtro Avançado</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formFiltroAvancado">
+                    <div class="modal-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="filtroDataInicio" class="form-label">Data Inicial</label>
+                                <input type="date" class="form-control" id="filtroDataInicio">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="filtroDataFim" class="form-label">Data Final</label>
+                                <input type="date" class="form-control" id="filtroDataFim">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="filtroCategoria" class="form-label">Categoria</label>
+                            <select class="form-select" id="filtroCategoria" multiple>
+                                <option value="alimentacao">Alimentação</option>
+                                <option value="moradia">Moradia</option>
+                                <option value="transporte">Transporte</option>
+                                <option value="lazer">Lazer</option>
+                                <option value="saude">Saúde</option>
+                                <option value="outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="filtroValorMin" class="form-label">Valor Mínimo</label>
+                            <input type="number" step="0.01" class="form-control" id="filtroValorMin" placeholder="R$ 0,00">
+                        </div>
+                        <div class="mb-3">
+                            <label for="filtroValorMax" class="form-label">Valor Máximo</label>
+                            <input type="number" step="0.01" class="form-control" id="filtroValorMax" placeholder="R$ 10.000,00">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="filtroStatusEfetivado" checked>
+                                    <label class="form-check-label" for="filtroStatusEfetivado">Efetivado</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="filtroStatusPendente" checked>
+                                    <label class="form-check-label" for="filtroStatusPendente">Pendente</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="filtroDescricao" class="form-label">Palavra-chave</label>
+                            <input type="text" class="form-control" id="filtroDescricao" placeholder="Pesquisar na descrição">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Forma de Pagamento</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="filtroPagamentoDinheiro" checked>
+                                    <label class="form-check-label" for="filtroPagamentoDinheiro">Dinheiro</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="filtroPagamentoCartao" checked>
+                                    <label class="form-check-label" for="filtroPagamentoCartao">Cartão</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="filtroPagamentoPix" checked>
+                                    <label class="form-check-label" for="filtroPagamentoPix">PIX</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" id="limparFiltros">Limpar Filtros</button>
+                        <button type="submit" class="btn btn-danger">Aplicar Filtros</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/despesas.js"></script>
+</body>
+</html>
