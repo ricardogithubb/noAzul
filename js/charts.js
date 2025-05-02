@@ -1,91 +1,129 @@
+import { totalTransacao } from './indexedDB.js';
+
 // Variáveis globais para armazenar os gráficos
 let annualChartInstance;
 let orcamentoChartInstance;
 let orcamentoBarChartInstance;
+let totalReceita = [];
+let totalDespesa = [];
+
+async function carregarTotalReceitas() {
+    return new Promise(async (resolve, reject) => {
+        for (let index = 0; index < 12; index++) {
+            
+            let mes = index + 1;
+            totalReceita[index] = await totalTransacao(mes, 2025, 'R');
+            
+        }
+
+        resolve(totalReceita);
+        
+    })
+
+}
+
+async function carregarTotalDespesas() {
+    return new Promise(async (resolve, reject) => {
+        for (let index = 0; index < 12; index++) {
+            
+            let mes = index + 1;
+            totalDespesa[index] = await totalTransacao(mes, 2025, 'D');
+            
+        }
+
+        resolve(totalDespesa);
+        
+    })
+
+}
 
 function initCharts() {
     // Gráfico anual
     const annualCtx = document.getElementById('annualChart').getContext('2d');
-
-    // Destroi o gráfico anterior, se existir
-    if (annualChartInstance) {
-        annualChartInstance.destroy();
-    }
-
-    annualChartInstance = new Chart(annualCtx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-            datasets: [
-                {
-                    label: 'Receitas',
-                    backgroundColor: 'rgba(78, 115, 223, 0.2)',
-                    borderColor: 'rgba(78, 115, 223, 1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
-                    pointBorderColor: '#fff',
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    fill: true,
-                    tension: 0.3,
-                    data: [5000, 4500, 5250, 10000, 7896, 12098, 4599, 0, 0, 0, 0, 0]
-                },
-                {
-                    label: 'Despesas',
-                    backgroundColor: 'rgba(231, 74, 59, 0.2)',
-                    borderColor: 'rgba(231, 74, 59, 1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: 'rgba(231, 74, 59, 1)',
-                    pointBorderColor: '#fff',
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    fill: true,
-                    tension: 0.3,
-                    data: [3200, 3500, 3780, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                }
-            ]
-        },
-        options: {
-            maintainAspectRatio: false,
-            responsive: true,
-            scales: {
-                x: {
-                    grid: { display: false }
-                },
-                y: {
-                    grid: { color: 'rgba(0, 0, 0, 0.05)' },
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return 'R$ ' + value.toLocaleString('pt-BR');
+    carregarTotalReceitas().then((totalReceita) => {
+        carregarTotalDespesas().then((totalDespesa) => {            
+            // Destroi o gráfico anterior, se existir
+            if (annualChartInstance) {
+                annualChartInstance.destroy();
+            }
+        
+            annualChartInstance = new Chart(annualCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                    datasets: [
+                        {
+                            label: 'Receitas',
+                            backgroundColor: 'rgba(78, 115, 223, 0.2)',
+                            borderColor: 'rgba(78, 115, 223, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                            pointBorderColor: '#fff',
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.3,
+                            data: totalReceita //[5000, 4500, 5250, 10000.22, 7896, 12098, 4599, 0, 0, 0, 0, 0]
+                        },
+                        {
+                            label: 'Despesas',
+                            backgroundColor: 'rgba(231, 74, 59, 0.2)',
+                            borderColor: 'rgba(231, 74, 59, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(231, 74, 59, 1)',
+                            pointBorderColor: '#fff',
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.3,
+                            data: totalDespesa //[3200, 3500, 3780, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                         }
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: {
-                        usePointStyle: true,
-                        padding: 20
-                    }
+                    ]
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + formatMoney(context.raw);
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    scales: {
+                        x: {
+                            grid: { display: false }
+                        },
+                        y: {
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R$ ' + value.toLocaleString('pt-BR');
+                                }
+                            }
                         }
                     },
-                    mode: 'index',
-                    intersect: false
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatMoney(context.raw);
+                                }
+                            },
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'nearest'
+                    }
                 }
-            },
-            interaction: {
-                intersect: false,
-                mode: 'nearest'
-            }
-        }
-    });
+            });
+        })
+        
+    })
 
     // Função auxiliar para formatar valores monetários
     function formatMoney(value) {

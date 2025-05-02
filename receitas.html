@@ -9,6 +9,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
     <link href="css/receitas.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
     <script type="module" src="js/indexedDB.js"></script>
     <script type="module" src="js/script.js"></script>
 </head>
@@ -90,25 +91,26 @@
         </div>
     </div>
 
-    <!-- Modal de nova receita - Versão final -->
+    <!-- Modal de nova receita - Versão estilizada -->
     <div class="modal fade" id="novaReceitaModal" tabindex="-1" aria-hidden="true" data-id="333">
         <div class="modal-dialog">
-            <div class="modal-content">
+            <div class="modal-content border border-3 border-primary">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title"><i class="bi bi-cash-stack me-2"></i>Nova Receita</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="formNovaReceita">
                     <div class="modal-body">
+                        
                         <!-- Descrição -->
-                        <div class="mb-3 input-group">
+                        <div class="mb-4 input-group">
                             <span class="input-group-text"><i class="bi bi-card-text"></i></span>
                             <input type="text" class="form-control" id="receitaDescricao" placeholder="Descrição da receita" required>
                         </div>
                         
                         <!-- Valor e Data -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                     <input type="text" step="0.01" class="form-control" id="receitaValor" placeholder="Valor (R$)" required>
@@ -123,13 +125,11 @@
                         </div>
                         
                         <!-- Conta -->
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-bank"></i></span>
                                 <select class="form-select" id="receitaConta" required>
-                                    <option value="" selected disabled>Selecione uma conta...</option>
-                                    <option value="1">Santander</option>
-                                    <option value="2">Nubank</option>
+                                    <option value="" selected disabled>Conta</option>
                                 </select>
                                 <button class="btn btn-outline-secondary" type="button" id="btnNovaConta">
                                     <i class="bi bi-plus-circle"></i>
@@ -138,13 +138,11 @@
                         </div>
                         
                         <!-- Categoria -->
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-tag"></i></span>
                                 <select class="form-select" id="receitaCategoria" required>
-                                    <option value="" selected disabled>Selecione uma categoria...</option>
-                                    <option value="1">Salário</option>
-                                    <option value="2">Freelance</option>
+                                    <option value="" selected disabled>Categoria</option>
                                 </select>
                                 <button class="btn btn-outline-secondary" type="button" id="btnNovaCategoria">
                                     <i class="bi bi-plus-circle"></i>
@@ -153,32 +151,32 @@
                         </div>
                         
                         <!-- Observação -->
-                        <div class="mb-3 input-group">
+                        <div class="mb-4 input-group">
                             <span class="input-group-text"><i class="bi bi-chat-left-text"></i></span>
                             <textarea class="form-control" id="receitaObservacao" rows="2" placeholder="Observações"></textarea>
                         </div>
                         
                         <!-- Receita efetivada -->
-                        <div class="mb-3 form-check form-switch">
+                        <div class="mb-4 form-check form-switch">
                             <input type="checkbox" class="form-check-input" id="receitaEfetivada">
                             <label class="form-check-label" for="receitaEfetivada">
                                 <i class="bi bi-check-circle me-1"></i>Receita efetivada
                             </label>
-                            <div id="dataEfetivacaoContainer" style="display: none;" class="mt-2 input-group">
+                            <div id="dataEfetivacaoContainer" style="display: none;" class="mt-3 input-group">
                                 <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
                                 <input type="date" class="form-control" id="dataEfetivacao" placeholder="Data de efetivação">
                             </div>
                         </div>
                         
                         <!-- Repetição -->
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="receitaRepetir">
                                 <label class="form-check-label" for="receitaRepetir">
                                     <i class="bi bi-arrow-repeat me-1"></i>Repetir receita
                                 </label>
                             </div>
-                            <div id="repeticaoOptions" class="mt-2 p-3 bg-light rounded" style="display: none;">
+                            <div id="repeticaoOptions" class="mt-3 p-3 bg-light rounded" style="display: none;">
                                 <div class="mb-2">
                                     <div class="input-group">
                                         <span class="input-group-text">Repetir a cada</span>
@@ -192,7 +190,7 @@
                         </div>
                         
                         <!-- Botão de exclusão -->
-                        <div class="d-flex align-items-center mt-3">
+                        <div class="d-flex align-items-center mt-4">
                             <button type="button" class="btn btn-outline-danger btn-sm" id="btnExcluirReceita">
                                 <i class="bi bi-trash"></i> Excluir receita
                             </button>
@@ -212,7 +210,7 @@
     </div>
 
     <!-- Modal para Nova Conta -->
-    <div class="modal fade" style="background-color: rgb(0, 0, 0, 0.5);" id="novaContaModal" data-tipo="D" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal fade" style="background-color: rgb(0, 0, 0, 0.5);" id="novaContaModal" data-tipo="R" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-sm">
             <div class="modal-content shadow-lg">
                 <div class="modal-header bg-info text-white">
@@ -305,7 +303,7 @@
                         <div class="mb-3">
                             <label for="editarConta" class="form-label">Conta</label>
                             <select class="form-select" id="editarConta" required>
-                                <option value="">Selecione uma conta...</option>
+                                <option value="">Conta</option>
                                 <option value="1">Santander</option>
                                 <option value="2">Nubank</option>
                                 <!-- Opções preenchidas via API -->
@@ -314,7 +312,7 @@
                         <div class="mb-3">
                             <label for="editarCategoria" class="form-label">Categoria</label>
                             <select class="form-select" id="editarCategoria" required>
-                                <option value="">Selecione uma categoria...</option>
+                                <option value="">Categoria</option>
                                 <option value="1">Salário</option>
                                 <option value="2">Freelance</option>
                                 <!-- Opções preenchidas via API -->

@@ -57,6 +57,7 @@ export function setupMonthYearSelector() {
     $('.month-btn').click(function() {
         $('.month-btn').removeClass('btn-primary').addClass('btn-outline-primary');
         $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+        $('#confirmMonthYear').click();
     });
 
     
@@ -190,7 +191,7 @@ export async function carregarContas(tipo) {
             let $select = '';
             tipo === 'R' ? $select = $('#receitaConta') : $select = $('#despesaConta');
             $select.empty();
-            $select.append('<option value="">Selecione uma conta...</option>');
+            $select.append('<option value="">Conta...</option>');
             
             contas.forEach(conta => {
                 $select.append(`<option value="${conta.id}">${conta.nome}</option>`);
@@ -210,7 +211,7 @@ export async function carregarCategorias(tipo) {
             let $select = '';
             tipo === 'R' ? $select = $('#receitaCategoria') : $select = $('#despesaCategoria');
             $select.empty();
-            $select.append('<option value="">Selecione uma categoria...</option>');
+            $select.append('<option value="">Categoria...</option>');
             
             categorias.forEach(categoria => {
                 $select.append(`<option value="${categoria.id}">${categoria.nome}</option>`);
@@ -293,34 +294,6 @@ function setupModalsContaCategoria() {
         // Fechar o modal
         $('#novaContaModal').modal('hide');
 
-        
-        // Simulação de chamada AJAX
-        // $.ajax({
-        //     url: '/api/contas', // Substitua pela sua URL real
-        //     method: 'POST',
-        //     data: { nome: nomeConta, saldo_inicial: saldoInicial },
-        //     success: function(response) {
-        //         // Fechar o modal
-        //         $('#novaContaModal').modal('hide');
-                
-        //         // Adicionar a nova conta ao select
-        //         $('#receitaConta').append(
-        //             $('<option>', {
-        //                 value: response.id,
-        //                 text: response.nome
-        //             })
-        //         ).val(response.id);
-                
-        //         // Limpar o formulário
-        //         $('#formNovaConta')[0].reset();
-                
-        //         // Mostrar mensagem de sucesso
-        //         alert('Conta cadastrada com sucesso!');
-        //     },
-        //     error: function(xhr) {
-        //         alert('Erro ao cadastrar conta: ' + xhr.responseText);
-        //     }
-        // });
     });
     
     // Evento para salvar nova categoria

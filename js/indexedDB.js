@@ -493,9 +493,10 @@ export async function totalEfetivado(mes, ano, tipo) {
         };
     });
 }
+ 
 
 //funcao para retornar as ultimas 5 transações em ordem decrescente
-async function ultimasTransacoes() {
+async function ultimasTransacoes(mes, ano) {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open('noAzul', 1);
 
@@ -510,8 +511,20 @@ async function ultimasTransacoes() {
             query.onsuccess = async function() {
                 const transacoes = query.result || [];
 
+                const receitasNoMes = transacoes.filter(transacao => {
+
+                    const dataStr = transacao.data_efetivacao || transacao.data_vencimento;
+                    if (!dataStr) return false;
+
+                    const data = new Date(dataStr.replace(/-/g, '/'));
+                    const dataMes = data.getMonth() + 1;
+                    const dataAno = data.getFullYear();
+
+                    return dataMes === parseInt(mes) && dataAno === parseInt(ano);
+                });
+
                 // Ordenar as transações pela data (mais recente primeiro)
-                const transacoesOrdenadas = transacoes.sort((a, b) => {
+                const transacoesOrdenadas = receitasNoMes.sort((a, b) => {
                     const dataA = new Date(a.data_efetivacao || a.data_vencimento);
                     const dataB = new Date(b.data_efetivacao || b.data_vencimento);
                     return dataB - dataA;
