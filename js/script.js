@@ -2,10 +2,110 @@ import { adicionar, listar, atualizar, deletar, totalTransacao, ultimasTransacoe
 // Funções globais compartilhadas por todas as páginas
 // apiURL = 'https://apinoazul.markethubplace.com/api';
 
+let isSubmitting = false;
+
 // Inicializa tooltips
 $(function () {
     $('[data-bs-toggle="tooltip"]').tooltip();
 });
+
+
+export async function handleSubmitConta(tipo) {
+    isSubmitting = true;
+    const btn = tipo === 'nova' ? $('#btnSalvarConta') : $('#btnAtualizarConta');
+    btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Salvando...');
+
+    try {
+        const contaData = tipo === 'nova' 
+            ? getNovaContaData() 
+            : getEditarContaData();
+
+        if (tipo === 'nova') {
+            console.log(contaData);
+            await adicionar('contas', contaData);
+        } else {
+            await atualizar('contas', contaEditando.id, contaData);
+        }
+
+        await carregarContas();
+        $(`#${tipo === 'nova' ? 'novaConta' : 'editarConta'}Modal`).modal('hide');
+        mostrarAlerta(`Conta ${tipo === 'nova' ? 'criada' : 'atualizada'} com sucesso!`, 'success');
+    } catch (error) {
+        console.error('Erro:', error);
+        mostrarAlerta(error.message || 'Erro ao salvar conta', 'danger');
+    } finally {
+        isSubmitting = false;
+        btn.prop('disabled', false).text(tipo === 'nova' ? 'Salvar Conta' : 'Atualizar Conta');
+    }
+}
+
+export function getNovaContaData() {
+    return {
+        nome: $('#nomeConta').val(),
+        saldo_inicial: parseFloat(($('#saldoInicial').val() || '0').replace('.', '').replace(',', '.')),
+        saldoPrevisto: 0,
+        descricao: $('#descricaoConta').val(),
+        ativa: $('#contaAtiva').prop('checked'),
+        criacao: new Date().toISOString()
+    };
+}
+
+export function getEditarContaData() {
+    return {
+        nome: $('#editarContaNome').val(),
+        tipo: $('#editarContaTipo').val(),
+        descricao: $('#editarContaDescricao').val(),
+        ativa: $('#editarContaAtiva').prop('checked')
+    };
+}
+
+// script.js
+export function mostrarAlerta(mensagem, tipo = 'success', tempo = 5000) {
+    // Criar container de alertas se não existir
+    let alertasContainer = document.getElementById('alertas-container');
+    if (!alertasContainer) {
+        alertasContainer = document.createElement('div');
+        alertasContainer.id = 'alertas-container';
+        alertasContainer.style.position = 'fixed';
+        alertasContainer.style.top = '20px';
+        alertasContainer.style.right = '20px';
+        alertasContainer.style.zIndex = '9999';
+        alertasContainer.style.minWidth = '300px';
+        document.body.appendChild(alertasContainer);
+    }
+
+    // Criar elemento do alerta
+    const alertId = `alert-${Date.now()}`;
+    const alerta = document.createElement('div');
+    alerta.id = alertId;
+    alerta.className = `alert alert-${tipo} alert-dismissible fade show`;
+    alerta.role = 'alert';
+    alerta.innerHTML = `
+        ${mensagem}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+
+    // Adicionar ao container
+    alertasContainer.appendChild(alerta);
+
+    // Fechar automaticamente após o tempo determinado
+    setTimeout(() => {
+        fecharAlerta(alertId);
+    }, tempo);
+
+    // Retornar métodos para controle manual
+    return {
+        fechar: () => fecharAlerta(alertId)
+    };
+}
+
+function fecharAlerta(id) {
+    const alerta = document.getElementById(id);
+    if (alerta) {
+        const bsAlert = new bootstrap.Alert(alerta);
+        bsAlert.close();
+    }
+}
 
 // Formata valores monetários
 export function formatMoney(value) {
@@ -206,10 +306,10 @@ export async function carregarContas(tipo) {
 export async function carregarCategorias(tipo) {
     
     try {
-        await listarCategorias('categorias',tipo,(categorias) => {
+        await listarCategorias('categorias',tipo === 'O' ? 'D' : tipo,(categorias) => {
 
             let $select = '';
-            tipo === 'R' ? $select = $('#receitaCategoria') : $select = $('#despesaCategoria');
+            tipo === 'R' ? $select = $('#receitaCategoria') : tipo === 'D' ? $select = $('#despesaCategoria') : $select = $('#orcamentoCategoria');
             $select.empty();
             $select.append('<option value="">Categoria...</option>');
             
@@ -269,31 +369,10 @@ function setupModalsContaCategoria() {
         $('#novaCategoriaModal').modal('show');
     });
     
-    // Evento para salvar nova conta
-    $('#formNovaConta').submit(function(e) {
+    $('#formNovaConta').submit(async function (e) {
         e.preventDefault();
-        
-        // Obter valores do formulário
-        const nomeConta = $('#nomeConta').val();
-        const saldoInicial = $('#saldoInicial').val();
-        const tipo =$('#novaContaModal').data('tipo');
-        
-        console.log('Nova conta a ser salva:', { nomeConta, saldoInicial });
-
-        adicionar('contas', { nome: nomeConta, saldo_inicial: saldoInicial, user_id: 1 });
-
-        // Limpar o formulário
-        $('#formNovaConta')[0].reset();
-        
-        // Mostrar mensagem de sucesso
-        alert('Conta cadastrada com sucesso!');
-
-        // Atualizar a lista de contas
-        carregarContas(tipo);
-
-        // Fechar o modal
-        $('#novaContaModal').modal('hide');
-
+        if (isSubmitting) return;
+        await handleSubmitConta('nova');
     });
     
     // Evento para salvar nova categoria
@@ -307,7 +386,7 @@ function setupModalsContaCategoria() {
         console.log('Nova categoria a ser salva:', { nomeCategoria});
         
         // Simulação de chamada AJAX
-        await adicionar('categorias', { nome: nomeCategoria, tipo: tipoCategoria, user_id: 1 });
+        await adicionar('categorias', { nome: nomeCategoria, tipo: tipoCategoria === 'O' ? 'D' : tipoCategoria, user_id: 1 });
 
         // Limpar o formulário
         $('#formNovaCategoria')[0].reset();

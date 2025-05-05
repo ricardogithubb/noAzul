@@ -37,49 +37,6 @@
         </div>
     </nav>
 
-    <!-- Modal de seleção de mês/ano
-    <div class="modal fade" id="monthYearModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Selecione o Mês e Ano</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center mb-4">
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-outline-primary" id="prevYear">
-                                <i class="bi bi-chevron-left"></i>
-                            </button>
-                            <button type="button" class="btn btn-primary" id="currentYear">2023</button>
-                            <button type="button" class="btn btn-outline-primary" id="nextYear">
-                                <i class="bi bi-chevron-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="0">Jan</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="1">Fev</button></div>
-                        <div class="col-3"><button class="btn btn-primary w-100 month-btn" data-month="2">Mar</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="3">Abr</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="4">Mai</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="5">Jun</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="6">Jul</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="7">Ago</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="8">Set</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="9">Out</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="10">Nov</button></div>
-                        <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="11">Dez</button></div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="confirmMonthYear">Aplicar</button>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
     <!-- Conteúdo principal -->
     <div class="container-fluid mt-5 pt-3">
         <!-- Dashboard de totais -->
@@ -112,17 +69,25 @@
             </div>
         </div>
 
-        <!-- Saldo atual
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-body text-center py-3">
-                        <h5 class="mb-1">Saldo Atual</h5>
-                        <h3 class="mb-0 text-success">R$ 1.470,00</h3>
+        <!-- Saldo das contas -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Saldo das Contas</h5>
+                <a href="contas.html" class="btn btn-sm btn-outline-primary">Gerenciar contas</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="saldoContas">
+                    <!-- Preenchido via JavaScript -->
+                    <!-- Exemplo de item: -->
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Conta Corrente</span>
+                        <strong class="text-success">R$ 2.500,00</strong>
                     </div>
+                    
                 </div>
             </div>
-        </div> -->
+        </div>
+        
 
         <!-- Últimas transações -->
         <div class="card shadow mb-4">
@@ -148,7 +113,8 @@
                             <i class="bi bi-pencil"></i> Gerenciar
                         </button>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body listar-orcamento">
+                        <!-- Primeiros dois orçamentos -->
                         <div class="mb-4">
                             <h6 class="small font-weight-bold">Alimentação <span class="float-end">75%</span></h6>
                             <div class="progress mb-3">
@@ -163,23 +129,28 @@
                             </div>
                             <small class="text-muted">R$ 300 de R$ 600</small>
                         </div>
-                        <div class="mb-4">
-                            <h6 class="small font-weight-bold">Lazer <span class="float-end">90%</span></h6>
-                            <div class="progress mb-3">
-                                <div class="progress-bar bg-warning" role="progressbar" style="width: 90%"></div>
+                
+                        <!-- Collapse para categorias adicionais -->
+                        <div class="collapse moreOrcamentos">
+                            <div class="mb-4">
+                                <h6 class="small font-weight-bold">Lazer <span class="float-end">90%</span></h6>
+                                <div class="progress mb-3">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 90%"></div>
+                                </div>
+                                <small class="text-muted">R$ 450 de R$ 500</small>
                             </div>
-                            <small class="text-muted">R$ 450 de R$ 500</small>
+                            <!-- Outras categorias podem ser adicionadas aqui -->
                         </div>
+                
+                        <!-- Botão para mostrar mais -->
                         <div class="text-center">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#moreCategories">
-                                Ver todas as categorias
+                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#moreCategories" aria-expanded="false" aria-controls="moreCategories">
+                                <i class="bi bi-chevron-down"></i>
                             </button>
-                        </div>
-                        <div class="collapse" id="moreCategories">
-                            <!-- Categorias adicionais -->
                         </div>
                     </div>
                 </div>
+                
             </div>
 
             <!-- Visão anual -->
@@ -216,7 +187,7 @@
     <footer class="sticky-footer bg-white mt-4">
         <div class="container my-auto">
             <div class="copyright text-center my-auto">
-                <span>Copyright &copy; noAzul 2023</span>
+                <span>Copyright &copy; noAzul 2025</span>
             </div>
         </div>
     </footer>

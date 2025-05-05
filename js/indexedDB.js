@@ -1,6 +1,16 @@
 // Inicialização do IndexedDB
 const request = indexedDB.open('noAzul', 1);
 
+function ultimoDiaDoMes() {
+    const mes = localStorage.getItem('selectedMonth');
+    const ano = localStorage.getItem('selectedYear');
+    const ultimoDia = new Date(ano, mes, 0).getDate(); // mês começa de 1 a 12, mas o Date usa 0 a 11
+    return `${ano}-${String(mes).padStart(2, '0')}-${String(ultimoDia).padStart(2, '0')}`;
+}
+
+
+
+
 request.onupgradeneeded = function(event) {
     const db = event.target.result;
 
@@ -31,6 +41,16 @@ request.onupgradeneeded = function(event) {
         transacaoStore.createIndex('valor', 'valor', { unique: false });
         transacaoStore.createIndex('data_vencimento', 'data_vencimento', { unique: false });
         transacaoStore.createIndex('data_efetivacao', 'data_efetivacao', { unique: false });
+        transacaoStore.createIndex('user_id', 'user_id', { unique: false });
+    }
+
+    // Criar object store para Categoria
+    if (!db.objectStoreNames.contains('orcamentos')) {
+        const transacaoStore = db.createObjectStore('orcamentos', { keyPath: 'id', autoIncrement: true });
+        transacaoStore.createIndex('categoria_id', 'categoria_id', { unique: false });
+        transacaoStore.createIndex('mes', 'mes', { unique: false });
+        transacaoStore.createIndex('ano', 'ano', { unique: false });
+        transacaoStore.createIndex('valor', 'valor', { unique: false });
         transacaoStore.createIndex('user_id', 'user_id', { unique: false });
     }
 
@@ -326,6 +346,166 @@ export async function listarDespesas(mes, ano) {
     });
 }
 
+export async function listarOrcamentos(mes, ano) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('noAzul', 1);
+
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const transaction = db.transaction(['orcamentos', 'categorias', 'transacoes'], 'readonly');
+            const orcamentosStore = transaction.objectStore('orcamentos');
+            const categoriasStore = transaction.objectStore('categorias');
+            const transacoesStore = transaction.objectStore('transacoes');
+
+            //filtrar somentes as receitas
+            const query = orcamentosStore.index('mes').getAll(mes);
+
+            query.onsuccess = async function() {
+                const orcamentos = query.result || [];
+
+                // Ordenar os orçamentos pela data (mais recente primeiro)
+                const orcamentosOrdenados = orcamentos.sort((a, b) => {
+                    const dataA = new Date(a.data_efetivacao || a.data_vencimento);
+                    const dataB = new Date(b.data_efetivacao || b.data_vencimento);
+                    return dataB - dataA;
+                });
+
+                // Buscar os nomes das categorias
+                const orcamentosComCategoria = await Promise.all(
+                    orcamentosOrdenados.map(orcamento => {
+                        return new Promise((resolveCategoria) => {
+                            if (!orcamento.categoria_id) {
+                                orcamento.categoria = null;
+                                resolveCategoria(orcamento);
+                                return;
+                            }
+
+                            const categoriaRequest = categoriasStore.get(orcamento.categoria_id);
+
+                            categoriaRequest.onsuccess = function() {
+                                const categoria = categoriaRequest.result;
+                                orcamento.categoria = categoria ? categoria.nome : null;
+                                resolveCategoria(orcamento);
+                            };
+
+                            categoriaRequest.onerror = function() {
+                                orcamento.categoria = null;
+                                resolveCategoria(orcamento);
+                            };
+                        });
+                    })
+                );
+
+                // Buscar o total em transacoes por categoria
+                const orcamentosComTotal = await Promise.all(
+                    orcamentosComCategoria.map(orcamento => {
+                        return new Promise((resolveTotal) => {
+                            totalDespesasCategoria(orcamento.mes, orcamento.ano, orcamento.categoria_id).then(total => {
+                                orcamento.total_gasto = total;
+                                orcamento.diferenca = orcamento.valor - orcamento.total_gasto;
+                                let percentual = (orcamento.total_gasto / orcamento.valor) * 100;
+                                orcamento.percentual = percentual.toFixed(0);
+                                resolveTotal(orcamento);
+                            });
+                        });
+                    })
+                );
+
+                resolve(orcamentosComTotal);
+            };
+
+            query.onerror = function(event) {
+                console.error('Erro ao buscar Receitas:', event.target.error);
+                reject(event.target.error);
+            };
+        };
+
+        request.onerror = function(event) {
+            console.error('Erro ao abrir o banco IndexedDB:', event.target.error);
+            reject(event.target.error);
+        };
+    });
+}
+                
+
+//listar contas e total de transacoes na conta
+export async function listarContas() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('noAzul', 1);
+
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const transaction = db.transaction(['contas', 'transacoes'], 'readonly');
+            const contasStore = transaction.objectStore('contas');
+            const transacoesStore = transaction.objectStore('transacoes');
+
+            const query = contasStore.getAll();
+
+            query.onsuccess = async function() {
+                const contas = query.result || [];
+
+                // Buscar o total em transacoes por conta
+                const contasComTotal = await Promise.all(
+                    contas.map(conta => {
+                        return new Promise((resolveTotal) => {
+                            listar('transacoes', (transacoes) => {
+                                const total = transacoes
+                                    .filter(transacao => transacao.conta_id === conta.id && transacao.efetivada)
+                                    .reduce((total, transacao) => {
+                                        const valor = transacao.tipo === 'R' ? transacao.valor : -transacao.valor;
+                                        return total + valor;
+                                    }, 0);
+                                conta.saldo_atual = parseFloat(conta.saldo_inicial) + total;
+                                resolveTotal(conta);
+                            });
+                        });
+                    })
+                );     
+                
+                // Buscar o total em transacoes por conta
+                const dataLimite = ultimoDiaDoMes(); // Ex: "2025-05-31"
+
+                console.log(dataLimite);
+
+                const contasComTotalPrevisto = await Promise.all(
+                    contas.map(conta => {
+                        return new Promise((resolveTotal) => {
+                            listar('transacoes', (transacoes) => {
+                                const total = transacoes
+                                    .filter(transacao => {
+                                        const dataComparacao = transacao.data_efetivacao || transacao.data_vencimento;
+                                        console.log(dataComparacao, dataLimite);
+                                        return dataComparacao <= dataLimite && transacao.conta_id === conta.id;
+                                    })
+                                    .reduce((total, transacao) => {
+                                        const valor = transacao.tipo === 'R' ? transacao.valor : -transacao.valor;
+                                        return total + valor;
+                                    }, 0);
+
+                                conta.saldo_previsto = parseFloat(conta.saldo_inicial) + total;
+                                resolveTotal(conta);
+                            });
+                        });
+                    })
+                );
+
+                resolve(contasComTotalPrevisto);
+            };
+
+            query.onerror = function(event) {
+                console.error('Erro ao buscar Receitas:', event.target.error);
+                reject(event.target.error);
+            };
+        };
+
+        request.onerror = function(event) {
+            console.error('Erro ao abrir o banco IndexedDB:', event.target.error);
+            reject(event.target.error);
+        };
+    });
+}
+
+
 function atualizar(storeName, id, novosDados) {
     const request = indexedDB.open('noAzul', 1);
 
@@ -349,6 +529,54 @@ function atualizar(storeName, id, novosDados) {
             }
         };
     };
+}
+
+//Total Despesas por mes, ano e categoria
+async function totalDespesasCategoria(mes, ano, categoria_id) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('noAzul', 1);
+
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const transaction = db.transaction(['transacoes'], 'readonly');
+            const store = transaction.objectStore('transacoes');
+
+            const query = store.getAll();
+
+            query.onsuccess = function() {
+                const transacoes = query.result || [];
+
+                const despesasNoMes = transacoes.filter(transacao => {
+                    if (transacao.tipo !== 'D') return false;
+
+                    const dataStr = transacao.data_efetivacao || transacao.data_vencimento;
+                    if (!dataStr) return false;
+
+                    const data = new Date(dataStr.replace(/-/g, '/'));
+                    const dataMes = data.getMonth() + 1;
+                    const dataAno = data.getFullYear();
+
+                    return dataMes === parseInt(mes) && dataAno === parseInt(ano) && transacao.categoria_id === categoria_id;
+                });
+
+                const totalDespesas = despesasNoMes.reduce((total, transacao) => {
+                    return total + parseFloat(transacao.valor);
+                }, 0);
+
+                resolve(totalDespesas);
+            };
+
+            query.onerror = function(event) {
+                console.error('Erro ao buscar Despesas:', event.target.error);
+                reject(event.target.error);
+            };
+        };
+
+        request.onerror = function(event) {
+            console.error('Erro ao abrir o banco IndexedDB:', event.target.error);
+            reject(event.target.error);
+        };
+    });
 }
 
 async function totalTransacao(mes, ano, tipo) {

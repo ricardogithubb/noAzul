@@ -6,6 +6,10 @@
     <title>noAzul - Orçamentos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
     <link href="css/orcamentos.css" rel="stylesheet">
 </head>
 <body>
@@ -49,7 +53,7 @@
         </div>
 
         <!-- Seletor de mês/ano -->
-        <div class="card shadow mb-4">
+        <!-- <div class="card shadow mb-4">
             <div class="card-body py-3">
                 <div class="d-flex align-items-center">
                     <div class="me-3">
@@ -69,65 +73,65 @@
                     </button>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Lista de orçamentos -->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold">Orçamentos Definidos</h6>
-                <span class="badge bg-primary rounded-pill">8 categorias</span>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="orcamentosTable" width="100%">
-                        <thead>
-                            <tr>
-                                <th>Categoria</th>
-                                <th>Valor Orçado</th>
-                                <th>Valor Gasto</th>
-                                <th>Diferença</th>
-                                <th>% Utilizado</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <span class="badge bg-danger">Alimentação</span>
-                                </td>
-                                <td>R$ 1.000,00</td>
-                                <td>R$ 750,00</td>
-                                <td class="text-success">+R$ 250,00</td>
-                                <td>
-                                    <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: 75%">75%</div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                                </td>
-                            </tr>
-                            <!-- Mais linhas de orçamentos -->
-                        </tbody>
-                        <tfoot>
-                            <tr class="table-active">
-                                <th>Total</th>
-                                <th>R$ 5.000,00</th>
-                                <th>R$ 3.780,00</th>
-                                <th class="text-success">+R$ 1.220,00</th>
-                                <th>
-                                    <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar" role="progressbar" style="width: 75.6%">75.6%</div>
-                                    </div>
-                                </th>
-                                <th></th>
-                            </tr>
-                        </tfoot>
-                    </table>
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">Orçamentos Definidos</h6>
+        <span class="badge bg-primary rounded-pill" id="qtdCategorias"></span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <div id="orcamentosContainer" class="w-100">
+                
+                <!-- Cabeçalho -->
+                <div class="d-flex fw-bold border-bottom py-2">
+                    <div class="flex-fill">Orçado</div>
+                    <div class="flex-fill">Gasto</div>
+                    <div class="flex-fill">Diferença</div>
+                    <div class="flex-fill">Utilizado</div>
                 </div>
+    
+                <!-- Categoria: Alimentação (1ª linha) -->
+                <div class="fw-bold py-2 border-top bg-info px-1 rounded">Alimentação</div>
+                <div class="d-flex align-items-center py-2 border-bottom">
+                    <div class="flex-fill">R$ 0,00</div>
+                    <div class="flex-fill">R$ 0,00</div>
+                    <div class="flex-fill">
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                    <div class="flex-fill d-inline-flex gap-1">
+                        <button class="btn btn-sm btn-outline-primary" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" title="Excluir">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+    
+                <!-- Rodapé / Totais -->
+                <div class="d-flex align-items-center py-3 mt-3 bg-light fw-bold border-top">
+                    <div class="flex-fill">Total</div>
+                    <div class="flex-fill">R$ 1.000,00</div>
+                    <div class="flex-fill">R$ 750,00</div>
+                    <div class="flex-fill text-success">+R$ 250,00</div>
+                    <div class="flex-fill">
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar" role="progressbar" style="width: 75%;">75%</div>
+                        </div>
+                    </div>
+                    <div class="flex-fill"></div>
+                </div>
+    
             </div>
         </div>
+    </div>
+    
+</div>
 
         <!-- Gráfico de orçamentos -->
         <div class="card shadow mb-4">
@@ -153,18 +157,21 @@
                 <form id="formNovoOrcamento">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="orcamentoCategoria" class="form-label">Categoria</label>
-                            <select class="form-select" id="orcamentoCategoria" required>
-                                <option value="">Selecione uma categoria...</option>
-                                <option value="alimentacao">Alimentação</option>
-                                <option value="moradia">Moradia</option>
-                                <option value="transporte">Transporte</option>
-                                <option value="lazer">Lazer</option>
-                            </select>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                                <select class="form-select" id="orcamentoCategoria" required>
+                                    <option value="" selected disabled>Categoria</option>
+                                    <option value="1">Salário</option>
+                                    <option value="2">Freelance</option>
+                                </select>
+                                <button class="btn btn-outline-secondary" type="button" id="btnNovaCategoria">
+                                    <i class="bi bi-plus-circle"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="orcamentoValor" class="form-label">Valor Orçado (R$)</label>
-                            <input type="number" step="0.01" class="form-control" id="orcamentoValor" required>
+                            <input type="text" step="0.01" class="form-control" id="orcamentoValor" placeholder="Valor (R$)" required>
                         </div>
                         <div class="mb-3 form-check">
                             <input type="checkbox" class="form-check-input" id="orcamentoRecorrente">
@@ -180,15 +187,43 @@
         </div>
     </div>
 
+    <!-- Modal para Nova Categoria -->
+    <div class="modal fade" style="background-color: rgb(0, 0, 0, 0.5);" id="novaCategoriaModal" data-tipo="O" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-tag me-2"></i>Nova Categoria</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formNovaCategoria">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                                <input type="text" class="form-control" id="nomeCategoria" placeholder="Nome da categoria" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save me-1"></i>Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de edição de orçamento -->
     <div class="modal fade" id="editarOrcamentoModal" tabindex="-1" aria-hidden="true">
         <!-- Similar ao modal de novo orçamento, mas para edição -->
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/orcamentos.js"></script>
-    <script src="js/charts.js"></script>
+    <script type="module" src="js/orcamentos.js"></script>
+    <!-- <script type="module" src="js/charts.js"></script> -->
 </body>
 </html>

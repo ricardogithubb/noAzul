@@ -12,7 +12,7 @@ $(document).ready(function() {
 
     // Aplica a máscara de valor no campo de despesaValor
     $('#despesaValor').mask('###.###.###.###.###,00', {reverse: true});   
-
+      
     // Inicialização
     init();
 

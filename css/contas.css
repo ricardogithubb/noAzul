@@ -1,0 +1,54 @@
+/* Estilos para a página de contas */
+.account-row {
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem 0;
+}
+
+.inactive-account {
+    opacity: 0.7;
+    background-color: #f8f9fa;
+}
+
+.account-actions {
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+    border-top: 1px dashed #dee2e6;
+}
+
+@media (min-width: 768px) {
+    .account-actions {
+        border-top: none;
+        padding-top: 0;
+        margin-top: 0;
+    }
+}
+
+/* Estilos para os cards de resumo */
+.card-saldo {
+    border-left: 4px solid;
+}
+
+.card-saldo-total {
+    border-left-color: #198754;
+}
+
+.card-saldo-ativas {
+    border-left-color: #0d6efd;
+}
+
+.card-saldo-inativas {
+    border-left-color: #6c757d;
+}
+
+/* Espaçamento para o fixed navbar */
+body {
+    padding-top: 56px;
+}
+
+/* Ajustes para os modais */
+.modal-body .form-control-static {
+    padding: 0.375rem 0;
+    margin-bottom: 0;
+    line-height: 1.5;
+    min-height: calc(1.5em + 0.75rem);
+}

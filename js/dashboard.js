@@ -1,5 +1,5 @@
 //importar funcoes do arquivo IndexedDB.js
-import { adicionar, listar, atualizar, deletar, totalTransacao, ultimasTransacoes } from './indexedDB.js';
+import { adicionar, listar, atualizar, deletar, totalTransacao, ultimasTransacoes,listarOrcamentos,listarContas } from './indexedDB.js';
 import { updateMonthYear, formatMoney, setupMonthYearSelector } from './script.js';
 
 $(document).ready(function() {
@@ -200,13 +200,107 @@ $(document).ready(function() {
         var ano = localStorage.getItem('selectedYear');
 
         // endpointTotalDespesas(mes, ano);
-        // endpointTotalReceitas(mes, ano);
+        // endpointTotalReceitas(mes, ano);    
+        await carregarContas(); 
         await totalReceitasIndexedDB(mes, ano);
         await totalDespesasIndexedDB(mes, ano);
         await loadUltimasTransacoes(mes,ano);
+        await carregarResumoOrcamentos();    
         // endpointTodasTransacoes(mes, ano);
 
     }
+
+    async function carregarContas() {
+
+        const $contas = $('#saldoContas');
+        $contas.empty();
+        
+        const lista = await listarContas();
+
+        console.log(lista);
+        
+        lista.forEach(conta => {
+            $contas.append(`
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>${conta.nome}</span>
+                        <strong class="text-success">${formatMoney(conta.saldo_atual)}</strong>
+                    </div>`);
+        })
+
+    }
+
+
+    async function carregarResumoOrcamentos() {
+        const $listarOrcamento = $('.listar-orcamento');
+        let $moreOrcamentos = '';
+        let $moreBotao = '';
+        $listarOrcamento.empty();
+
+
+        let contador = 1;
+
+        const mes = localStorage.getItem('selectedMonth');
+        const ano = localStorage.getItem('selectedYear');
+    
+        const lista = await listarOrcamentos(mes, ano);
+
+        //ordenar por maior percentual para o menor
+        lista.sort((a, b) => b.percentual - a.percentual);
+
+        lista.forEach(categoria => {
+            console.log($listarOrcamento.children().length);
+            // os 3 primeiros orçamentos
+            if (contador <= 3) {
+
+                $listarOrcamento.append(`
+                    <div class="mb-4">
+                        <h6 class="small font-weight-bold">${categoria.categoria} <span class="float-end">${categoria.percentual}%</span></h6>
+                        <div class="progress mb-3">
+                            <div class="progress-bar ${getBarColor(categoria.percentual)}" role="progressbar" style="width: ${categoria.percentual}%"></div>
+                        </div>
+                        <small class="text-muted">${formatMoney(categoria.valor)} de ${formatMoney(categoria.total_gasto)}</small>
+                    </div>
+                `);
+            } else {
+                $moreOrcamentos += `
+                    <div class="mb-4">
+                        <h6 class="small font-weight-bold">${categoria.categoria} <span class="float-end">${categoria.percentual}%</span></h6>
+                        <div class="progress mb-3">
+                            <div class="progress-bar ${getBarColor(categoria.percentual)}" role="progressbar" style="width: ${categoria.percentual}%"></div>
+                        </div>
+                        <small class="text-muted">${formatMoney(categoria.valor)} de ${formatMoney(categoria.total_gasto)}</small>
+                    </div>
+                `;
+            };
+
+            contador++;
+        });
+
+        $moreBotao += `
+            <div class="text-center">
+                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#moreOrcamentos" aria-expanded="false" aria-controls="moreCategories">
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+            </div>
+        `;
+
+        $listarOrcamento.append(`<div class="collapse" id="moreOrcamentos">${$moreOrcamentos}</div>${$moreBotao}`);
+
+        console.log('Lista de categorias:', lista);
+    
+        
+    }
+    
+    // Utilitário opcional para definir a cor com base no percentual
+    function getBarColor(percentual) {
+        percentual = parseInt(percentual);
+        if (percentual < 25) return 'bg-info';
+        if (percentual < 50) return 'bg-success';
+        if (percentual < 75) return 'bg-warning';
+        if (percentual < 100) return 'bg-danger';
+        return 'bg-danger';
+    }
+    
 
     // Inicialização
     Inicializacao();
