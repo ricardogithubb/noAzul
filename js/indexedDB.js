@@ -119,6 +119,23 @@ function listar(storeName, callback) {
     };
 }
 
+export async function listarContaId(id) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('noAzul', 1);
+
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const transaction = db.transaction(['contas'], 'readonly');
+            const store = transaction.objectStore('contas');
+            const query = store.get(id);
+
+            query.onsuccess = function() {
+                resolve(query.result);
+            };
+        };
+    });
+}
+
 export function listarCategorias(storeName,type, callback) {
     const request = indexedDB.open('noAzul', 1);
 
@@ -429,7 +446,7 @@ export async function listarOrcamentos(mes, ano) {
                 
 
 //listar contas e total de transacoes na conta
-export async function listarContas() {
+export async function listarContas(status) {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open('noAzul', 1);
 
@@ -441,8 +458,15 @@ export async function listarContas() {
 
             const query = contasStore.getAll();
 
+            // id status = true listar somente in
+
             query.onsuccess = async function() {
-                const contas = query.result || [];
+                let contas = query.result || [];
+                
+                if (status === 'A') { //somente contas ativas
+                    contas = contas.filter(c => c.ativa === true);
+                }
+
 
                 // Buscar o total em transacoes por conta
                 const contasComTotal = await Promise.all(

@@ -1,15 +1,15 @@
-import { adicionar, listar, atualizar, deletar, listarContas } from './indexedDB.js';
-import { formatMoney, mostrarAlerta } from './script.js';
+import { adicionar, listar, atualizar, deletar, listarContas, listarContaId } from './indexedDB.js';
+import { formatMoney, mostrarAlerta, handleSubmitConta, contaEditar } from './script.js';
 
 $(document).ready(function () {
     let isSubmitting = false;
-    let contaEditando = null;
+    
 
     async function init() {
         setupEventListeners();
         await carregarContas();
         atualizarResumo();
-        $('#contaSaldoInicial, #ajustarSaldoValor').mask('#.##0,00', { reverse: true });
+        $('#contaSaldoInicial, #ajustarSaldoValor, #valorAjuste').mask('#.##0,00', { reverse: true });
     }
 
     function setupEventListeners() {
@@ -25,6 +25,9 @@ $(document).ready(function () {
             e.preventDefault();
             if (isSubmitting) return;
             await handleSubmitConta('editar');
+
+            carregarContas();
+            
         });        
             
         // ao fechar o modal de criar conta
@@ -82,7 +85,7 @@ $(document).ready(function () {
                             <div class="d-flex flex-column gap-3">
                                 <div>
                                     <small class="text-muted">Saldo Atual</small>
-                                    <h3 class="mb-0 text-success">${formatMoney(conta.saldo_atual)}</h3>
+                                    <h3 class="mb-0 text-success" id="labelSaldoAtual">${formatMoney(conta.saldo_atual)}</h3>
                                 </div>
                                 <div>
                                     <small class="text-muted">Saldo Previsto</small>
@@ -93,26 +96,17 @@ $(document).ready(function () {
                         </div>
                         <div class="card-footer border-top">
                             <div class="d-flex justify-content-between align-items-center">
-                                <div class="dropdown">
-                                    <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="dropdown">
-                                        <i class="bi bi-gear"></i> Gerenciar
+                                <div class="btn-group ms-auto" role="group">
+                                    <button class="btn btn-outline-secondary btn-sm btnAjusteConta" data-bs-toggle="modal" data-bs-target="#ajustarSaldoModal" data-id="${conta.id}" title="Ajustar Saldo">
+                                        <i class="bi bi-currency-exchange me-2"></i>
                                     </button>
-                                    <ul class="dropdown-menu">
-                                        <li><button class="dropdown-item" onclick="abrirAjustarSaldo('${conta.id}')">
-                                            <i class="bi bi-pencil me-2"></i>Ajustar Saldo
-                                        </button></li>
-                                        <li><button class="dropdown-item" onclick="abrirEditarConta('${conta.id}')">
-                                            <i class="bi bi-sliders me-2"></i>Editar Conta
-                                        </button></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><button class="dropdown-item text-danger" onclick="abrirConfirmarExclusao('${conta.id}')">
-                                            ${conta.ativa ? '<i class="bi bi-x-circle me-2"></i>Desativar' : '<i class="bi bi-arrow-clockwise me-2"></i>Reativar'}
-                                        </button></li>
-                                    </ul>
+                                    <button class="btn btn-outline-secondary btn-sm btnEditarConta" data-bs-toggle="modal" data-bs-target="#editarContaModal" data-id="${conta.id}" title="Editar Conta">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm btnExcluirConta" data-bs-toggle="modal" data-bs-target="#confirmarExclusaoModal" data-id="${conta.id}" title="Desativar Conta">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </div>
-                                <a href="#" class="btn btn-primary btn-sm">
-                                    Nova Transação <i class="bi bi-arrow-right ms-1"></i>
-                                </a>
                             </div>
                         </div>
                     </div>
@@ -158,32 +152,46 @@ $(document).ready(function () {
     }
 
     // Funções para modais
-    window.abrirEditarConta = async (id) => {
-        const conta = await listar('contas', id);
-        contaEditando = conta;
+
+    //ao abrir modal de editar conta, preencher os campos
+    $('#contasGrid').on('click', '.btnEditarConta', async function () {
         
-        $('#editarContaNome').val(conta.nome);
-        $('#editarContaTipo').val(conta.tipo);
-        $('#editarContaDescricao').val(conta.descricao);
-        $('#editarContaAtiva').prop('checked', conta.ativa);
+        const id = $(this).data('id'); // Agora funciona corretamente
+        const conta = await listarContaId(id);
+        console.log(conta);
+
+        contaEditar(conta);
+        
+        $('#contaId').val(conta.id);
+        $('#editarNomeConta').val(conta.nome);
+        $('#editarDescricao').val(conta.descricao);
+        $('#editarStatusConta').prop('checked', conta.ativa);
         
         $('#editarContaModal').modal('show');
-    };
+    });
 
-    window.abrirAjustarSaldo = async (id) => {
-        const conta = await listar('contas', id);
-        $('#ajustarSaldoContaId').val(id);
+    $('#contasGrid').on('click', '.btnAjusteConta', async function () {
+        
+        const id = $(this).data('id'); // Agora funciona corretamente
+        const conta = await listarContaId(id);
+        console.log(conta);
+
+        $('#ajusteContaId').val(id);
         $('#nomeContaAjuste').text(conta.nome);
-        $('#saldoAtualAjuste').text(formatMoney(conta.saldo));
+        $('#saldoAtualAjuste').text($('#labelSaldoAtual').text());
         $('#ajustarSaldoModal').modal('show');
-    };
+    });
 
-    window.abrirConfirmarExclusao = async (id) => {
-        const conta = await listar('contas', id);
-        $('#contaExclusaoNome').text(conta.nome);
-        $('#contaTipoExclusao').text(getTipoNome(conta.tipo));
-        $('#confirmarExclusaoModal').modal('show');
-    };
+    $('#contasGrid').on('click', '.btnExcluirConta', async function () {
+        const id = $(this).data('id'); // Agora funciona corretamente
+        const conta = await listarContaId(id);
+        console.log(conta);
+        $('#contaExclusaoNome').text(conta.nome); // Limpa o campo de nome da conta
+        $('#contaTipoExclusao').text(conta.tipo); // Limpa o campo de tipo da conta        
+        $('#confirmarExclusaoModal').data('id', id);
+    });
+
+
 
     async function handleAjustarSaldo() {
         isSubmitting = true;
@@ -191,14 +199,17 @@ $(document).ready(function () {
         btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Aplicando...');
 
         try {
-            const id = $('#ajustarSaldoContaId').val();
-            const valor = parseFloat($('#ajustarSaldoValor').val().replace(/\./g, '').replace(',', '.'));
-            const tipo = $('#ajustarSaldoTipo').val();
-            const data = $('#ajustarSaldoData').val();
-            const descricao = $('#ajustarSaldoDescricao').val();
+            const id = parseInt($('#ajusteContaId').val());
+            const valor = parseFloat($('#valorAjuste').val().replace(/\./g, '').replace(',', '.'));
+            const tipo = $('#tipoAjuste').val();
+            const data = $('#dataAjuste').val();
+            const descricao = $('#observacaoAjuste').val();
 
-            const conta = await listar('contas', id);
-            let novoSaldo = conta.saldo;
+            const conta = await listarContaId(id);
+            let novoSaldo = conta.saldo_inicial;
+            console.log(id);
+            console.log(conta);
+            console.log(tipo);
 
             if (tipo === 'ajuste') {
                 novoSaldo = valor;
@@ -208,7 +219,7 @@ $(document).ready(function () {
                 novoSaldo -= valor;
             }
 
-            await atualizar('contas', id, { saldo: novoSaldo });
+            await atualizar('contas', id, { saldo_inicial: novoSaldo });
             await carregarContas();
             $('#ajustarSaldoModal').modal('hide');
             mostrarAlerta('Saldo ajustado com sucesso!', 'success');
@@ -226,7 +237,8 @@ $(document).ready(function () {
         $('#btnConfirmarExclusao').prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Processando...');
 
         try {
-            const id = $('#ajustarSaldoContaId').val();
+            const id = $('#confirmarExclusaoModal').data('id');
+            alert(id);
             await atualizar('contas', id, { ativa: false });
             await carregarContas();
             $('#confirmarExclusaoModal').modal('hide');

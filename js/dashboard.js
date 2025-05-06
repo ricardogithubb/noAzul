@@ -10,35 +10,35 @@ $(document).ready(function() {
     setupMonthYearSelector();
 
     // Navegação para detalhes
-    $('#totalReceitas').click(function() {
+    $('#totalReceitas').off('click').on('click', function () {
         window.location.href = 'receitas.html';
     });
 
-    $('#totalDespesas').click(function() {
+    $('#totalDespesas').off('click').on('click', function () {
         window.location.href = 'despesas.html';
     });
 
     // Gerenciar orçamento
-    $('#gerenciarOrcamento').click(function() {
+    $('#gerenciarOrcamento').off('click').on('click', function () {
         window.location.href = 'orcamentos.html';
     });
 
     // ver todas as categorias
-    $('#moreCategories').click(function() {
+    $('#moreCategories').off('click').on('click', function () {
         window.location.href = 'categorias.html';
     });
 
     // Configuração do botão "Ver Todas as Categorias"
-    $('#verTodasCategorias').click(function() {
+    $('#verTodasCategorias').off('click').on('click', function () {
         toggleTodasCategorias();
     });
 
     // Configuração do botão de toggle
-    $('#btnToggleCategorias').click(function() {
+    $('#btnToggleCategorias').off('click').on('click', function () {
         toggleTodasCategorias();
     });    
         
-    $('#confirmMonthYear').click(function() {
+    $('#confirmMonthYear').off('click').on('click', function () {
         Inicializacao();
     });
     
@@ -215,7 +215,7 @@ $(document).ready(function() {
         const $contas = $('#saldoContas');
         $contas.empty();
         
-        const lista = await listarContas();
+        const lista = await listarContas('A');
 
         console.log(lista);
         

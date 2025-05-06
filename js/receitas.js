@@ -40,12 +40,12 @@ $(document).ready(function() {
     });
 
 
-    $('#confirmMonthYear').click(function() {
+    $('#confirmMonthYear').off('click').on('click', function () {
         init();
     });
 
     // Botão que abre o modal de filtro
-    $('#filtroAvancadoBtn').click(function() {
+    $('#filtroAvancadoBtn').off('click').on('click', function () {
         // Preenche os valores atuais dos filtros (se existirem)
         // preencherFiltrosAtuais();
         
@@ -60,7 +60,7 @@ $(document).ready(function() {
     });
 
     // Botão para limpar filtros
-    $('#limparFiltrosBtn').click(function() {
+    $('#limparFiltrosBtn').off('click').on('click', function () {
         limparFiltrosAvancados();
     });
 
@@ -206,7 +206,7 @@ $(document).ready(function() {
 
 
         // Botão de filtro avançado
-        $('#filtroAvancadoBtn').click(function() {
+        $('#filtroAvancadoBtn').off('click').on('click', function () {
             $('#filtroAvancadoModal').modal('show');
         });
 
@@ -217,12 +217,12 @@ $(document).ready(function() {
         });
 
         // Limpar filtros
-        $('#limparFiltros').click(function() {
+        $('#limparFiltros').off('click').on('click', function () {
             limparFiltros();
         });
 
 
-        $('#btnExcluirReceita').click(function() {
+        $('#btnExcluirReceita').off('click').on('click', function () {
             const id = $("#novaReceitaModal").data('id');
             confirmarExclusao(id);
         });

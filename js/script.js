@@ -4,11 +4,17 @@ import { adicionar, listar, atualizar, deletar, totalTransacao, ultimasTransacoe
 
 let isSubmitting = false;
 
+let contaEditando = null;
+
 // Inicializa tooltips
 $(function () {
     $('[data-bs-toggle="tooltip"]').tooltip();
 });
 
+export function contaEditar(conta) {
+    console.log('Conta editando:', conta);
+    contaEditando = conta;
+}
 
 export async function handleSubmitConta(tipo) {
     isSubmitting = true;
@@ -52,10 +58,9 @@ export function getNovaContaData() {
 
 export function getEditarContaData() {
     return {
-        nome: $('#editarContaNome').val(),
-        tipo: $('#editarContaTipo').val(),
-        descricao: $('#editarContaDescricao').val(),
-        ativa: $('#editarContaAtiva').prop('checked')
+        nome: $('#editarNomeConta').val(),
+        descricao: $('#editarDescricao').val(),
+        ativa: $('#editarStatusConta').prop('checked')
     };
 }
 
@@ -150,11 +155,11 @@ export function setupMonthYearSelector() {
     $('.month-btn[data-month="' + currentMonth + '"]').removeClass('btn-outline-primary').addClass('btn-primary');
 
 
-    $('#monthYearBtn').click(function() {
+    $('#monthYearBtn').off('click').on('click', function () {
         $('#monthYearModal').modal('show');
     });
 
-    $('.month-btn').click(function() {
+    $('.month-btn').off('click').on('click', function () {
         $('.month-btn').removeClass('btn-primary').addClass('btn-outline-primary');
         $(this).removeClass('btn-outline-primary').addClass('btn-primary');
         $('#confirmMonthYear').click();
@@ -162,17 +167,17 @@ export function setupMonthYearSelector() {
 
     
 
-    $('#prevYear').click(function() {
+    $('#prevYear').off('click').on('click', function () {
         const currentYear = parseInt($('#currentYear').text());
         $('#currentYear').text(currentYear - 1);
     });
 
-    $('#nextYear').click(function() {
+    $('#nextYear').off('click').on('click', function () {
         const currentYear = parseInt($('#currentYear').text());
         $('#currentYear').text(currentYear + 1);
     });
 
-    $('#confirmMonthYear').click(function() {
+    $('#confirmMonthYear').off('click').on('click', function () {
         const selectedMonth = $('.month-btn.btn-primary').data('month');
         const selectedYear = $('#currentYear').text();
         updateMonthYear(selectedMonth, selectedYear);
@@ -360,12 +365,12 @@ function setupModalsContaCategoria() {
     $('#saldoInicial').mask('###.###.###.###.###,00', {reverse: true});
 
     // Evento para abrir modal de nova conta
-    $('#btnNovaConta').click(function() {
+    $('#btnNovaConta').off('click').on('click', function () {
         $('#novaContaModal').modal('show');
     });
     
     // Evento para abrir modal de nova categoria
-    $('#btnNovaCategoria').click(function() {
+    $('#btnNovaCategoria').off('click').on('click', function () {
         $('#novaCategoriaModal').modal('show');
     });
     
