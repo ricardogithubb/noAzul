@@ -1,4 +1,4 @@
-import { totalTransacao, listarCategoriasTransacoes } from './indexedDB.js';
+import { totalTransacao } from './indexedDB.js';
 
 // Variáveis globais para armazenar os gráficos
 let annualChartInstance;
@@ -137,13 +137,6 @@ function initCharts() {
     if (orcamentoChartInstance) {
         orcamentoChartInstance.destroy();
     }
-
-    let mes = localStorage.getItem('selectedMonth');
-    let ano = localStorage.getItem('selectedYear');
-
-    listarCategoriasTransacoes().then((totalDespesa) => {
-        console.log('totalDespesa ' + totalDespesa.length);
-    })
 
     orcamentoChartInstance = new Chart(orcamentoCtx, {
         type: 'line',

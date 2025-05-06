@@ -119,26 +119,6 @@ function listar(storeName, callback) {
     };
 }
 
-export async function listarCategoriasTransacoes(){
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open('noAzul', 2);
-    
-        request.onsuccess = function(event) {
-            const db = event.target.result;
-            const transaction = db.transaction(['categorias'], 'readonly');
-            const storeCategorias = transaction.objectStore('categorias');
-            const getCategorias = storeCategorias.getAll();
-    
-            getCategorias.onsuccess = function() {
-                resolve(getCategorias.result);
-            };
-        };
-    });
-}
-
-
-
-
 
 export async function listarContaId(id) {
     return new Promise((resolve, reject) => {
