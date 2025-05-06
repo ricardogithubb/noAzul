@@ -38,10 +38,11 @@ $(document).ready(function() {
         toggleTodasCategorias();
     });    
         
-    $('#confirmMonthYear').off('click').on('click', function () {
+
+    //quando o modal monthYearModal fechar 
+    $('#monthYearModal').on('hidden.bs.modal', function () {
         Inicializacao();
-    });
-    
+    })
 
     // executar endpoint para carregar total despesa com token
      function endpointTotalDespesas(mes, ano) {
