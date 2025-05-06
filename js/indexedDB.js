@@ -1,5 +1,5 @@
 // Inicialização do IndexedDB
-const request = indexedDB.open('noAzul', 2);
+const request = indexedDB.open('noAzul', 1);
 
 function ultimoDiaDoMes() {
     const mes = localStorage.getItem('selectedMonth');
@@ -67,11 +67,11 @@ request.onerror = function(event) {
 
 // Funções genéricas CRUD
 function adicionar(storeName, data) {
-    const request = indexedDB.open('noAzul', 2);
+    const request = indexedDB.open('noAzul', 1);
 
     //não permitir gravar registros com nomes repetidos para categorias e contas
     if (storeName === 'categorias' || storeName === 'contas') {
-        const getRequest = indexedDB.open('noAzul', 2);
+        const getRequest = indexedDB.open('noAzul', 1);
         getRequest.onsuccess = function(event) {
             const db = event.target.result;
             const transaction = db.transaction([storeName], 'readonly');
@@ -105,7 +105,7 @@ function adicionar(storeName, data) {
 }
 
 function listar(storeName, callback) {
-    const request = indexedDB.open('noAzul', 2);
+    const request = indexedDB.open('noAzul', 1);
 
     request.onsuccess = function(event) {
         const db = event.target.result;
@@ -122,7 +122,7 @@ function listar(storeName, callback) {
 
 export async function listarContaId(id) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('noAzul', 2);
+        const request = indexedDB.open('noAzul', 1);
 
         request.onsuccess = function(event) {
             const db = event.target.result;
@@ -138,7 +138,7 @@ export async function listarContaId(id) {
 }
 
 export function listarCategorias(storeName,type, callback) {
-    const request = indexedDB.open('noAzul', 2);
+    const request = indexedDB.open('noAzul', 1);
 
     request.onsuccess = function(event) {
         const db = event.target.result;
@@ -154,7 +154,7 @@ export function listarCategorias(storeName,type, callback) {
 
 export async function listarReceitas(mes, ano) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('noAzul', 2);
+        const request = indexedDB.open('noAzul', 1);
 
         request.onsuccess = async function(event) {
             const db = event.target.result;
@@ -260,7 +260,7 @@ export async function listarReceitas(mes, ano) {
 
 export async function listarDespesas(mes, ano) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('noAzul', 2);
+        const request = indexedDB.open('noAzul', 1);
 
         request.onsuccess = async function(event) {
             const db = event.target.result;
@@ -366,7 +366,7 @@ export async function listarDespesas(mes, ano) {
 
 export async function listarOrcamentos(mes, ano) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('noAzul', 2);
+        const request = indexedDB.open('noAzul', 1);
 
         request.onsuccess = function(event) {
             const db = event.target.result;
@@ -449,7 +449,7 @@ export async function listarOrcamentos(mes, ano) {
 //listar contas e total de transacoes na conta
 export async function listarContas(status) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('noAzul', 2);
+        const request = indexedDB.open('noAzul', 1);
 
         request.onsuccess = function(event) {
             const db = event.target.result;
@@ -532,7 +532,7 @@ export async function listarContas(status) {
 
 
 function atualizar(storeName, id, novosDados) {
-    const request = indexedDB.open('noAzul', 2);
+    const request = indexedDB.open('noAzul', 1);
 
     request.onsuccess = function(event) {
         const db = event.target.result;
@@ -559,7 +559,7 @@ function atualizar(storeName, id, novosDados) {
 //Total Despesas por mes, ano e categoria
 async function totalDespesasCategoria(mes, ano, categoria_id) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('noAzul', 2);
+        const request = indexedDB.open('noAzul', 1);
 
         request.onsuccess = function(event) {
             const db = event.target.result;
@@ -606,7 +606,7 @@ async function totalDespesasCategoria(mes, ano, categoria_id) {
 
 async function totalTransacao(mes, ano, tipo) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('noAzul', 2);
+        const request = indexedDB.open('noAzul', 1);
 
         request.onsuccess = function(event) {
             const db = event.target.result;
@@ -653,7 +653,7 @@ async function totalTransacao(mes, ano, tipo) {
 
 export async function totalPendente(mes, ano, tipo) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('noAzul', 2);
+        const request = indexedDB.open('noAzul', 1);
 
         request.onsuccess = function(event) {
             const db = event.target.result;
@@ -701,7 +701,7 @@ export async function totalPendente(mes, ano, tipo) {
 
 export async function totalEfetivado(mes, ano, tipo) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('noAzul', 2);
+        const request = indexedDB.open('noAzul', 1);
 
         request.onsuccess = function(event) {
             const db = event.target.result;
@@ -751,7 +751,7 @@ export async function totalEfetivado(mes, ano, tipo) {
 //funcao para retornar as ultimas 5 transações em ordem decrescente
 async function ultimasTransacoes(mes, ano) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('noAzul', 2);
+        const request = indexedDB.open('noAzul', 1);
 
         request.onsuccess = async function(event) {
             const db = event.target.result;
@@ -832,7 +832,7 @@ async function ultimasTransacoes(mes, ano) {
 
 
 function deletar(storeName, id) {
-    const request = indexedDB.open('noAzul', 2);
+    const request = indexedDB.open('noAzul', 1);
 
     request.onsuccess = function(event) {
         const db = event.target.result;
