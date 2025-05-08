@@ -8,6 +8,11 @@
     --danger: #e74a3b;
     --light: #f8f9fc;
     --dark: #5a5c69;
+    --blue: #4e73df;
+}
+
+.bg-gray-400 {
+    background-color: #d1d3e2;
 }
 
 body {

@@ -8,7 +8,11 @@ function ultimoDiaDoMes() {
     return `${ano}-${String(mes).padStart(2, '0')}-${String(ultimoDia).padStart(2, '0')}`;
 }
 
-
+function formatarData(data) {
+    const pad = num => num.toString().padStart(2, '0');
+    return `${data.getFullYear()}-${pad(data.getMonth()+1)}-${pad(data.getDate())} ` +
+           `${pad(data.getHours())}:${pad(data.getMinutes())}:${pad(data.getSeconds())}`;
+}
 
 
 request.onupgradeneeded = function(event) {
@@ -20,6 +24,9 @@ request.onupgradeneeded = function(event) {
         categoriaStore.createIndex('nome', 'nome', { unique: false });
         categoriaStore.createIndex('tipo', 'tipo', { unique: false });
         categoriaStore.createIndex('user_id', 'user_id', { unique: false });
+        categoriaStore.createIndex('created_at', 'created_at', { unique: false });
+        categoriaStore.createIndex('updated_at', 'updated_at', { unique: false });
+        categoriaStore.createIndex('deleted_at', 'deleted_at', { unique: false });
     }
 
     // Criar object store para Conta
@@ -28,6 +35,10 @@ request.onupgradeneeded = function(event) {
         contaStore.createIndex('nome', 'nome', { unique: false });
         contaStore.createIndex('saldo_inicial', 'saldo_inicial', { unique: false });
         contaStore.createIndex('user_id', 'user_id', { unique: false });
+        contaStore.createIndex('visivel', 'visivel', { unique: false });
+        categoriaStore.createIndex('created_at', 'created_at', { unique: false });
+        categoriaStore.createIndex('updated_at', 'updated_at', { unique: false });
+        categoriaStore.createIndex('deleted_at', 'deleted_at', { unique: false });
     }
 
     // Criar object store para Transacao
@@ -42,6 +53,9 @@ request.onupgradeneeded = function(event) {
         transacaoStore.createIndex('data_vencimento', 'data_vencimento', { unique: false });
         transacaoStore.createIndex('data_efetivacao', 'data_efetivacao', { unique: false });
         transacaoStore.createIndex('user_id', 'user_id', { unique: false });
+        categoriaStore.createIndex('created_at', 'created_at', { unique: false });
+        categoriaStore.createIndex('updated_at', 'updated_at', { unique: false });
+        categoriaStore.createIndex('deleted_at', 'deleted_at', { unique: false });
     }
 
     // Criar object store para Categoria
@@ -52,6 +66,9 @@ request.onupgradeneeded = function(event) {
         transacaoStore.createIndex('ano', 'ano', { unique: false });
         transacaoStore.createIndex('valor', 'valor', { unique: false });
         transacaoStore.createIndex('user_id', 'user_id', { unique: false });
+        categoriaStore.createIndex('created_at', 'created_at', { unique: false });
+        categoriaStore.createIndex('updated_at', 'updated_at', { unique: false });
+        categoriaStore.createIndex('deleted_at', 'deleted_at', { unique: false });
     }
 
     console.log('Estrutura do banco criada!');
@@ -67,41 +84,55 @@ request.onerror = function(event) {
 
 // Funções genéricas CRUD
 function adicionar(storeName, data) {
-    const request = indexedDB.open('noAzul', 2);
+    return new Promise((resolve, reject) => {
 
-    //não permitir gravar registros com nomes repetidos para categorias e contas
-    if (storeName === 'categorias' || storeName === 'contas') {
-        const getRequest = indexedDB.open('noAzul', 2);
-        getRequest.onsuccess = function(event) {
-            const db = event.target.result;
-            const transaction = db.transaction([storeName], 'readonly');
-            const store = transaction.objectStore(storeName);
-            const index = store.index('nome');
-            const query = index.get(data.nome);
+        const request = indexedDB.open('noAzul', 2);
 
-            query.onsuccess = function() {
-                if (query.result) {
-                    alert(`Já existe uma ${storeName} com o nome ${data.nome}`);
-                } else {
-                    request.onsuccess = function(event) {
-                        const db = event.target.result;
-                        const transaction = db.transaction([storeName], 'readwrite');
-                        const store = transaction.objectStore(storeName);
-                        store.add(data);
-                        console.log(`Adicionado na store ${storeName}`);
-                    };
-                }
+        //não permitir gravar registros com nomes repetidos para categorias e contas
+        if (storeName === 'categorias' || storeName === 'contas') {
+            const getRequest = indexedDB.open('noAzul', 2);
+            getRequest.onsuccess = function(event) {
+                const db = event.target.result;
+                const transaction = db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const index = store.index('nome');
+                const query = index.get(data.nome);
+
+                query.onsuccess = function() {
+                    if (query.result) {
+                        console.log(`Já existe uma ${storeName} com o nome ${data.nome}`);
+                    } else {
+                        request.onsuccess = function(event) {
+                            const db = event.target.result;
+                            const transaction = db.transaction([storeName], 'readwrite');
+                            const store = transaction.objectStore(storeName);
+                            data.created_at = formatarData(new Date());
+                            data.updated_at = formatarData(new Date());
+                            data.deleted_at = null;
+                            store.add(data);
+                            console.log(`Adicionado na store ${storeName}`);
+                        };
+                    }
+                };
+
+                resolve();
             };
-        };
-    } 
+        } 
 
-    request.onsuccess = function(event) {
-        const db = event.target.result;
-        const transaction = db.transaction([storeName], 'readwrite');
-        const store = transaction.objectStore(storeName);
-        store.add(data);
-        console.log(`Adicionado na store ${storeName}`);
-    };
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const transaction = db.transaction([storeName], 'readwrite');
+            const store = transaction.objectStore(storeName);
+            data.created_at = formatarData(new Date());
+            data.updated_at = formatarData(new Date());
+            data.deleted_at = null;
+            store.add(data);
+            console.log(`Adicionado na store ${storeName}`);
+        };
+
+        resolve();
+
+    })
 }
 
 function listar(storeName, callback) {
@@ -114,8 +145,14 @@ function listar(storeName, callback) {
         const getAll = store.getAll();
 
         getAll.onsuccess = function() {
-            callback(getAll.result);
+            const registros = getAll.result;
+            const registrosFiltrados = registros.filter(registro => 
+                                                        registro.deleted_at === null || 
+                                                        registro.deleted_at === undefined ||
+                                                        typeof registro.deleted_at === 'undefined');
+            callback(registrosFiltrados);
         };
+
     };
 }
 
@@ -131,7 +168,8 @@ export async function listarContaId(id) {
             const query = store.get(id);
 
             query.onsuccess = function() {
-                resolve(query.result);
+                const registros = query.result;
+                resolve(registros);
             };
         };
     });
@@ -147,7 +185,12 @@ export function listarCategorias(storeName,type, callback) {
         const getAll = store.index('tipo').getAll(type); 
 
         getAll.onsuccess = function() {
-            callback(getAll.result);
+            const registros = getAll.result;
+            const registrosFiltrados = registros.filter(registro => 
+                                                        registro.deleted_at === null || 
+                                                        registro.deleted_at === undefined ||
+                                                        typeof registro.deleted_at === 'undefined');
+            callback(registrosFiltrados);
         };
     };
 }
@@ -168,9 +211,12 @@ export async function listarReceitas(mes, ano) {
 
             query.onsuccess = async function() {
                 const transacoes = query.result || [];
+                const registrosFiltrados = transacoes.filter(registro => registro.deleted_at === null||
+                                                           registro.deleted_at === undefined ||
+                                                           typeof registro.deleted_at === 'undefined');
 
                 // Ordenar as transações pela data (mais recente primeiro)
-                const transacoesOrdenadas = transacoes.sort((a, b) => {
+                const transacoesOrdenadas = registrosFiltrados.sort((a, b) => {
                     const dataA = new Date(a.data_efetivacao || a.data_vencimento);
                     const dataB = new Date(b.data_efetivacao || b.data_vencimento);
                     return dataB - dataA;
@@ -275,8 +321,13 @@ export async function listarDespesas(mes, ano) {
             query.onsuccess = async function() {
                 const transacoes = query.result || [];
 
+                const registrosFiltrados = transacoes.filter(registro => 
+                                                             registro.deleted_at === null||
+                                                             registro.deleted_at === undefined ||
+                                                             typeof registro.deleted_at === 'undefined');
+
                 // Ordenar as transações pela data (mais recente primeiro)
-                const transacoesOrdenadas = transacoes.sort((a, b) => {
+                const transacoesOrdenadas = registrosFiltrados.sort((a, b) => {
                     const dataA = new Date(a.data_efetivacao || a.data_vencimento);
                     const dataB = new Date(b.data_efetivacao || b.data_vencimento);
                     return dataB - dataA;
@@ -381,8 +432,13 @@ export async function listarOrcamentos(mes, ano) {
             query.onsuccess = async function() {
                 const orcamentos = query.result || [];
 
+                const registrosFiltrados = orcamentos.filter(registro => 
+                                                             registro.deleted_at === null||
+                                                             registro.deleted_at === undefined ||
+                                                             typeof registro.deleted_at === 'undefined');
+
                 // Ordenar os orçamentos pela data (mais recente primeiro)
-                const orcamentosOrdenados = orcamentos.sort((a, b) => {
+                const orcamentosOrdenados = registrosFiltrados.sort((a, b) => {
                     const dataA = new Date(a.data_efetivacao || a.data_vencimento);
                     const dataB = new Date(b.data_efetivacao || b.data_vencimento);
                     return dataB - dataA;
@@ -466,12 +522,18 @@ export async function listarContas(status) {
                 
                 if (status === 'A') { //somente contas ativas
                     contas = contas.filter(c => c.ativa === true);
+                    contas = contas.filter(c => c.visivel === true);
                 }
+
+                const registrosFiltrados = contas.filter(registro => 
+                                                         registro.deleted_at === null||
+                                                         registro.deleted_at === undefined ||
+                                                         typeof registro.deleted_at === 'undefined');
 
 
                 // Buscar o total em transacoes por conta
                 const contasComTotal = await Promise.all(
-                    contas.map(conta => {
+                    registrosFiltrados.map(conta => {
                         return new Promise((resolveTotal) => {
                             listar('transacoes', (transacoes) => {
                                 const total = transacoes
@@ -489,8 +551,6 @@ export async function listarContas(status) {
                 
                 // Buscar o total em transacoes por conta
                 const dataLimite = ultimoDiaDoMes(); // Ex: "2025-05-31"
-
-                console.log(dataLimite);
 
                 const contasComTotalPrevisto = await Promise.all(
                     contas.map(conta => {
@@ -547,6 +607,7 @@ function atualizar(storeName, id, novosDados) {
             if (data) {
                 // Atualiza os campos
                 Object.assign(data, novosDados);
+                data.updated_at = formatarData(new Date());
                 store.put(data);
                 console.log(`Registro atualizado na store ${storeName}`);
             } else {
@@ -568,11 +629,18 @@ async function totalDespesasCategoria(mes, ano, categoria_id) {
 
             const query = store.getAll();
 
+
             query.onsuccess = function() {
                 const transacoes = query.result || [];
 
-                const despesasNoMes = transacoes.filter(transacao => {
+                const registrosFiltrados = transacoes.filter(registro => 
+                                                                    registro.deleted_at === null||
+                                                                    registro.deleted_at === undefined ||
+                                                                    typeof registro.deleted_at === 'undefined');
+
+                const despesasNoMes = registrosFiltrados.filter(transacao => {
                     if (transacao.tipo !== 'D') return false;
+                    if(transacao.efetivada === false) return false;
 
                     const dataStr = transacao.data_efetivacao || transacao.data_vencimento;
                     if (!dataStr) return false;
@@ -618,7 +686,12 @@ async function totalTransacao(mes, ano, tipo) {
             query.onsuccess = function() {
                 const transacoes = query.result || [];
 
-                const receitasNoMes = transacoes.filter(transacao => {
+                const transacoesFiltradas = transacoes.filter(registro => 
+                                                           registro.deleted_at === null || 
+                                                           registro.deleted_at === undefined ||
+                                                           typeof registro.deleted_at === 'undefined');
+
+                const receitasNoMes = transacoesFiltradas.filter(transacao => {
                     if (transacao.tipo !== tipo) return false;
 
                     const dataStr = transacao.data_efetivacao || transacao.data_vencimento;
@@ -668,6 +741,7 @@ export async function totalPendente(mes, ano, tipo) {
                 const receitasNoMes = transacoes.filter(transacao => {
                     if (transacao.tipo !== tipo) return false;
                     if (transacao.data_efetivacao != null) return false;
+                    if (transacao.deleted_at != null) return false;
 
                     const dataStr = transacao.data_efetivacao || transacao.data_vencimento;
                     if (!dataStr) return false;
@@ -716,6 +790,7 @@ export async function totalEfetivado(mes, ano, tipo) {
                 const receitasNoMes = transacoes.filter(transacao => {
                     if (transacao.tipo !== tipo) return false;
                     if (transacao.data_efetivacao == null) return false;
+                    if (transacao.deleted_at != null) return false;
 
                     const dataStr = transacao.data_efetivacao || transacao.data_vencimento;
                     if (!dataStr) return false;
@@ -764,7 +839,12 @@ async function ultimasTransacoes(mes, ano) {
             query.onsuccess = async function() {
                 const transacoes = query.result || [];
 
-                const receitasNoMes = transacoes.filter(transacao => {
+                const registrosFiltrados = transacoes.filter(registro => 
+                                                             registro.deleted_at === null || 
+                                                             registro.deleted_at === undefined ||
+                                                             typeof registro.deleted_at === 'undefined');
+
+                const receitasNoMes = registrosFiltrados.filter(transacao => {
 
                     const dataStr = transacao.data_efetivacao || transacao.data_vencimento;
                     if (!dataStr) return false;
@@ -776,14 +856,22 @@ async function ultimasTransacoes(mes, ano) {
                     return dataMes === parseInt(mes) && dataAno === parseInt(ano);
                 });
 
-                // Ordenar as transações pela data (mais recente primeiro)
+                //Ordenar pelo id da transação do maior para o menor
                 const transacoesOrdenadas = receitasNoMes.sort((a, b) => {
-                    const dataA = new Date(a.data_efetivacao || a.data_vencimento);
-                    const dataB = new Date(b.data_efetivacao || b.data_vencimento);
-                    return dataB - dataA;
+                    return b.id - a.id;
                 });
+               
 
-                const ultimos5 = transacoesOrdenadas.slice(0, 5);
+                // // Ordenar as transações pela data (mais recente primeiro)
+                // const transacoesOrdenadas = receitasNoMes.sort((a, b) => {
+                //     const dataA = new Date(a.data_efetivacao || a.data_vencimento);
+                //     const dataB = new Date(b.data_efetivacao || b.data_vencimento);
+                //     return dataB - dataA;
+                // });
+
+                //
+
+                const ultimos5 = transacoesOrdenadas.slice(0, 10);
 
                 // Buscar os nomes das categorias
                 const transacoesComCategoria = await Promise.all(
@@ -829,8 +917,6 @@ async function ultimasTransacoes(mes, ano) {
 
 
 
-
-
 function deletar(storeName, id) {
     const request = indexedDB.open('noAzul', 2);
 
@@ -838,36 +924,40 @@ function deletar(storeName, id) {
         const db = event.target.result;
         const transaction = db.transaction([storeName], 'readwrite');
         const store = transaction.objectStore(storeName);
-        store.delete(id);
-        console.log(`Registro deletado da store ${storeName}`);
+        
+        // Primeiro obtemos o registro para atualizá-lo
+        const getRequest = store.get(id);
+        
+        getRequest.onsuccess = function() {
+            const data = getRequest.result;
+            
+            if (data) {
+                // Atualiza o campo deleted_at com a data/hora atual
+                data.deleted_at = formatarData(new Date());
+                
+                // Salva o registro atualizado
+                const putRequest = store.put(data);
+                
+                putRequest.onsuccess = function() {
+                    console.log(`Registro marcado como deletado na store ${storeName}`);
+                };
+                
+                putRequest.onerror = function(error) {
+                    console.error('Erro ao atualizar registro:', error);
+                };
+            } else {
+                console.warn(`Registro com ID ${id} não encontrado na store ${storeName}`);
+            }
+        };
+        
+        getRequest.onerror = function(error) {
+            console.error('Erro ao buscar registro:', error);
+        };
+    };
+    
+    request.onerror = function(error) {
+        console.error('Erro ao abrir o banco de dados:', error);
     };
 }
 
-// Exemplo de uso:
-
-// Adicionar uma Categoria
-// adicionar('categorias', { nome: 'Salario', tipo: 'R', user_id: 1 });
-// adicionar('categorias', { nome: 'Adiantamento', tipo: 'R', user_id: 1 });
-// adicionar('categorias', { nome: 'Carro', tipo: 'D', user_id: 1 });
-// adicionar('categorias', { nome: 'Supermercado', tipo: 'D', user_id: 1 });
-
-// // Adicionar uma Conta
-// adicionar('contas', { nome: 'Itau', user_id: 1 });
-// adicionar('contas', { nome: 'Investimento', user_id: 1 });
-
-// Listar todas Categorias
-// listar('categorias', (dados) => console.log(dados));
-
-// Atualizar uma Categoria pelo id
-// atualizar('transacoes', 3, { data_efetivacao: '2025-04-30'});
-
-// Deletar uma Categoria pelo id
-// deletar('categorias', 1);
-
-//adicionar uma transacao
-// adicionar('transacoes', { descricao: 'RochaSystem', observacao: null, conta_id: 1, categoria_id: 1, tipo: 'R', valor: 1232.00, data_vencimento: '2025-04-14', data_efetivacao: null, user_id: 1 });
-// adicionar('transacoes', { descricao: 'Adiantamento Sumidenso', observacao: null, conta_id: 1, categoria_id: 1, tipo: 'R', valor: 3685.22, data_vencimento: '2025-04-15', data_efetivacao: null, user_id: 1 });
-// adicionar('transacoes', { descricao: 'Salario Sumidenso', observacao: null, conta_id: 1, categoria_id: 1, tipo: 'R', valor: 1232.00, data_vencimento: '2025-04-16', data_efetivacao: null, user_id: 1 });
-// adicionar('transacoes', { descricao: 'Combustível', observacao: null, conta_id: 1, categoria_id: 3, tipo: 'D', valor: 350.00, data_vencimento: '2025-04-15', data_efetivacao: null, user_id: 1 });
-//exportar estas funções
 export { adicionar, listar, atualizar, deletar, totalTransacao, ultimasTransacoes };

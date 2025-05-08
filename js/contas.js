@@ -74,14 +74,14 @@ $(document).ready(function () {
         contas.forEach(conta => {
             const card = `
                 <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card account-card shadow-sm h-100">
-                        <div class="card-header position-relative">
-                            <h5 class="card-title mb-0">
+                    <div class="card account-card shadow-sm h-100 shadow-lg border border-secondary">
+                        <div class="card-header position-relative rounded-top-5">
+                            <h5 class="card-title mb-0 rounded-3">
                                 ${conta.nome}                                
                             </h5>
                             <div class="account-status ${conta.ativa ? 'active-status' : 'inactive-status'}"></div>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body ${conta.ativa ? '' : 'd-none'}">
                             <div class="d-flex flex-column gap-3">
                                 <div>
                                     <small class="text-muted">Saldo Atual</small>
@@ -97,13 +97,30 @@ $(document).ready(function () {
                         <div class="card-footer border-top">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group ms-auto" role="group">
-                                    <button class="btn btn-outline-secondary btn-sm btnAjusteConta" data-bs-toggle="modal" data-bs-target="#ajustarSaldoModal" data-id="${conta.id}" title="Ajustar Saldo">
-                                        <i class="bi bi-currency-exchange me-2"></i>
+                                    <button class="btn btn-outline-success btn-sm ${conta.visivel ? '' : 'bg-gray-400'} btnDisplayConta" 
+                                            data-id="${conta.id}" 
+                                            title="${conta.visivel ? 'Conta ativa - Clique para desativar' : 'Conta inativa - Clique para ativar'}">
+                                        <i class="bi bi-eye${conta.visivel ? '' : '-slash'}"></i>
                                     </button>
-                                    <button class="btn btn-outline-secondary btn-sm btnEditarConta" data-bs-toggle="modal" data-bs-target="#editarContaModal" data-id="${conta.id}" title="Editar Conta">
+                                    <button class="btn btn-outline-secondary btn-sm btnAjusteConta" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#ajustarSaldoModal" 
+                                            data-id="${conta.id}" 
+                                            title="Ajustar Saldo">
+                                        <i class="bi bi-currency-exchange"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm btnEditarConta" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editarContaModal" 
+                                            data-id="${conta.id}" 
+                                            title="Editar Conta">
                                         <i class="bi bi-pencil"></i>
                                     </button>
-                                    <button class="btn btn-outline-danger btn-sm btnExcluirConta" data-bs-toggle="modal" data-bs-target="#confirmarExclusaoModal" data-id="${conta.id}" title="Desativar Conta">
+                                    <button class="btn btn-outline-danger btn-sm btnExcluirConta" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#confirmarExclusaoModal" 
+                                            data-id="${conta.id}" 
+                                            title="Desativar Conta">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
@@ -168,6 +185,25 @@ $(document).ready(function () {
         $('#editarStatusConta').prop('checked', conta.ativa);
         
         $('#editarContaModal').modal('show');
+    });
+    
+    $('#contasGrid').on('click', '.btnDisplayConta', async function () {
+        const id = $(this).data('id'); // Agora funciona corretamente
+        const conta = await listarContaId(id);
+
+        // verificar se a classe  bi-eye-slash' em bntDisplayConta
+        if (conta.visivel) {
+            await atualizar('contas', id, { visivel: false });
+            $(this).find('i').removeClass('bi-eye').addClass('bi-eye-slash');
+            $(this).attr('title', 'Conta inativa - Clique para ativar');
+        } else {
+            await atualizar('contas', id, { visivel: true });
+            $(this).find('i').removeClass('bi-eye-slash').addClass('bi-eye');
+            $(this).attr('title', 'Conta ativa - Clique para desativar');
+        }
+
+        await carregarContas();
+
     });
 
     $('#contasGrid').on('click', '.btnAjusteConta', async function () {

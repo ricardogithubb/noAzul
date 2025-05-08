@@ -50,9 +50,8 @@ export function getNovaContaData() {
         nome: $('#nomeConta').val(),
         saldo_inicial: parseFloat(($('#saldoInicial').val() || '0').replace('.', '').replace(',', '.')),
         saldoPrevisto: 0,
-        descricao: $('#descricaoConta').val(),
-        ativa: $('#contaAtiva').prop('checked'),
-        criacao: new Date().toISOString()
+        descricao: $('#descricaoConta').length ? $('#descricaoConta').val() : null,
+        ativa: $('#contaAtiva').length ? $('#contaAtiva').prop('checked') : true
     };
 }
 

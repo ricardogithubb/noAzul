@@ -144,39 +144,42 @@ $(document).ready(function() {
     async function loadUltimasTransacoes(mes,ano) {
 
         const todasTransacoes = await ultimasTransacoes(mes,ano);
+        console.log("todasTransacoes");
         console.log(todasTransacoes);
 
         const transacoes = [];
         
         todasTransacoes.forEach(transacao => {
-            console.log(transacao.tipo);
             transacoes.push({
                 tipo: transacao.tipo === 'R' ? 'receita' : 'despesa',
                 descricao: transacao.descricao,
                 valor: parseFloat(transacao.valor),
                 data: transacao.data_vencimento,
                 categoria: transacao.categoria,
-                efetivada: transacao.data_efetivacao !== null
+                efetivada: transacao.efetivada
             });
         });
 
 
         let html = '';
+        let hiddenTransactions = '';
+        let counter = 1;
+
         transacoes.forEach(transacao => {
             const icon = transacao.tipo === 'receita' ? 
                 '<i class="bi bi-arrow-down-circle text-success me-2"></i>' : 
                 '<i class="bi bi-arrow-up-circle text-danger me-2"></i>';
-            //formatar transacao.data 2025-04-15 para 15/04
+            
             const dataStr = transacao.data;
             const dataParts = dataStr.split('-');
             const data = `${dataParts[2]}/${dataParts[1]}`;
             const valorClass = transacao.tipo === 'receita' ? 'text-success' : 'text-danger';
             const efetivadaClass = transacao.efetivada ? '' : 'text-muted';
             const efetivadaBadge = transacao.efetivada ? 
-                '<span class="badge bg-success ms-2">E</span>' : 
-                '<span class="badge bg-secondary ms-2">P</span>';
+                '<span class="badge bg-primary ms-2">E</span>' : 
+                '<span class="badge bg-danger ms-2">P</span>';
             
-            html += `
+            const transactionHtml = `
                 <a href="#" class="list-group-item list-group-item-action ${efetivadaClass}">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
@@ -187,11 +190,49 @@ $(document).ready(function() {
                             </div>                            
                         </div>
                         <span class="${valorClass}">${formatMoney(transacao.valor)} ${efetivadaBadge}</span>
-                        
                     </div>
                 </a>
             `;
+            
+            if (counter <= 3) {
+                html += transactionHtml;
+            } else {
+                hiddenTransactions += transactionHtml;
+            }
+            
+            counter++;
         });
+
+        // Add show more button if there are hidden transactions
+        if (hiddenTransactions) {
+            html += `
+                <div id="hiddenTransactions" style="display: none;">
+                    ${hiddenTransactions}
+                </div>
+                <div class="text-center mt-2">
+                    <button id="toggleButton" class="btn btn-link text-decoration-none" onclick="
+                        const hiddenDiv = document.getElementById('hiddenTransactions');
+                        const icon = this.querySelector('i');
+                        const textSpan = this.querySelector('span');
+                        
+                        if (hiddenDiv.style.display === 'none') {
+                            hiddenDiv.style.display = 'block';
+                            icon.classList.remove('bi-chevron-down');
+                            icon.classList.add('bi-chevron-up');
+                            textSpan.textContent = ' Mostrar menos';
+                        } else {
+                            hiddenDiv.style.display = 'none';
+                            icon.classList.remove('bi-chevron-up');
+                            icon.classList.add('bi-chevron-down');
+                            textSpan.textContent = ' Mostrar mais';
+                        }
+                    ">
+                        <i class="bi bi-chevron-down"></i>
+                        <span> Mostrar mais</span>
+                    </button>
+                </div>
+            `;
+        }
 
         $('#ultimasTransacoes').html(html);
     }
@@ -254,9 +295,9 @@ $(document).ready(function() {
             if (contador <= 3) {
 
                 $listarOrcamento.append(`
-                    <div class="mb-4">
+                    <div class="mb-2">
                         <h6 class="small font-weight-bold">${categoria.categoria} <span class="float-end">${categoria.percentual}%</span></h6>
-                        <div class="progress mb-3">
+                        <div class="progress mb-0">
                             <div class="progress-bar ${getBarColor(categoria.percentual)}" role="progressbar" style="width: ${categoria.percentual}%"></div>
                         </div>
                         <small class="text-muted">${formatMoney(categoria.valor)} de ${formatMoney(categoria.total_gasto)}</small>
@@ -264,9 +305,9 @@ $(document).ready(function() {
                 `);
             } else {
                 $moreOrcamentos += `
-                    <div class="mb-4">
+                    <div class="mb-2">
                         <h6 class="small font-weight-bold">${categoria.categoria} <span class="float-end">${categoria.percentual}%</span></h6>
-                        <div class="progress mb-3">
+                        <div class="progress mb-0">
                             <div class="progress-bar ${getBarColor(categoria.percentual)}" role="progressbar" style="width: ${categoria.percentual}%"></div>
                         </div>
                         <small class="text-muted">${formatMoney(categoria.valor)} de ${formatMoney(categoria.total_gasto)}</small>
@@ -278,12 +319,23 @@ $(document).ready(function() {
         });
 
         $moreBotao += `
-            <div class="text-center">
-                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#moreOrcamentos" aria-expanded="false" aria-controls="moreCategories">
-                    <i class="bi bi-chevron-down"></i>
-                </button>
-            </div>
-        `;
+                <div class="text-center mt-2">
+                    <button class="btn btn-link text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#moreOrcamentos" aria-expanded="false" aria-controls="moreOrcamentos" onclick="
+                        const icon = this.querySelector('i');
+                        const span = this.querySelector('.btn-text');
+                        if (this.getAttribute('aria-expanded') === 'false') {
+                            span.textContent = ' Mostrar mais';
+                            icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+                        } else {
+                            span.textContent = ' Mostrar menos';
+                            icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
+                        }
+                    ">
+                        <i class="bi bi-chevron-down"></i>
+                        <span class="btn-text"> Mostrar mais</span>
+                    </button>
+                </div>
+            `;
 
         $listarOrcamento.append(`<div class="collapse" id="moreOrcamentos">${$moreOrcamentos}</div>${$moreBotao}`);
 

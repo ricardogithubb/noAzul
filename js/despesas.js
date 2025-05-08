@@ -247,6 +247,7 @@ $(document).ready(function() {
         const data = $('#despesaData').val();
         const categoria_id = $('#despesaCategoria').val();
         const efetivada = $('#despesaEfetivada').is(':checked');
+        const dataEfetivacao = $('#despesaEfetivada').is(':checked') ? $('#dataEfetivacao').val() : null;
         const observacao = $('#despesaObservacao').val().trim();
         const conta_id = $('#despesaConta').val(); // Adicione um select para contas no formulário
         const repetir = $('#despesaRepetir').is(':checked');
@@ -270,6 +271,7 @@ $(document).ready(function() {
             categoria_id: parseInt(categoria_id),
             valor,
             data_vencimento: dataVencimento,
+            data_efetivacao: dataEfetivacao,
             observacao,
             efetivada
         };
@@ -280,7 +282,7 @@ $(document).ready(function() {
             $('#btnSalvarDespesa').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...');
             
             console.log(dadosDespesa);
-            adicionar('transacoes', dadosDespesa);
+            await adicionar('transacoes', dadosDespesa);
             
             $('#novaDespesaModal').modal('hide');
             resetarFormulario();
@@ -450,19 +452,6 @@ $(document).ready(function() {
                 efetivada: $('#despesaEfetivada').is(':checked'),
                 observacao: $('#despesaObservacao').val()
             };
-
-            // const response = await fetch(`https://apinoazul.markethubplace.com/api/despesas/${id}`, {
-            //     method: 'DELETE',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'Authorization': 'Bearer ' + localStorage.getItem('authToken') // Assumindo autenticação JWT
-            //     },
-            //     body: despesaExcluida
-            // });
-    
-            // if (!response.ok) {
-            //     throw new Error('Erro ao excluir a despesa.');
-            // }
 
             deletar('transacoes', id);
             await carregarDespesasIndexedDB();
