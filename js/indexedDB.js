@@ -8,7 +8,7 @@ function ultimoDiaDoMes() {
     return `${ano}-${String(mes).padStart(2, '0')}-${String(ultimoDia).padStart(2, '0')}`;
 }
 
-function formatarData(data) {
+export function formatarData(data) {
     const pad = num => num.toString().padStart(2, '0');
     return `${data.getFullYear()}-${pad(data.getMonth()+1)}-${pad(data.getDate())} ` +
            `${pad(data.getHours())}:${pad(data.getMinutes())}:${pad(data.getSeconds())}`;
@@ -500,6 +500,57 @@ export async function listarOrcamentos(mes, ano) {
         };
     });
 }
+
+export async function graficoCategorias(mes, ano) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('noAzul', 2);
+
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const transaction = db.transaction(['categorias', 'transacoes'], 'readonly');
+            const categoriasStore = transaction.objectStore('categorias');
+
+            //filtrar somentes as receitas
+            const query = categoriasStore.getAll();
+
+            query.onsuccess = async function() {
+                const categorias = query.result || [];
+
+                const categoriasDespesas = categorias.filter(categoria => 
+                                                             categoria.tipo === "D");
+
+                
+
+                // Buscar o total em transacoes por categoria
+                const categoriasTotal = await Promise.all(
+                    categoriasDespesas.map(categoria => {
+                        return new Promise((resolveTotal) => {
+                            totalDespesasCategoria(mes, ano, categoria.id).then(total => {
+                                categoria.total_gasto = total;
+                                resolveTotal(categoria);
+                            });
+                        });
+                    })
+                );
+
+                const categoriasTotalOrdenadas = categoriasTotal.sort((a, b) => b.total_gasto - a.total_gasto);
+
+                // rertorna somente 5 regi
+                resolve(categoriasTotalOrdenadas.slice(0, 5));
+            };
+
+            query.onerror = function(event) {
+                console.error('Erro ao buscar Receitas:', event.target.error);
+                reject(event.target.error);
+            };
+        };
+
+        request.onerror = function(event) {
+            console.error('Erro ao abrir o banco IndexedDB:', event.target.error);
+            reject(event.target.error);
+        };
+    });
+}
                 
 
 //listar contas e total de transacoes na conta
@@ -615,6 +666,57 @@ function atualizar(storeName, id, novosDados) {
             }
         };
     };
+}
+
+//Total de Despesas por data
+export async function totalDespesasData(data) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('noAzul', 2);
+
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const transaction = db.transaction(['transacoes'], 'readonly');
+            const store = transaction.objectStore('transacoes');
+
+            const query = store.getAll();
+
+            query.onsuccess = function() {
+                const transacoes = query.result || [];
+
+                const registrosFiltrados = transacoes.filter(registro => 
+                                                                    registro.deleted_at === null||
+                                                                    registro.deleted_at === undefined ||
+                                                                    typeof registro.deleted_at === 'undefined');
+
+                const despesasNoMes = registrosFiltrados.filter(transacao => {
+                    if (transacao.tipo !== 'D') return false;
+                    if(transacao.efetivada === false) return false;
+
+                    const dataStr = transacao.data_efetivacao || transacao.data_vencimento;
+                    if (!dataStr) return false;
+
+                    const dataTransacao = new Date(dataStr);
+                    return dataTransacao.toISOString().slice(0, 10) === data;
+                });
+
+                const totalDespesas = despesasNoMes.reduce((total, transacao) => {
+                    return total + parseFloat(transacao.valor);
+                }, 0);
+
+                resolve(totalDespesas);
+            };
+
+            query.onerror = function(event) {
+                console.error('Erro ao buscar Despesas:', event.target.error);
+                reject(event.target.error);
+            };
+        };
+
+        request.onerror = function(event) {
+            console.error('Erro ao abrir o banco IndexedDB:', event.target.error);
+            reject(event.target.error);
+        };
+    });
 }
 
 //Total Despesas por mes, ano e categoria

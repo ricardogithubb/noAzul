@@ -144,8 +144,8 @@ $(document).ready(function() {
     async function loadUltimasTransacoes(mes,ano) {
 
         const todasTransacoes = await ultimasTransacoes(mes,ano);
-        console.log("todasTransacoes");
-        console.log(todasTransacoes);
+        // console.log("todasTransacoes");
+        // console.log(todasTransacoes);
 
         const transacoes = [];
         
@@ -259,7 +259,7 @@ $(document).ready(function() {
         
         const lista = await listarContas('A');
 
-        console.log(lista);
+        // console.log(lista);
         
         lista.forEach(conta => {
             $contas.append(`
@@ -290,7 +290,7 @@ $(document).ready(function() {
         lista.sort((a, b) => b.percentual - a.percentual);
 
         lista.forEach(categoria => {
-            console.log($listarOrcamento.children().length);
+            // console.log($listarOrcamento.children().length);
             // os 3 primeiros orçamentos
             if (contador <= 3) {
 
@@ -339,7 +339,7 @@ $(document).ready(function() {
 
         $listarOrcamento.append(`<div class="collapse" id="moreOrcamentos">${$moreOrcamentos}</div>${$moreBotao}`);
 
-        console.log('Lista de categorias:', lista);
+        // console.log('Lista de categorias:', lista);
     
         
     }

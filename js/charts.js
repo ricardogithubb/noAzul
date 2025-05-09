@@ -1,11 +1,16 @@
-import { totalTransacao } from './indexedDB.js';
+import { totalTransacao, graficoCategorias, totalDespesasData, formatarData} from './indexedDB.js';
 
 // Variáveis globais para armazenar os gráficos
 let annualChartInstance;
 let orcamentoChartInstance;
+let diarioChartInstance;
 let orcamentoBarChartInstance;
 let totalReceita = [];
 let totalDespesa = [];
+let categorias = [];
+let categoriaValor = [];
+let diaDespesas = [];
+let diaDespesasValor = [];
 
 async function carregarTotalReceitas() {
     return new Promise(async (resolve, reject) => {
@@ -27,8 +32,9 @@ async function carregarTotalDespesas() {
     return new Promise(async (resolve, reject) => {
         for (let index = 0; index < 12; index++) {
             
+            let ano = localStorage.getItem('selectedYear');            
             let mes = index + 1;
-            totalDespesa[index] = await totalTransacao(mes, 2025, 'D');
+            totalDespesa[index] = await totalTransacao(mes, ano, 'D');
             
         }
 
@@ -38,9 +44,52 @@ async function carregarTotalDespesas() {
 
 }
 
+async function carregarTotalDespesasData() {
+    return new Promise(async (resolve, reject) => {
+        let dataAtual = new Date();
+        // const dados = await totalDespesasData(mes, ano);
+
+
+        diaDespesas = [];
+        diaDespesasValor = [];
+
+        for (let index = 10; index > 0; index--) {
+            
+            diaDespesas.push(formatarData(dataAtual).split(' ')[0].split('-')[2]);
+            diaDespesasValor.push(await totalDespesasData(formatarData(dataAtual).split(' ')[0]));  
+            
+            dataAtual = new Date(dataAtual.setDate(dataAtual.getDate() - 1));
+          
+        }  
+        console.log(diaDespesas, diaDespesasValor);      
+        resolve();
+    })
+
+}
+
+async function carregarTotalCategoria() {
+    return new Promise(async (resolve, reject) => {
+        let mes = localStorage.getItem('selectedMonth');
+        let ano = localStorage.getItem('selectedYear');
+        const dados = await graficoCategorias(mes, ano);
+
+        categorias = [];
+        categoriaValor = [];
+        
+        dados.forEach((cagtegoria) => {
+            categorias.push(cagtegoria.nome);
+            categoriaValor.push(parseInt(cagtegoria.total_gasto.toFixed(0)));
+        });
+        
+        resolve();
+    })
+
+}
+
 function initCharts() {
     // Gráfico anual
     const annualCtx = document.getElementById('annualChart').getContext('2d');
+
     carregarTotalReceitas().then((totalReceita) => {
         carregarTotalDespesas().then((totalDespesa) => {            
             // Destroi o gráfico anterior, se existir
@@ -138,45 +187,98 @@ function initCharts() {
         orcamentoChartInstance.destroy();
     }
 
-    orcamentoChartInstance = new Chart(orcamentoCtx, {
-        type: 'line',
-        data: {
-            labels: ['Alimentação', 'Moradia', 'Transporte', 'Lazer', 'Outros'],
-            datasets: [{
-                data: [750, 1200, 600, 300, 630],
-                backgroundColor: [
-                    'rgba(28, 200, 138, 0.8)',
-                    'rgba(78, 115, 223, 0.8)',
-                    'rgba(54, 185, 204, 0.8)',
-                    'rgba(246, 194, 62, 0.8)',
-                    'rgba(231, 74, 59, 0.8)'
-                ],
-                borderColor: [
-                    'rgba(28, 200, 138, 1)',
-                    'rgba(78, 115, 223, 1)',
-                    'rgba(54, 185, 204, 1)',
-                    'rgba(246, 194, 62, 1)',
-                    'rgba(231, 74, 59, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right'
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.label + ': ' + formatMoney(context.raw);
+    carregarTotalCategoria().then(() => {
+        
+        orcamentoChartInstance = new Chart(orcamentoCtx, {
+            type: 'line',
+            data: {
+                labels: categorias,
+                datasets: [{
+                    data: categoriaValor,
+                    backgroundColor: [
+                        'rgba(28, 200, 138, 0.8)',
+                        'rgba(78, 115, 223, 0.8)',
+                        'rgba(54, 185, 204, 0.8)',
+                        'rgba(246, 194, 62, 0.8)',
+                        'rgba(231, 74, 59, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(28, 200, 138, 1)',
+                        'rgba(78, 115, 223, 1)',
+                        'rgba(54, 185, 204, 1)',
+                        'rgba(246, 194, 62, 1)',
+                        'rgba(231, 74, 59, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: false,
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + formatMoney(context.raw);
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
+
+    })
+
+
+    // Gráfico de orçamento (no dashboard)
+    const diarioCtx = document.getElementById('diarioChart').getContext('2d');
+
+    if (diarioChartInstance) {
+        diarioChartInstance.destroy();
+    }
+
+    carregarTotalDespesasData().then(() => {
+        
+        diarioChartInstance = new Chart(diarioCtx, {
+            type: 'line',
+            data: {
+                labels: diaDespesas,
+                datasets: [{
+                    data: diaDespesasValor,
+                    backgroundColor: [
+                        'rgba(28, 200, 138, 0.8)',
+                        'rgba(78, 115, 223, 0.8)',
+                        'rgba(54, 185, 204, 0.8)',
+                        'rgba(246, 194, 62, 0.8)',
+                        'rgba(231, 74, 59, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(28, 200, 138, 1)',
+                        'rgba(78, 115, 223, 1)',
+                        'rgba(54, 185, 204, 1)',
+                        'rgba(246, 194, 62, 1)',
+                        'rgba(231, 74, 59, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: false,
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + formatMoney(context.raw);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+    })
+
 
     // Gráfico de orçamento (na página de orçamentos)
     if (document.getElementById('orcamentoBarChart')) {
