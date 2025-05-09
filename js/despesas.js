@@ -107,56 +107,62 @@ $(document).ready(function() {
 
     // Exibe as despesas na tabela
     function exibirDespesas(listaTransacoes) {
-        console.log('Exibindo despesas...');
-        console.log(listaTransacoes);
-        const $container = $('.transactions-list');
-        $container.empty();
-    
-        if (listaTransacoes.length === 0) {
-            $container.append('<div class="text-center text-muted mt-3">Nenhuma transação encontrada</div>');
-            return;
-        }
+        return new Promise((resolve, reject) => {
 
+            console.log('Exibindo despesas...');
+            console.log(listaTransacoes);
+            const $container = $('.transactions-list');
+            $container.empty();
         
-        let printData = "";
-        console.log(listaTransacoes);
-
-        listaTransacoes.forEach(despesa => {
-            const dataFormatada = formatarDataExtenso(despesa.data_vencimento);
-            const valorFormatado = formatMoney(despesa.valor);
-            const status = despesa.data_efetivacao != null ? 
-                '<span style="display: inline-block; width: 15px; height: 15px; background-color: green; border-radius: 50%; margin-top: 4px;margin-right: 10px"></span>' : 
-                '<span style="display: inline-block; width: 15px; height: 15px; background-color: red; border-radius: 50%; margin-top: 4px;margin-right: 10px"></span>';
-            
-            //verificar se dataFormatada é diferente de printData
-            console.log(dataFormatada+" != "+printData);
-            if (dataFormatada != printData) {
-                if(printData != "") {
-                    printData = dataFormatada;
-                    $container.append(`</div>
-                            <div class="transaction-group">
-                                <div class="transaction-date bg-light p-0">${dataFormatada}</div>                   
-                            `);
-                } else {    
-                    printData = dataFormatada;
-                    $container.append(`<div class="transaction-group">
-                                         <div class="transaction-date bg-light p-0 fw-bold">${dataFormatada}</div>                    
-                            `);
-                }
+            if (listaTransacoes.length === 0) {
+                $container.append('<div class="text-center text-muted mt-3">Nenhuma transação encontrada</div>');
+                return;
             }
-    
-            $container.append(`
-                <div class="transaction-item" data-id="${despesa.id}">
-                    <div class="transaction-main">
-                        <div class="transaction-title">${despesa.descricao}</div>
-                        <div class="transaction-details small text-muted">${despesa.categoria} | ${despesa.conta}</div> <!-- Texto menor e baixa densidade -->
+
+            
+            let printData = "";
+            console.log(listaTransacoes);
+
+            listaTransacoes.forEach(despesa => {
+                const dataFormatada = formatarDataExtenso(despesa.data_vencimento);
+                const valorFormatado = formatMoney(despesa.valor);
+                const status = despesa.data_efetivacao != null ? 
+                    '<span style="display: inline-block; width: 15px; height: 15px; background-color: green; border-radius: 50%; margin-top: 4px;margin-right: 10px"></span>' : 
+                    '<span style="display: inline-block; width: 15px; height: 15px; background-color: red; border-radius: 50%; margin-top: 4px;margin-right: 10px"></span>';
+                
+                //verificar se dataFormatada é diferente de printData
+                console.log(dataFormatada+" != "+printData);
+                if (dataFormatada != printData) {
+                    if(printData != "") {
+                        printData = dataFormatada;
+                        $container.append(`</div>
+                                <div class="transaction-group">
+                                    <div class="transaction-date bg-light p-0">${dataFormatada}</div>                   
+                                `);
+                    } else {    
+                        printData = dataFormatada;
+                        $container.append(`<div class="transaction-group">
+                                            <div class="transaction-date bg-light p-0 fw-bold">${dataFormatada}</div>                    
+                                `);
+                    }
+                }
+        
+                $container.append(`
+                    <div class="transaction-item" data-id="${despesa.id}">
+                        <div class="transaction-main">
+                            <div class="transaction-title">${despesa.descricao}</div>
+                            <div class="transaction-details small text-muted">${despesa.categoria} | ${despesa.conta}</div> <!-- Texto menor e baixa densidade -->
+                        </div>
+                        <div class="transaction-amount text-danger" style="display: flex; flex-direction: column; align-items: flex-end;">
+                            <span>${valorFormatado}</span>
+                            ${status}
+                        </div>
                     </div>
-                    <div class="transaction-amount text-danger" style="display: flex; flex-direction: column; align-items: flex-end;">
-                        <span>${valorFormatado}</span>
-                        ${status}
-                    </div>
-                </div>
-            `);
+                `);
+            });
+
+            resolve();
+            
         });
     
     }
@@ -286,8 +292,8 @@ $(document).ready(function() {
             
             $('#novaDespesaModal').modal('hide');
             resetarFormulario();
-            atualizarTotalDespesas();
-            exibirDespesas(despesas);
+            await atualizarTotalDespesas();
+            await exibirDespesas(despesas);
     
             // Feedback de sucesso
             mostrarAlerta('Despesa salva com sucesso!', 'success');

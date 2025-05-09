@@ -871,11 +871,11 @@ async function ultimasTransacoes(mes, ano) {
 
                 //
 
-                const ultimos5 = transacoesOrdenadas.slice(0, 10);
+                // const ultimos5 = transacoesOrdenadas.slice(0, 10);
 
                 // Buscar os nomes das categorias
                 const transacoesComCategoria = await Promise.all(
-                    ultimos5.map(transacao => {
+                    transacoesOrdenadas.map(transacao => {
                         return new Promise((resolveCategoria) => {
                             if (!transacao.categoria_id) {
                                 transacao.categoria = null;
