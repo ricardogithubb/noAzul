@@ -55,7 +55,7 @@ async function carregarTotalDespesasData() {
 
         for (let index = 10; index > 0; index--) {
             
-            diaDespesas.push(formatarData(dataAtual).split(' ')[0].split('-')[2]);
+            diaDespesas.push(formatarData(dataAtual).split(' ')[0].split('-')[2]+'/'+formatarData(dataAtual).split(' ')[0].split('-')[1]);
             diaDespesasValor.push(await totalDespesasData(formatarData(dataAtual).split(' ')[0]));  
             
             dataAtual = new Date(dataAtual.setDate(dataAtual.getDate() - 1));
@@ -104,7 +104,7 @@ function initCharts() {
                     datasets: [
                         {
                             label: 'Receitas',
-                            backgroundColor: 'rgba(78, 115, 223, 0.2)',
+                            // backgroundColor: 'rgba(78, 115, 223, 0.2)',
                             borderColor: 'rgba(78, 115, 223, 1)',
                             borderWidth: 2,
                             pointBackgroundColor: 'rgba(78, 115, 223, 1)',
@@ -117,7 +117,7 @@ function initCharts() {
                         },
                         {
                             label: 'Despesas',
-                            backgroundColor: 'rgba(231, 74, 59, 0.2)',
+                            // backgroundColor: 'rgba(231, 74, 59, 0.2)',
                             borderColor: 'rgba(231, 74, 59, 1)',
                             borderWidth: 2,
                             pointBackgroundColor: 'rgba(231, 74, 59, 1)',

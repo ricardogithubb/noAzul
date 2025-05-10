@@ -176,7 +176,7 @@ $(document).ready(function() {
             const valorClass = transacao.tipo === 'receita' ? 'text-success' : 'text-danger';
             const efetivadaClass = transacao.efetivada ? '' : 'text-muted';
             const efetivadaBadge = transacao.efetivada ? 
-                '<span class="badge bg-primary ms-2">E</span>' : 
+                '<span class="badge bg-success ms-2">E</span>' : 
                 '<span class="badge bg-danger ms-2">P</span>';
             
             const transactionHtml = `
@@ -287,7 +287,7 @@ $(document).ready(function() {
         const lista = await listarOrcamentos(mes, ano);
 
         //ordenar por maior percentual para o menor
-        lista.sort((a, b) => b.percentual - a.percentual);
+        lista.sort((a, b) => b.valor - a.valor);
 
         lista.forEach(categoria => {
             // console.log($listarOrcamento.children().length);

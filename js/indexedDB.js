@@ -964,17 +964,6 @@ async function ultimasTransacoes(mes, ano) {
                 });
                
 
-                // // Ordenar as transações pela data (mais recente primeiro)
-                // const transacoesOrdenadas = receitasNoMes.sort((a, b) => {
-                //     const dataA = new Date(a.data_efetivacao || a.data_vencimento);
-                //     const dataB = new Date(b.data_efetivacao || b.data_vencimento);
-                //     return dataB - dataA;
-                // });
-
-                //
-
-                // const ultimos5 = transacoesOrdenadas.slice(0, 10);
-
                 // Buscar os nomes das categorias
                 const transacoesComCategoria = await Promise.all(
                     transacoesOrdenadas.map(transacao => {
