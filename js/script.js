@@ -459,17 +459,60 @@ function setupModalsContaCategoria() {
     });
 }
 
+function validarMesAnoIguais() {
+        const dataInicio = $('#filtroDataInicio').val();
+        const dataFim = $('#filtroDataFim').val();
+
+        if (dataInicio) {
+            const inicio = new Date(dataInicio);
+            const fim = new Date(dataFim);
+
+            const mesAnoForm = inicio.getFullYear() + '-' + (inicio.getMonth()+1);
+            const mesAnoParam = localStorage.getItem('selectedYear') + '-' + localStorage.getItem('selectedMonth');
+
+            if (mesAnoForm !== mesAnoParam) {
+                alert('As datas devem estar dentro do mesmo mês e ano.');
+                // Opcional: limpa o campo que acabou de ser alterado
+                $('#filtroDataInicio').val('');
+                return false;
+            }
+        }
+
+        if (dataFim) {
+            const inicio = new Date(dataInicio);
+            const fim = new Date(dataFim);
+
+            const mesAnoForm = fim.getFullYear() + '-' + (fim.getMonth()+1);
+            const mesAnoParam = localStorage.getItem('selectedYear') + '-' + localStorage.getItem('selectedMonth');
+
+            if (mesAnoForm !== mesAnoParam) {
+                alert('As datas devem estar dentro do mesmo mês e ano.');
+                // Opcional: limpa o campo que acabou de ser alterado
+                $('#filtroDataFim').val('');
+                return false;
+            }
+        }
+
+
+        
+        return true;
+    }
+
 
 // Inicializa funções globais quando o DOM estiver pronto
 $(document).ready(function() {
     appendModalToBody();
 
     updateMonthYear(localStorage.getItem('selectedMonth'), 
-                    localStorage.getItem('selectedYear'));
+                    localStorage.getItem('selectedYear'));                    
 
     setupMonthYearSelector();
     setupRepeatOptions();
 
     setupModalsContaCategoria();
+
+    $('#filtroDataInicio, #filtroDataFim').on('change', function () {
+        validarMesAnoIguais();
+    });
 
 });

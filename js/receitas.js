@@ -61,9 +61,15 @@ $(document).ready(function() {
     });
 
     // Configura o submit do formulário de filtro
-    $('#formFiltroAvancado').submit(function(e) {
+    $('#formFiltroAvancado').submit(async function(e) {
         e.preventDefault();
-        aplicarFiltrosAvancados();
+
+        const mes = localStorage.getItem('selectedMonth');
+        const ano = localStorage.getItem('selectedYear');
+
+        await aplicarFiltrosAvancados(mes, ano);
+
+
     });
 
     // Botão para limpar filtros
@@ -616,7 +622,10 @@ $(document).ready(function() {
         return new Promise(async (resolve, reject) => {
             $('#formFiltroAvancado')[0].reset();
 
-            await aplicarFiltrosAvancados();
+            const mes = localStorage.getItem('selectedMonth');
+            const ano = localStorage.getItem('selectedYear');
+
+            await aplicarFiltrosAvancados(mes, ano);
 
             $('#filtroAvancadoIconFill').addClass('d-none');
             $('#filtroAvancadoIcon').removeClass('d-none');
@@ -626,7 +635,7 @@ $(document).ready(function() {
         })
     }
 
-    async function aplicarFiltrosAvancados() {
+    async function aplicarFiltrosAvancados(mes, ano) {
         return new Promise(async (resolve, reject) => {
             
             const dataInicio = document.getElementById('filtroDataInicio').value;
@@ -646,7 +655,9 @@ $(document).ready(function() {
                 valorMin: valorMin ? parseFloat(valorMin) : null,
                 valorMax: valorMax ? parseFloat(valorMax) : null,
                 status: [],
-                descricao: descricao || null
+                descricao: descricao || null,
+                mes: parseInt(mes),
+                ano: parseInt(ano)
             };
     
             if (statusEfetivado) filtros.status.push('efetivado');

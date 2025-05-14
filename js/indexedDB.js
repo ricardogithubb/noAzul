@@ -418,12 +418,25 @@ export async function listarReceitasFiltro(filtro) {
                     if (!dataStr) return false;
 
                     const data = new Date(dataStr);
-                    const dataInicio = filtro.dataInicio ? new Date(filtro.dataInicio) : null;
-                    const dataFim = filtro.dataFim ? new Date(filtro.dataFim) : null;
+                    let dataInicio = filtro.dataInicio ? new Date(filtro.dataInicio) : null;
+                    let dataFim = filtro.dataFim ? new Date(filtro.dataFim) : null;
+                
+                    // if dataInicio for null definir como primeiro dia do mes e ano informado
+                    if (dataInicio === null) {
+                        dataInicio = new Date(filtro.ano, filtro.mes-1, 1);
+                    }
+  
 
+                    // if dataFim for null definir como ultimo dia do mes e ano informado
+                    if (dataFim === null) {
+                        dataFim = new Date(filtro.ano, filtro.mes, 0);
+                    }
+                    
+                    
                     if (dataInicio && data < dataInicio) return false;
                     if (dataFim && data > dataFim) return false;
-
+                    // console.log(formatarData(data), formatarData(dataInicio), formatarData(dataFim));
+                    
                     if (filtro.categorias && filtro.categorias[0] != 0 && filtro.categorias.length > 0 && !filtro.categorias.includes(transacao.categoria_id)) {
                         return false;
                     }
@@ -564,8 +577,19 @@ export async function listarDespesasFiltro(filtro) {
                     if (!dataStr) return false;
 
                     const data = new Date(dataStr);
-                    const dataInicio = filtro.dataInicio ? new Date(filtro.dataInicio) : null;
-                    const dataFim = filtro.dataFim ? new Date(filtro.dataFim) : null;
+                    let dataInicio = filtro.dataInicio ? new Date(filtro.dataInicio) : null;
+                    let dataFim = filtro.dataFim ? new Date(filtro.dataFim) : null;
+                    
+                
+                    // if dataInicio for null definir como primeiro dia do mes e ano informado
+                    if (dataInicio === null) {
+                        dataInicio = new Date(filtro.ano, filtro.mes, 1);
+                    }
+
+                    // if dataFim for null definir como ultimo dia do mes e ano informado
+                    if (dataFim === null) {
+                        dataFim = new Date(filtro.ano, filtro.mes + 1, 0);
+                    }
 
                     if (dataInicio && data < dataInicio) return false;
                     if (dataFim && data > dataFim) return false;
