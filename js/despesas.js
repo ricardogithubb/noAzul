@@ -1,4 +1,4 @@
-import { adicionar, listar, atualizar, deletar, listarDespesas, totalEfetivado, totalPendente } from './indexedDB.js';
+import { adicionar, listar, atualizar, deletar, listarDespesas, totalEfetivado, totalPendente, listarDespesasFiltro } from './indexedDB.js';
 import { carregarContas, carregarCategorias } from './script.js';
 $(document).ready(function() {
     // Variáveis globais
@@ -60,7 +60,7 @@ $(document).ready(function() {
     });
 
     // Botão para limpar filtros
-    $('#limparFiltrosBtn').off('click').on('click', function () {
+    $('#limparFiltrosBtn').on('click', function () {
         limparFiltrosAvancados();
     });
 
@@ -75,7 +75,7 @@ $(document).ready(function() {
 
         if (dadosSalvos) {
             despesas = JSON.parse(dadosSalvos);
-            despesas.sort((a, b) => new Date(b.data_vencimento) - new Date(a.data_vencimento));
+            despesas.sort((a, b) => new Date(a.data_vencimento) - new Date(b.data_vencimento));
         } else {
             // Dados de exemplo
             despesas = [];
@@ -190,11 +190,15 @@ $(document).ready(function() {
 
         //ao abrir o modal de nova despesa, limpar os campos
         $('#novaDespesaModal').on('show.bs.modal', function() {
-            $('#despesaData').val(dataAtual);
+            const dataId = $('#novaDespesaModal').data('id');
+            if(dataId === 0) {
+                $('#despesaData').val(dataAtual);
+            }            
         });
 
         //ao fechar o modal de nova despesa, limpar os campos
         $('#novaDespesaModal').on('hidden.bs.modal', function() {
+            $('#novaDespesaModal').data('id',0);
             $('#despesaDescricao').val(''); // Limpa o campo de descrição
             $('#despesaValor').val(''); // Limpa o campo de valor
             //definir data atual
@@ -207,6 +211,7 @@ $(document).ready(function() {
             //alterar o model-title de um modal expecifico
             $('#novaDespesaModal .modal-title').text('Nova Despesa');
             $('#dataEfetivacaoContainer').hide();
+            $('#repeticaoContainer').removeClass('d-none');
             $('#repeticaoSwitch').show();
         });
 
@@ -347,6 +352,8 @@ $(document).ready(function() {
     function editarDespesa(id) {
         const despesa = despesas.find(r => r.id === id);
 
+        console.log(despesa);
+
         if (!despesa) return;
 
         var valorFormatado = despesa.valor.toFixed(2).replace('.', ',');
@@ -361,6 +368,7 @@ $(document).ready(function() {
         $('#despesaObservacao').val(despesa.observacao || '');
         $('#dataEfetivacao').val(despesa.data_efetivacao);
         $('#repeticaoSwitch').hide();
+        $('#repeticaoContainer').addClass('d-none');
         
         if (despesa.efetivada) {
             $('#dataEfetivacaoContainer').show();
@@ -593,6 +601,63 @@ $(document).ready(function() {
         const diaSemana = diasSemana[data.getDay()];
     
         return `${diaSemana}, ${dia}`;
+    }
+
+    async function limparFiltrosAvancados() {
+        return new Promise(async (resolve, reject) => {
+            $('#formFiltroAvancado')[0].reset();
+
+            await aplicarFiltrosAvancados();
+
+            $('#filtroAvancadoIconFill').addClass('d-none');
+            $('#filtroAvancadoIcon').removeClass('d-none');
+
+            $('#filtroAvancadoModal').modal('hide');
+            resolve();
+        })
+    }
+    
+    async function aplicarFiltrosAvancados() {
+        return new Promise(async (resolve, reject) => {
+            
+            const dataInicio = document.getElementById('filtroDataInicio').value;
+            const dataFim = document.getElementById('filtroDataFim').value;
+            const categorias = Array.from(document.getElementById('filtroCategoria').selectedOptions).map(opt => parseInt(opt.value));
+            const valorMin = document.getElementById('filtroValorMin').value;
+            const valorMax = document.getElementById('filtroValorMax').value;
+            const statusEfetivado = document.getElementById('filtroStatusEfetivado').checked;
+            const statusPendente = document.getElementById('filtroStatusPendente').checked;
+            const descricao = document.getElementById('filtroDescricao').value.trim();
+    
+            // Monta o objeto de filtros
+            const filtros = {
+                dataInicio: dataInicio || null,
+                dataFim: dataFim || null,
+                categorias: categorias.length ? categorias : null,
+                valorMin: valorMin ? parseFloat(valorMin) : null,
+                valorMax: valorMax ? parseFloat(valorMax) : null,
+                status: [],
+                descricao: descricao || null
+            };
+    
+            if (statusEfetivado) filtros.status.push('efetivado');
+            if (statusPendente) filtros.status.push('pendente');
+    
+            console.log('Filtros aplicados:', filtros);
+    
+            const { transacoes, totalEfetivado, totalPendente } = await listarDespesasFiltro(filtros);
+    
+            $('#despesasEfetivada').text( formatMoney(totalEfetivado) ); // Atualiza o elemento com o valor do total de receitas efetivadas
+            $('#despesasPendente').text( formatMoney(totalPendente) ); // Atualiza o elemento com o valor do total de receitas pendentes
+
+            exibirDespesas(transacoes);
+
+                
+            $('#filtroAvancadoIcon').addClass('d-none');
+            $('#filtroAvancadoIconFill').removeClass('d-none');
+
+            resolve();
+        })
     }
 
     carregarContas('D');

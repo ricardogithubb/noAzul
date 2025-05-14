@@ -1,5 +1,5 @@
-import { adicionar, listar, atualizar, deletar, totalEfetivado, totalPendente, listarOrcamentos } from './indexedDB.js';
-import { carregarCategorias,formatMoney } from './script.js';
+import { adicionar, listar, atualizar, deletar, listarMesesOrcamentos, totalPendente, listarOrcamentos } from './indexedDB.js';
+import { carregarCategorias,formatMoney, updateMonthYear } from './script.js';
 $(document).ready(function () {
 
     let isSubmitting = false;
@@ -13,40 +13,221 @@ $(document).ready(function () {
 
     init();
 
-    async function carregarOrcamentos() {
-        const mes = localStorage.getItem('selectedMonth');
-        const ano = localStorage.getItem('selectedYear');
+    async function confirmarExclusao(id) {
+        if (confirm('Tem certeza que deseja excluir esta despesa?')) {
+            await excluirOrcamento(id);
+        } 
+    }
+
+    async function excluirOrcamento(id) {
+        return new Promise(async (resolve, reject) => {
+            await deletar('orcamentos',id);
+            await carregarOrcamentos();
+        });
+        
+    }
+
+    async function copiarOrcamento() {
+        return new Promise(async (resolve, reject) => {
+            
+            const mesOrigem = $('#mesOrigem').val().split('-')[0];
+            const anoOrigem = $('#mesOrigem').val().split('-')[1];
+            const mesDestino = $('#mesDestino').val().split('-')[0];
+            const anoDestino = $('#mesDestino').val().split('-')[1];
     
-        const listarOrc = await listarOrcamentos(mes, ano);
+            const orcamentoDe = await listarOrcamentos(mesOrigem,anoOrigem);
 
-        $('#qtdCategorias').text(listarOrc.length+' Categorias');
+            if($('#sobrescreverDestino').is(':checked')) {
+                const orcamentoPara = await listarOrcamentos(mesDestino,anoDestino);
+                
+                await orcamentoPara.forEach(async orcamento => {
+                    await deletar('orcamentos',orcamento.id);
+                });
+            }
 
-        exibirOrcamento(listarOrc);
-        console.log(listarOrc); // Aqui deve aparecer o array de orçamentos
+            
+    
+            await orcamentoDe.forEach(async orcamento => {
+                const dadosOrcamento = {
+                        categoria_id: null,
+                        valor: null,
+                        mes: null,
+                        ano: null
+                    };
+                dadosOrcamento.categoria_id = parseInt(orcamento.categoria_id);
+                dadosOrcamento.valor = parseFloat(orcamento.valor);
+                dadosOrcamento.mes = parseInt(mesDestino);
+                dadosOrcamento.ano = parseInt(anoDestino);
+
+                console.log('dataOrcamento',dadosOrcamento);
+
+                await adicionar('orcamentos',dadosOrcamento);
+
+                await updateMonthYear(mesDestino, anoDestino);
+        
+                await carregarOrcamentos();
+        
+            });
+            
+            resolve();
+            
+        })
+
+    }
+
+    $('#formCopiarOrcamentos').submit(async function(e) {
+        e.preventDefault();
+        await copiarOrcamento();
+        $('#sobrescreverDestino').prop('checked', false);
+        $('#copiarOrcamentoModal').modal('hide');
+    });
+
+    $('#confirmMonthYear').on('click', function () {
+        init();
+    });
+
+    async function carregarMesesOrcamento() {
+
+        const mesesPortugues = [
+            '', 'Janeiro', 'Fevereiro', 'Março', 'Abril',
+            'Maio', 'Junho', 'Julho', 'Agosto',
+            'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ];
+        
+        const meses = await listarMesesOrcamentos();
+        // console.log(meses);
+        $('#mesOrigem').empty();
+        meses.forEach(orcamento => {
+            const option = $('<option>').val(orcamento.valId).text(orcamento.mesAno);
+            $('#mesOrigem').append(option);
+        });
+
+        //mes destino popular com 12 meses futuros
+        $('#mesDestino').empty();
+        const dataAtual = new Date();
+
+        for (let i = 1; i <= 12; i++) {
+            // Calcula a data futura adicionando 'i' meses à data atual
+            const dataFutura = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + i, 1);
+            
+            // Obtém mês (0-11) e ano ajustado
+            const mes = dataFutura.getMonth() + 1; // Converte para 1-12
+            const ano = dataFutura.getFullYear();
+            
+            // Formata os valores
+            const valId = `${mes}-${ano}`;
+            const textoExibicao = `${mesesPortugues[mes]}/${ano}`;
+
+            // Cria a opção
+            const option = $('<option>')
+                .val(valId)
+                .text(textoExibicao);
+                
+            $('#mesDestino').append(option);
+        }
+    }
+
+
+    $(document).on('click', '.btnExcluirOrcamento', function () {
+              
+            const id = $(this).data('id');
+            confirmarExclusao(id);
+        });
+
+
+    $(document).on('click', '.btnEditarOrcamento', function () {
+        const id = $(this).data('id');
+        const categoria = $(this).data('categoria');
+        const valor = $(this).data('valor');
+        const recorrente = $(this).data('recorrente');
+
+        $('#orcamentoId').val(id);
+        $('#orcamentoCategoria').val(categoria);
+        $('#orcamentoValor').val(valor.toFixed(2).replace('.', ','));
+        $('#orcamentoRecorrente').prop('checked', recorrente == 1);
+
+        $('#novoOrcamentoModal').modal('show'); // <- isso abre o modal
+    });
+
+
+    async function carregarOrcamentos() {
+        return new Promise(async (resolve, reject) => {
+            
+            const mes = parseInt(localStorage.getItem('selectedMonth'));
+            const ano = parseInt(localStorage.getItem('selectedYear'));
+        
+            const listarOrc = await listarOrcamentos(mes, ano);
+    
+            $('#qtdCategorias').text(listarOrc.length+' Categorias');
+    
+            exibirOrcamento(listarOrc);
+            carregarMesesOrcamento();
+            console.log(listarOrc); // Aqui deve aparecer o array de orçamentos
+            resolve();
+        })
     }
     
 
     function setupEventListeners() {
         // Formulário de nova receita
         $('#formNovoOrcamento').submit(async function (e) {
-           //desativar o botão de salvar
-           e.preventDefault();
+            e.preventDefault();
+            if (isSubmitting) return;
 
-           if (isSubmitting) return; // Se já estiver enviando, não faz nada
+            isSubmitting = true;
+            $('#btnSalvarOrcamento').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...');
 
-           isSubmitting = true; // trava envio
-           $('#btnSalvarOrcamento').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...');
+            const id = parseInt($('#orcamentoId').val());
+            if (id) {
+                await atualizarOrcamento(id);
+            } else {
+                await salvarOrcamento();
+            }
 
-           console.log('Salvando 2');
-           await salvarOrcamento(); // Aguarda o salvamento terminar
+            await carregarOrcamentos();
 
-           await carregarOrcamentos();
+            isSubmitting = false;
+            $('#btnSalvarOrcamento').prop('disabled', false).text('Salvar Orçamento');
+        });
 
-           isSubmitting = false; // libera envio novamente
-           $('#btnSalvarOrcamento').prop('disabled', false).text('Salvar Orçamento');
-       });
 
     }
+
+    async function atualizarOrcamento(id) {
+        const categoria_id = parseInt($('#orcamentoCategoria').val())
+        const valor = parseFloat($('#orcamentoValor').val().replace('.', '').replace(',', '.'));
+        const mes = parseInt(localStorage.getItem('selectedMonth'));
+        const ano = parseInt(localStorage.getItem('selectedYear'));
+        const recorrente = $('#orcamentoRecorrente').is(':checked') ? 1 : 0;
+
+        if (!categoria_id || isNaN(valor)) {
+            alert('Preencha todos os campos obrigatórios do orçamento');
+            return;
+        }
+
+        const dadosAtualizados = {
+            id: parseInt(id),
+            categoria_id: parseInt(categoria_id),
+            valor,
+            mes,
+            ano,
+            recorrente
+        };
+
+        console.log('Dados atualizados do orçamento:', dadosAtualizados);
+
+        try {
+            await atualizar('orcamentos', id, dadosAtualizados);
+            $('#novoOrcamentoModal').modal('hide');
+            $('#formNovoOrcamento')[0].reset();
+            $('#orcamentoId').val('');
+            alert('Orçamento atualizado com sucesso!');
+        } catch (error) {
+            console.error('Erro ao atualizar orçamento:', error);
+            alert('Erro ao atualizar orçamento.');
+        }
+    }
+
 
     async function exibirOrcamento(listarOrcamento) {
         const $container = $('#orcamentosContainer');
@@ -75,7 +256,24 @@ $(document).ready(function () {
             totalGasto += gasto;
     
             $container.append(`
-                <div class="fw-bold py-2 border-top  bg-info px-1 rounded">${orcamento.categoria || 'Sem categoria'}</div>
+                <div class="fw-bold py-2 border-top bg-info px-1 rounded d-flex align-items-center">
+                    <div class="flex-fill">${orcamento.categoria || 'Sem categoria'}</div>
+                    <div class="d-inline-flex gap-1 justify-content-end">
+                        <button 
+                            class="btn btn-sm btn-outline-primary btnEditarOrcamento" 
+                            title="Editar"
+                            data-id="${orcamento.id}"
+                            data-categoria="${orcamento.categoria_id}"
+                            data-valor="${valor}"
+                            data-recorrente="${orcamento.recorrente || 0}"
+                            >
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger btnExcluirOrcamento" title="Excluir"  data-id="${orcamento.id}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
                 <div class="d-flex align-items-center py-2 border-bottom">
                     <div class="flex-fill">${formatMoney(valor)}</div>
                     <div class="flex-fill">${formatMoney(gasto)}</div>
@@ -122,10 +320,10 @@ $(document).ready(function () {
 
     async function salvarOrcamento() {
         // Obter valores do formulário
-        const categoria_id = $('#orcamentoCategoria').val();
+        const categoria_id = parseInt($('#orcamentoCategoria').val()); // Converte para número $('#orcamentoCategoria').val();
         const valor = parseFloat($('#orcamentoValor').val().replace('.', '').replace(',', '.'));
-        const mes = localStorage.getItem('selectedMonth');
-        const ano = localStorage.getItem('selectedYear');
+        const mes = parseInt(localStorage.getItem('selectedMonth'));
+        const ano = parseInt(localStorage.getItem('selectedYear'));
     
         // Validação dos campos obrigatórios
         if (!categoria_id || isNaN(valor) || isNaN(mes) || isNaN(ano)) {
@@ -159,6 +357,9 @@ $(document).ready(function () {
             $('#btnSalvarOrcamento').prop('disabled', false).text('Salvar Orçamento');
         }
     }
+
+
+    
     
 
     // Inicialização

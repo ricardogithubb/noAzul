@@ -1,4 +1,4 @@
-import { adicionar, listar, atualizar, deletar, listarContas, listarContaId } from './indexedDB.js';
+import { adicionar, listar, atualizar, deletar, listarContas, listarContaId, formatarData } from './indexedDB.js';
 import { formatMoney, mostrarAlerta, handleSubmitConta, contaEditar } from './script.js';
 
 $(document).ready(function () {
@@ -55,23 +55,35 @@ $(document).ready(function () {
 
     async function carregarContas(tipo) {
         const contas = await listarContas();
-        console.log(contas);
         exibirContas(contas);
         atualizarResumo(contas);
     }
 
     function exibirContas(contas) {
+
         const $grid = $('#contasGrid');
+
+        const $semContas = `<div class="col-12 text-center py-5" id="semContas">
+                                <i class="bi bi-wallet2 text-muted" style="font-size: 3rem;"></i>
+                                <h5 class="mt-3 text-muted">Nenhuma conta cadastrada</h5>
+                                <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#novaContaModal">
+                                    <i class="bi bi-plus-lg me-2"></i>Criar primeira conta
+                                </button>
+                            </div>`;
         $grid.empty();
 
         if (contas.length === 0) {
-            $('#semContas').show();
+            $grid.append($semContas);
             return;
         }
 
-        $('#semContas').hide();
+        $grid.empty();
         
         contas.forEach(conta => {
+            console.log(`[${new Date().toISOString()}] saldo_previsto (objeto):`, conta);
+            console.log(conta);
+            console.log(`[${new Date().toISOString()}] saldo_previsto (valor):`, conta.saldo_previsto);
+            console.log(conta.saldo_previsto);
             const card = `
                 <div class="col-12 col-md-6 col-lg-4">
                     <div class="card account-card shadow-sm h-100 shadow-lg border border-secondary">
@@ -89,8 +101,7 @@ $(document).ready(function () {
                                 </div>
                                 <div>
                                     <small class="text-muted">Saldo Previsto</small>
-                                    <h4 class="mb-0 text-primary">${formatMoney(conta.saldo_previsto
-                                    )}</h4>
+                                    <h4 class="mb-0 text-primary">${formatMoney(conta.saldo_previsto)}</h4>
                                 </div>
                             </div>
                         </div>
@@ -127,7 +138,7 @@ $(document).ready(function () {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>                
             `;
             $grid.append(card);
         });
@@ -206,6 +217,7 @@ $(document).ready(function () {
 
     });
 
+
     $('#contasGrid').on('click', '.btnAjusteConta', async function () {
         
         const id = $(this).data('id'); // Agora funciona corretamente
@@ -225,6 +237,14 @@ $(document).ready(function () {
         $('#contaExclusaoNome').text(conta.nome); // Limpa o campo de nome da conta
         $('#contaTipoExclusao').text(conta.tipo); // Limpa o campo de tipo da conta        
         $('#confirmarExclusaoModal').data('id', id);
+    });
+
+    //se novaContaModal abrir limpar campos
+    $('#novaContaModal').on('show.bs.modal', function () {
+        $('#nomeConta').val(''); // Limpa o campo de nome da conta
+        $('#saldoInicial').val(''); // Limpa o campo de descricao da conta
+        $('#descricaoConta').val(''); // Limpa o campo de tipo da conta
+        $('#contaAtiva').attr('checked', true);
     });
 
 
@@ -275,7 +295,7 @@ $(document).ready(function () {
         try {
             const id = $('#confirmarExclusaoModal').data('id');
             alert(id);
-            await atualizar('contas', id, { ativa: false });
+            await atualizar('contas', id, { ativa: false, visivel: false, deleted_at: formatarData(new Date()) });
             await carregarContas();
             $('#confirmarExclusaoModal').modal('hide');
             mostrarAlerta('Conta desativada com sucesso!', 'success');

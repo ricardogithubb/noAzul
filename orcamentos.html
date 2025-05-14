@@ -37,20 +37,28 @@
     </nav>
     
     <div class="container-fluid mt-5 pt-3">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 py-3">
             <div>
                 <h2 class="mb-1">Orçamentos</h2>
-                <nav aria-label="breadcrumb">
+                <!-- <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
                         <li class="breadcrumb-item active">Orçamentos</li>
                     </ol>
-                </nav>
+                </nav> -->
             </div>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#novoOrcamentoModal">
-                <i class="bi bi-plus-lg"></i> Novo Orçamento
-            </button>
+
+            <!-- Botões alinhados à direita -->
+            <div class="d-flex gap-2 ms-auto">
+                <button class="btn btn-primary shadow" data-bs-toggle="modal" data-bs-target="#novoOrcamentoModal" title="Novo Orçamento">
+                    <i class="bi bi-plus-lg"></i>
+                </button>
+                <button class="btn btn-primary shadow" data-bs-toggle="modal" data-bs-target="#copiarOrcamentoModal" title="Copiar Orçamento">
+                    <i class="bi bi-files"></i>
+                </button>
+            </div>
         </div>
+
 
         <!-- Seletor de mês/ano -->
         <!-- <div class="card shadow mb-4">
@@ -76,65 +84,25 @@
         </div> -->
 
         <!-- Lista de orçamentos -->
-<div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold">Orçamentos Definidos</h6>
-        <span class="badge bg-primary rounded-pill" id="qtdCategorias"></span>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <div id="orcamentosContainer" class="w-100">
-                
-                <!-- Cabeçalho -->
-                <div class="d-flex fw-bold border-bottom py-2">
-                    <div class="flex-fill">Orçado</div>
-                    <div class="flex-fill">Gasto</div>
-                    <div class="flex-fill">Diferença</div>
-                    <div class="flex-fill">Utilizado</div>
-                </div>
-    
-                <!-- Categoria: Alimentação (1ª linha) -->
-                <div class="fw-bold py-2 border-top bg-info px-1 rounded">Alimentação</div>
-                <div class="d-flex align-items-center py-2 border-bottom">
-                    <div class="flex-fill">R$ 0,00</div>
-                    <div class="flex-fill">R$ 0,00</div>
-                    <div class="flex-fill">
-                        <div class="progress" style="height: 20px;">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%;">0%</div>
-                        </div>
-                    </div>
-                    <div class="flex-fill d-inline-flex gap-1">
-                        <button class="btn btn-sm btn-outline-primary" title="Editar">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger" title="Excluir">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-                </div>
-    
-                <!-- Rodapé / Totais -->
-                <div class="d-flex align-items-center py-3 mt-3 bg-light fw-bold border-top">
-                    <div class="flex-fill">Total</div>
-                    <div class="flex-fill">R$ 1.000,00</div>
-                    <div class="flex-fill">R$ 750,00</div>
-                    <div class="flex-fill text-success">+R$ 250,00</div>
-                    <div class="flex-fill">
-                        <div class="progress" style="height: 20px;">
-                            <div class="progress-bar" role="progressbar" style="width: 75%;">75%</div>
-                        </div>
-                    </div>
-                    <div class="flex-fill"></div>
-                </div>
-    
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold">Orçamentos Definidos</h6>
+                <span class="badge bg-primary rounded-pill" id="qtdCategorias"></span>
             </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <div id="orcamentosContainer" class="w-100">
+                        
+                       
+            
+                    </div>
+                </div>
+            </div>
+            
         </div>
-    </div>
-    
-</div>
 
         <!-- Gráfico de orçamentos -->
-        <div class="card shadow mb-4">
+        <!-- <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold">Visão Geral dos Orçamentos</h6>
             </div>
@@ -143,7 +111,7 @@
                     <canvas id="orcamentoChart"></canvas>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <!-- Modal de novo orçamento -->
@@ -158,6 +126,7 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <div class="input-group">
+                                <input type="hidden" id="orcamentoId">
                                 <span class="input-group-text"><i class="bi bi-tag"></i></span>
                                 <select class="form-select" id="orcamentoCategoria" required>
                                     <option value="" selected disabled>Categoria</option>
@@ -186,6 +155,53 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de copiar orçamentos -->
+    <div class="modal fade" id="copiarOrcamentoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Copiar Orçamentos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formCopiarOrcamentos">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="mesOrigem" class="form-label">Mês de Origem</label>
+                            <select class="form-select" id="mesOrigem" required>
+                                <option value="" disabled selected>Selecione o mês de origem</option>
+                                <!-- Exemplo de opções -->
+                                <!-- <option value="2025-01">Janeiro/2025</option>
+                                <option value="2025-02">Fevereiro/2025</option> -->
+                                <!-- Adicione dinamicamente os meses disponíveis -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mesDestino" class="form-label">Mês de Destino</label>
+                            <select class="form-select" id="mesDestino" required>
+                                <option value="" disabled selected>Selecione o mês de destino</option>
+                                <!-- <option value="2025-02">Fevereiro/2025</option>
+                                <option value="2025-03">Março/2025</option> -->
+                                <!-- Adicione dinamicamente os meses futuros -->
+                            </select>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="sobrescreverDestino">
+                            <label class="form-check-label" for="sobrescreverDestino">
+                                Substituir orçamentos existentes no mês de destino
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Copiar Orçamentos</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- Modal para Nova Categoria -->
     <div class="modal fade" style="background-color: rgb(0, 0, 0, 0.5);" id="novaCategoriaModal" data-tipo="O" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">

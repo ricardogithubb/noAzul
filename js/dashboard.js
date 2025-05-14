@@ -259,7 +259,7 @@ $(document).ready(function() {
         
         const lista = await listarContas('A');
 
-        // console.log(lista);
+        console.log(lista);
         
         lista.forEach(conta => {
             $contas.append(`

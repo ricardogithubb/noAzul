@@ -1,5 +1,12 @@
-import { adicionar, listar, atualizar, deletar, listarReceitas, totalEfetivado, totalPendente } from './indexedDB.js';
-import { carregarContas, carregarCategorias } from './script.js';
+import { adicionar, 
+         listar, 
+         atualizar, 
+         deletar, 
+         listarReceitas, 
+         totalEfetivado, 
+         totalPendente,
+         listarReceitasFiltro } from './indexedDB.js';
+import { carregarContas, carregarCategorias, formatarDataExtenso } from './script.js';
 $(document).ready(function() {
     // Variáveis globais
     let receitas = [];
@@ -40,7 +47,7 @@ $(document).ready(function() {
     });
 
 
-    $('#confirmMonthYear').off('click').on('click', function () {
+    $('#confirmMonthYear').on('click', function () {
         init();
     });
 
@@ -60,7 +67,7 @@ $(document).ready(function() {
     });
 
     // Botão para limpar filtros
-    $('#limparFiltrosBtn').off('click').on('click', function () {
+    $('#limparFiltros').on('click', function () {
         limparFiltrosAvancados();
     });
 
@@ -75,7 +82,7 @@ $(document).ready(function() {
 
         if (dadosSalvos) {
             receitas = JSON.parse(dadosSalvos);
-            receitas.sort((a, b) => new Date(b.data_vencimento) - new Date(a.data_vencimento));
+            receitas.sort((a, b) => new Date(a.data_vencimento) - new Date(b.data_vencimento));
         } else {
             // Dados de exemplo
             receitas = [];
@@ -107,8 +114,8 @@ $(document).ready(function() {
 
     // Exibe as receitas na tabela
     function exibirReceitas(listaTransacoes) {
-        console.log('Exibindo receitas...');
-        console.log(listaTransacoes);
+        // console.log('Exibindo receitas...');
+        // console.log(listaTransacoes);
         const $container = $('.transactions-list');
         $container.empty();
     
@@ -119,7 +126,7 @@ $(document).ready(function() {
 
         
         let printData = "";
-        console.log(listaTransacoes);
+        // console.log(listaTransacoes);
 
         listaTransacoes.forEach(receita => {
             const dataFormatada = formatarDataExtenso(receita.data_vencimento);
@@ -129,7 +136,7 @@ $(document).ready(function() {
                 '<span style="display: inline-block; width: 15px; height: 15px; background-color: red; border-radius: 50%; margin-top: 4px;margin-right: 10px"></span>';
             
             //verificar se dataFormatada é diferente de printData
-            console.log(dataFormatada+" != "+printData);
+            // console.log(dataFormatada+" != "+printData);
             if (dataFormatada != printData) {
                 if(printData != "") {
                     printData = dataFormatada;
@@ -183,8 +190,11 @@ $(document).ready(function() {
         });
 
         //ao abrir o modal de nova receita, limpar os campos
-        $('#novaReceitaModal').on('show.bs.modal', function() {
-            $('#receitaData').val(dataAtual);
+        $('#novaReceitaModal').on('show.bs.modal', function() {            
+            const dataId = $('#novaReceitaModal').data('id');
+            if(dataId === 0) {
+                $('#receitaData').val(dataAtual);
+            }            
         });
 
         //ao fechar o modal de nova receita, limpar os campos
@@ -201,6 +211,7 @@ $(document).ready(function() {
             //alterar o model-title de um modal expecifico
             $('#novaReceitaModal .modal-title').text('Nova Receita');
             $('#dataEfetivacaoContainer').hide();
+            $('#repeticaoContainer').removeClass('d-none');
             $('#repeticaoSwitch').show();
         });
 
@@ -353,6 +364,7 @@ $(document).ready(function() {
         $('#receitaObservacao').val(receita.observacao || '');
         $('#dataEfetivacao').val(receita.data_efetivacao);
         $('#repeticaoSwitch').hide();
+        $('#repeticaoContainer').addClass('d-none');
         
         if (receita.efetivada) {
             $('#dataEfetivacaoContainer').show();
@@ -600,19 +612,63 @@ $(document).ready(function() {
         return new Date(dataString).toLocaleDateString('pt-BR', options);
     }
 
-    function formatarDataExtenso(dataString) {
-        const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-    
-        const partes = dataString.split('-');
-        const ano = parseInt(partes[0], 10);
-        const mes = parseInt(partes[1], 10) - 1; // mês no JS é de 0 a 11
-        const dia = parseInt(partes[2], 10);
-    
-        const data = new Date(ano, mes, dia);
-        const diaSemana = diasSemana[data.getDay()];
-    
-        return `${diaSemana}, ${dia}`;
+    async function limparFiltrosAvancados() {
+        return new Promise(async (resolve, reject) => {
+            $('#formFiltroAvancado')[0].reset();
+
+            await aplicarFiltrosAvancados();
+
+            $('#filtroAvancadoIconFill').addClass('d-none');
+            $('#filtroAvancadoIcon').removeClass('d-none');
+
+            $('#filtroAvancadoModal').modal('hide');
+            resolve();
+        })
     }
+
+    async function aplicarFiltrosAvancados() {
+        return new Promise(async (resolve, reject) => {
+            
+            const dataInicio = document.getElementById('filtroDataInicio').value;
+            const dataFim = document.getElementById('filtroDataFim').value;
+            const categorias = Array.from(document.getElementById('filtroCategoria').selectedOptions).map(opt => parseInt(opt.value));
+            const valorMin = document.getElementById('filtroValorMin').value;
+            const valorMax = document.getElementById('filtroValorMax').value;
+            const statusEfetivado = document.getElementById('filtroStatusEfetivado').checked;
+            const statusPendente = document.getElementById('filtroStatusPendente').checked;
+            const descricao = document.getElementById('filtroDescricao').value.trim();
+    
+            // Monta o objeto de filtros
+            const filtros = {
+                dataInicio: dataInicio || null,
+                dataFim: dataFim || null,
+                categorias: categorias.length ? categorias : null,
+                valorMin: valorMin ? parseFloat(valorMin) : null,
+                valorMax: valorMax ? parseFloat(valorMax) : null,
+                status: [],
+                descricao: descricao || null
+            };
+    
+            if (statusEfetivado) filtros.status.push('efetivado');
+            if (statusPendente) filtros.status.push('pendente');
+    
+            console.log('Filtros aplicados:', filtros);
+    
+            const { transacoes, totalEfetivado, totalPendente } = await listarReceitasFiltro(filtros);
+    
+             $('#receitasEfetivada').text( formatMoney(totalEfetivado) ); // Atualiza o elemento com o valor do total de receitas efetivadas
+             $('#receitasPendente').text( formatMoney(totalPendente) ); // Atualiza o elemento com o valor do total de receitas pendentes
+    
+             exibirReceitas(transacoes);
+
+             
+            $('#filtroAvancadoIcon').addClass('d-none');
+            $('#filtroAvancadoIconFill').removeClass('d-none');
+
+             resolve();
+        })
+    }
+
 
     carregarContas('R');
 

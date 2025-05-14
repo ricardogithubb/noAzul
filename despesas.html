@@ -38,19 +38,25 @@
     </nav>
     
     <div class="container-fluid mt-5 pt-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="d-flex justify-content-between align-items-center mb-2 py-3">
             <div>
                 <h2 class="mb-1">Despesas</h2>
-                <nav aria-label="breadcrumb">
+                <!-- <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
                         <li class="breadcrumb-item active">Despesas</li>
                     </ol>
-                </nav>
+                </nav> -->
             </div>
-            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#novaDespesaModal">
-                <i class="bi bi-plus-lg"></i> Nova Despesa
-            </button>
+            <div class="d-flex gap-2 ms-auto">
+                <button class="btn btn-primary shadow" data-bs-toggle="modal" data-bs-target="#filtroAvancadoModal" title="Copiar Orçamento">
+                    <i class="bi bi-funnel" id="filtroAvancadoIcon"></i>
+                    <i class="bi bi-funnel-fill d-none" id="filtroAvancadoIconFill"></i>
+                </button>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#novaDespesaModal">
+                    <i class="bi bi-plus-lg"></i>
+                </button>
+            </div>
         </div>
     
         <div class="row g-3 px-2">  <!-- Adicionado g-3 para espaçamento entre colunas -->
@@ -92,7 +98,7 @@
     </div>
 
     <!-- Modal de nova despesa - Versão final -->
-    <div class="modal fade" id="novaDespesaModal" tabindex="-1" aria-hidden="true" data-id="333">
+    <div class="modal fade" id="novaDespesaModal" tabindex="-1" aria-hidden="true" data-id="0">
         <div class="modal-dialog">
             <div class="modal-content border border-3 border-danger">
                 <div class="modal-header bg-danger text-white">
@@ -129,8 +135,8 @@
                                 <span class="input-group-text"><i class="bi bi-bank"></i></span>
                                 <select class="form-select" id="despesaConta" required>
                                     <option value="" selected disabled>Conta</option>
-                                    <option value="1">Santander</option>
-                                    <option value="2">Nubank</option>
+                                    <!-- <option value="1">Santander</option>
+                                    <option value="2">Nubank</option> -->
                                 </select>
                                 <button class="btn btn-outline-secondary" type="button" id="btnNovaConta">
                                     <i class="bi bi-plus-circle"></i>
@@ -172,7 +178,7 @@
                         </div>
                         
                         <!-- Repetição -->
-                        <div class="mb-3">
+                        <div class="mb-3" id="repeticaoContainer">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="despesaRepetir">
                                 <label class="form-check-label" for="despesaRepetir">
@@ -252,7 +258,7 @@
     <div class="modal fade" style="background-color: rgb(0, 0, 0, 0.5);" id="novaCategoriaModal" data-tipo="D" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-sm">
             <div class="modal-content shadow-lg">
-                <div class="modal-header bg-success text-white">
+                <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title"><i class="bi bi-tag me-2"></i>Nova Categoria</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -269,7 +275,7 @@
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                             <i class="bi bi-x-circle me-1"></i>Cancelar
                         </button>
-                        <button type="submit" class="btn btn-success">
+                        <button type="submit" class="btn btn-danger">
                             <i class="bi bi-save me-1"></i>Salvar
                         </button>
                     </div>
@@ -433,7 +439,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" id="limparFiltros">Limpar Filtros</button>
+                        <button type="button" class="btn btn-outline-secondary" id="limparFiltrosBtn">Limpar Filtros</button>
                         <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
                     </div>
                 </form>

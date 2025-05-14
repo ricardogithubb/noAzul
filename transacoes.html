@@ -6,7 +6,11 @@
     <title>noAzul - Transações</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="css/transacoes.css" rel="stylesheet">
+    <script type="module" src="js/indexedDB.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow">
@@ -33,15 +37,15 @@
     </nav>
     
     <div class="container-fluid mt-5 pt-3">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-1 py-3">
             <div>
                 <h2 class="mb-1">Transações</h2>
-                <nav aria-label="breadcrumb">
+                <!-- <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
                         <li class="breadcrumb-item active">Transações</li>
                     </ol>
-                </nav>
+                </nav> -->
             </div>
             <!-- <div>
                 <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#novaReceitaModal">
@@ -54,7 +58,7 @@
         </div>
 
         <!-- Filtros -->
-        <div class="card shadow mb-4">
+        <!-- <div class="card shadow mb-4">
             <div class="card-body py-3">
                 <div class="d-flex align-items-center flex-wrap">
                     <button class="btn btn-outline-secondary me-2 mb-2" id="filtroAvancadoBtn">
@@ -96,10 +100,10 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Lista de transações -->
-        <div class="transactions-list">
+        <div class="transactions-list" id="transactionsList">
             <!-- Grupo por data - Sábado, 30 -->
             <div class="transaction-group">
                 <div class="transaction-date bg-light">Sábado, 30</div>
@@ -162,8 +166,8 @@
 
     <!-- Modais (mesmos modais de receitas e despesas) -->
     
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/transacoes.js"></script>
+    <script type="module" src="js/script.js"></script>
+    <script type="module" src="js/transacoes.js"></script>
 </body>
 </html>

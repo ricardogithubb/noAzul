@@ -49,9 +49,9 @@ export function getNovaContaData() {
     return {
         nome: $('#nomeConta').val(),
         saldo_inicial: parseFloat(($('#saldoInicial').val() || '0').replace('.', '').replace(',', '.')),
-        saldoPrevisto: 0,
         descricao: $('#descricaoConta').length ? $('#descricaoConta').val() : null,
-        ativa: $('#contaAtiva').length ? $('#contaAtiva').prop('checked') : true
+        ativa: $('#contaAtiva').length ? $('#contaAtiva').prop('checked') : true,
+        visivel: $('#contaAtiva').length ? $('#contaAtiva').prop('checked') : true
     };
 }
 
@@ -111,36 +111,55 @@ function fecharAlerta(id) {
     }
 }
 
+export function formatarDataExtenso(dataString) {
+    const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+
+    const partes = dataString.split('-');
+    const ano = parseInt(partes[0], 10);
+    const mes = parseInt(partes[1], 10) - 1; // mês no JS é de 0 a 11
+    const dia = parseInt(partes[2], 10);
+
+    const data = new Date(ano, mes, dia);
+    const diaSemana = diasSemana[data.getDay()];
+
+    return `${diaSemana}, ${dia}`;
+}
+
 // Formata valores monetários
 export function formatMoney(value) {
     return 'R$ ' + parseFloat(value).toFixed(2).replace('.', ',').replace(/(\d)(?=(\d{3})+\,)/g, '$1.');
 }
 
 // Atualiza o mês/ano exibido
-export function updateMonthYear(month, year) { 
-    const months = ["", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
-                   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+export async function updateMonthYear(month, year) { 
+    return new Promise((resolve, reject) => {
+        
+        const months = ["", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
+                       "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        
+        month !== undefined ? month : month = new Date().getMonth()+1;
+        year !== undefined ? year : year = new Date().getFullYear();
     
-    month !== undefined ? month : month = new Date().getMonth()+1;
-    year !== undefined ? year : year = new Date().getFullYear();
-
-    month !== 'null' ? month : month = new Date().getMonth()+1;
-    year !== 'null' ? year : year = new Date().getFullYear();
-
-    isNaN(month) ? month = new Date().getMonth()+1 : month = month;
-    isNaN(year) ? year = new Date().getFullYear() : year = year;
-
-    //verificar se o mes e ano sao numericos
-
-
-    localStorage.setItem('selectedMonth', parseInt(month));
-    localStorage.setItem('selectedYear', parseInt(year));
-
-    $('#currentYear').text(year);
-
-    const currentMonth = months[month];
-    const currentYear = year;
-    $('#currentMonthYear').text(`${currentMonth} ${currentYear}`);
+        month !== 'null' ? month : month = new Date().getMonth()+1;
+        year !== 'null' ? year : year = new Date().getFullYear();
+    
+        isNaN(month) ? month = new Date().getMonth()+1 : month = month;
+        isNaN(year) ? year = new Date().getFullYear() : year = year;
+    
+        //verificar se o mes e ano sao numericos
+    
+    
+        localStorage.setItem('selectedMonth', parseInt(month));
+        localStorage.setItem('selectedYear', parseInt(year));
+    
+        $('#currentYear').text(year);
+    
+        const currentMonth = months[month];
+        const currentYear = year;
+        $('#currentMonthYear').text(`${currentMonth} ${currentYear}`);
+    
+        resolve();
+    })
 
 }
 
@@ -150,7 +169,7 @@ export function setupMonthYearSelector() {
     $('.month-btn').removeClass('btn-primary').addClass('btn-outline-primary');
     
     //remover a classe btn-outline-primary e adicionar a classe btn-primary no botão que data-month for igual ao mês atual
-    const currentMonth = new Date().getMonth()+1;
+    const currentMonth = localStorage.getItem('selectedMonth') || new Date().getMonth()+1;
     $('.month-btn[data-month="' + currentMonth + '"]').removeClass('btn-outline-primary').addClass('btn-primary');
 
 
@@ -254,7 +273,7 @@ function appendModalToBody() {
                         <div class="col-3"><button class="btn btn-outline-primary w-100 month-btn" data-month="12">Dez</button></div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer d-none">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-primary" id="confirmMonthYear">Aplicar</button>
                 </div>
@@ -289,17 +308,18 @@ function getTotalDespesas(mes, ano) {
 }
 
 export async function carregarContas(tipo) {
+    console.log(tipo);
     try {
-        await listar('contas',(contas) => {
-            
-            let $select = '';
-            tipo === 'R' ? $select = $('#receitaConta') : $select = $('#despesaConta');
-            $select.empty();
-            $select.append('<option value="">Conta...</option>');
-            
-            contas.forEach(conta => {
-                $select.append(`<option value="${conta.id}">${conta.nome}</option>`);
-            });
+        const contas = await listar('contas');
+
+        console.log(contas);
+        
+        let $select = tipo === 'R' ? $('#receitaConta') : $('#despesaConta');
+        $select.empty();
+        $select.append('<option value="">Conta...</option>');
+        
+        contas.forEach(conta => {
+            $select.append(`<option value="${conta.id}">${conta.nome}</option>`);
         });
 
     } catch (error) {
@@ -307,12 +327,15 @@ export async function carregarContas(tipo) {
     }
 }
 
+
 export async function carregarCategorias(tipo) {
     
     try {
         await listarCategorias('categorias',tipo === 'O' ? 'D' : tipo,(categorias) => {
 
+
             let $select = '';
+            let $selectFiltro = '';
             tipo === 'R' ? $select = $('#receitaCategoria') : tipo === 'D' ? $select = $('#despesaCategoria') : $select = $('#orcamentoCategoria');
             $select.empty();
             $select.append('<option value="">Categoria...</option>');
@@ -320,6 +343,18 @@ export async function carregarCategorias(tipo) {
             categorias.forEach(categoria => {
                 $select.append(`<option value="${categoria.id}">${categoria.nome}</option>`);
             });
+
+            //verificar se existe o campos filtroCategoria
+            if(tipo === 'R' || tipo === 'D') {
+                $selectFiltro = $('#filtroCategoria');
+                $selectFiltro.empty();
+                $selectFiltro.append('<option value="0">Todas Categorias</option>');
+                
+                categorias.forEach(categoria => {
+                    $selectFiltro.append(`<option value="${categoria.id}" data-id="${categoria.id}">${categoria.nome}</option>`);
+                });
+            }
+
         })
 
     } catch (error) {
