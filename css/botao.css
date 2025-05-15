@@ -1,0 +1,126 @@
+.fab-container {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px; /* Ajustado para o botão principal de 60px */
+        height: 60px;
+        z-index: 2000;
+    }
+    
+    .main-button {
+        position: absolute;
+        width: 60px; /* Reduzido de 80px para 60px */
+        height: 60px;
+        border-radius: 50%;
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        font-size: 28px; /* Reduzido de 36px para 28px */
+        z-index: 10;
+        transition: all 0.3s;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .main-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    }
+    
+    .sub-button {
+        position: absolute;
+        width: 40px; /* Reduzido de 60px para 40px */
+        height: 40px;
+        border-radius: 50%;
+        background-color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        font-size: 18px; /* Reduzido de 24px para 18px */
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        opacity: 0;
+        z-index: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        bottom: 10px;
+        left: 10px;
+    }
+    
+    .sub-button:hover {
+        transform: scale(1.1) !important;
+    }
+    
+    /* Cores dos botões */
+    .sub-button:nth-child(2) {
+        background-color: #ff4444;
+        color: white;
+    }
+    
+    .sub-button:nth-child(3) {
+        background-color: #00C851;
+        color: white;
+    }
+    
+    .sub-button:nth-child(4) {
+        background-color: #ffbb33;
+        color: white;
+    }
+    
+    .sub-button:nth-child(5) {
+        background-color: #33b5e5;
+        color: white;
+    }
+    
+    /* Posicionamento semicircular uniforme - ajustado para os novos tamanhos */
+    .active .sub-button:nth-child(2) {
+        opacity: 1;
+        transform: translate(-70px, -40px);
+    }
+    
+    .active .sub-button:nth-child(3) {
+        opacity: 1;
+        transform: translate(-30px, -70px);
+    }
+    
+    .active .sub-button:nth-child(4) {
+        opacity: 1;
+        transform: translate(30px, -70px);
+    }
+    
+    .active .sub-button:nth-child(5) {
+        opacity: 1;
+        transform: translate(70px, -40px);
+    }
+    
+    .tooltip {
+        position: absolute;
+        background-color: #33333300;
+        color: rgb(255, 255, 255);
+        padding: 5px 5px;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 1;
+        z-index: 200000;
+        transition: opacity 0.3s;
+        bottom: 50px; /* Ajustado para botões menores */
+        left: 40%;
+        transform: translateX(-50%);
+    }
+    
+    .sub-button:hover .tooltip {
+        opacity: 1;
+    }
+    
+    .rotate-plus {
+        transform: rotate(45deg);
+        transition: transform 0.3s;
+    }

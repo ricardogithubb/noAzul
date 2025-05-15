@@ -40,67 +40,15 @@
         <div class="d-flex justify-content-between align-items-center mb-1 py-3">
             <div>
                 <h2 class="mb-1">Transações</h2>
-                <!-- <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Transações</li>
-                    </ol>
-                </nav> -->
             </div>
-            <!-- <div>
-                <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#novaReceitaModal">
-                    <i class="bi bi-plus-lg"></i> Receita
+            <!-- Botões alinhados à direita -->
+            <div class="d-flex gap-2 ms-auto">
+                <button class="btn btn-primary shadow" data-bs-toggle="modal" data-bs-target="#filtroAvancadoModal" title="Copiar Orçamento">
+                    <i class="bi bi-funnel" id="filtroAvancadoIcon"></i>
+                    <i class="bi bi-funnel-fill d-none" id="filtroAvancadoIconFill"></i>
                 </button>
-                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#novaDespesaModal">
-                    <i class="bi bi-plus-lg"></i> Despesa
-                </button>
-            </div> -->
+            </div>
         </div>
-
-        <!-- Filtros -->
-        <!-- <div class="card shadow mb-4">
-            <div class="card-body py-3">
-                <div class="d-flex align-items-center flex-wrap">
-                    <button class="btn btn-outline-secondary me-2 mb-2" id="filtroAvancadoBtn">
-                        <i class="bi bi-funnel"></i> Filtros
-                    </button>
-                    <div class="input-group me-2 mb-2" style="width: 200px;">
-                        <span class="input-group-text"><i class="bi bi-calendar"></i></span>
-                        <select class="form-select" id="periodoSelect">
-                            <option value="este-mes">Este Mês</option>
-                            <option value="mes-passado">Mês Passado</option>
-                            <option value="ultimos-3-meses">Últimos 3 Meses</option>
-                            <option value="personalizado">Personalizado</option>
-                        </select>
-                    </div>
-                    <div class="input-group me-2 mb-2" style="width: 200px;">
-                        <span class="input-group-text"><i class="bi bi-tag"></i></span>
-                        <select class="form-select" id="categoriaSelect">
-                            <option value="">Todas Categorias</option>
-                            <option value="salario">Salário</option>
-                            <option value="alimentacao">Alimentação</option>
-                            <option value="moradia">Moradia</option>
-                        </select>
-                    </div>
-                    <div class="input-group me-2 mb-2" style="width: 200px;">
-                        <span class="input-group-text"><i class="bi bi-arrow-left-right"></i></span>
-                        <select class="form-select" id="tipoTransacaoSelect">
-                            <option value="">Todos Tipos</option>
-                            <option value="receita">Receitas</option>
-                            <option value="despesa">Despesas</option>
-                        </select>
-                    </div>
-                    <div class="input-group me-2 mb-2" style="width: 200px;">
-                        <span class="input-group-text"><i class="bi bi-check-circle"></i></span>
-                        <select class="form-select" id="statusSelect">
-                            <option value="">Todos Status</option>
-                            <option value="efetivado">Efetivado</option>
-                            <option value="pendente">Pendente</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div> -->
 
         <!-- Lista de transações -->
         <div class="transactions-list" id="transactionsList">

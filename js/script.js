@@ -463,12 +463,18 @@ function validarMesAnoIguais() {
         const dataInicio = $('#filtroDataInicio').val();
         const dataFim = $('#filtroDataFim').val();
 
+
         if (dataInicio) {
-            const inicio = new Date(dataInicio);
-            const fim = new Date(dataFim);
+            let dataAno = dataInicio.split('-')[0];
+            let dataMes = parseInt(dataInicio.split('-')[1])-1;
+            let diaMes = dataInicio.split('-')[2];
+            
+            const inicio = new Date(dataAno, dataMes, diaMes);
 
             const mesAnoForm = inicio.getFullYear() + '-' + (inicio.getMonth()+1);
             const mesAnoParam = localStorage.getItem('selectedYear') + '-' + localStorage.getItem('selectedMonth');
+
+            console.log(mesAnoForm, mesAnoParam);
 
             if (mesAnoForm !== mesAnoParam) {
                 alert('As datas devem estar dentro do mesmo mês e ano.');
@@ -479,8 +485,11 @@ function validarMesAnoIguais() {
         }
 
         if (dataFim) {
-            const inicio = new Date(dataInicio);
-            const fim = new Date(dataFim);
+            let dataAno = dataFim.split('-')[0];
+            let dataMes = parseInt(dataFim.split('-')[1])-1;
+            let diaMes = dataFim.split('-')[2];
+
+            const fim = new Date(dataAno, dataMes, diaMes);
 
             const mesAnoForm = fim.getFullYear() + '-' + (fim.getMonth()+1);
             const mesAnoParam = localStorage.getItem('selectedYear') + '-' + localStorage.getItem('selectedMonth');
@@ -498,6 +507,16 @@ function validarMesAnoIguais() {
         return true;
     }
 
+function setupSelectCategorias() {
+    $('#filtroCategoria').on('change', function () {
+        const selected = $(this).val();
+
+        if (selected.includes('0')) {
+            // Seleciona todas as opções
+            $('#filtroCategoria option').prop('selected', true);
+        } 
+    });
+}
 
 // Inicializa funções globais quando o DOM estiver pronto
 $(document).ready(function() {
@@ -508,6 +527,8 @@ $(document).ready(function() {
 
     setupMonthYearSelector();
     setupRepeatOptions();
+
+    setupSelectCategorias();
 
     setupModalsContaCategoria();
 

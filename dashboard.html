@@ -10,7 +10,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
     <link href="css/dashboard.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/botao.css">
     <script type="module" src="js/indexedDB.js"></script>
+    <script src="js/botao.js"></script>
 </head>
 <body>
     <!-- Barra de navegação -->
@@ -194,6 +196,37 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="fab-container">
+        <button class="main-button" id="mainButton">+</button>
+        <button class="sub-button" id="despesas">
+            <i class="fas fa-money-bill-wave"></i>
+            <span class="tooltip">Despesas</span>
+        </button>
+        <button class="sub-button" id="receitas">
+            <i class="fas fa-hand-holding-usd"></i>
+            <span class="tooltip">Receitas</span>
+        </button>
+        <button class="sub-button" id="categorias">
+            <i class="fas fa-tags"></i>
+            <span class="tooltip">Categorias</span>
+        </button>
+        <button class="sub-button" id="contas">
+            <i class="fas fa-wallet"></i>
+            <span class="tooltip">Contas</span>
+        </button>
+    </div>
+
+    <!-- Modal Fullscreen -->
+    <div class="modal fade" id="modalTelaInteira" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body p-0">
+            <!-- Modal vazio -->
+            </div>
+        </div>
         </div>
     </div>
 

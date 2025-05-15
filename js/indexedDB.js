@@ -583,12 +583,12 @@ export async function listarDespesasFiltro(filtro) {
                 
                     // if dataInicio for null definir como primeiro dia do mes e ano informado
                     if (dataInicio === null) {
-                        dataInicio = new Date(filtro.ano, filtro.mes, 1);
+                        dataInicio = new Date(filtro.ano, filtro.mes-1, 1);
                     }
 
                     // if dataFim for null definir como ultimo dia do mes e ano informado
                     if (dataFim === null) {
-                        dataFim = new Date(filtro.ano, filtro.mes + 1, 0);
+                        dataFim = new Date(filtro.ano, filtro.mes, 0);
                     }
 
                     if (dataInicio && data < dataInicio) return false;

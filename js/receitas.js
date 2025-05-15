@@ -28,6 +28,7 @@ $(document).ready(function() {
         setupEventListeners();
         atualizarTotalReceitas();
         popularFiltros();
+        limparFiltrosAvancados();
     }
 
     $('#receitaEfetivada').change(function() {

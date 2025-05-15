@@ -21,6 +21,7 @@ $(document).ready(function() {
         setupEventListeners();
         atualizarTotalDespesas();
         popularFiltros();
+        limparFiltrosAvancados();
     }
 
     $('#despesaEfetivada').change(function() {
@@ -40,7 +41,7 @@ $(document).ready(function() {
     });
 
 
-    $('#confirmMonthYear').off('click').on('click', function () {
+    $('#confirmMonthYear').on('click', function () {
         init();
     });
 
@@ -54,9 +55,13 @@ $(document).ready(function() {
     });
 
     // Configura o submit do formulário de filtro
-    $('#formFiltroAvancado').submit(function(e) {
+    $('#formFiltroAvancado').submit(async function(e) {
         e.preventDefault();
-        aplicarFiltrosAvancados();
+
+        const mes = localStorage.getItem('selectedMonth');
+        const ano = localStorage.getItem('selectedYear');
+
+        await aplicarFiltrosAvancados(mes, ano);
     });
 
     // Botão para limpar filtros
@@ -607,7 +612,10 @@ $(document).ready(function() {
         return new Promise(async (resolve, reject) => {
             $('#formFiltroAvancado')[0].reset();
 
-            await aplicarFiltrosAvancados();
+            const mes = localStorage.getItem('selectedMonth');
+            const ano = localStorage.getItem('selectedYear');
+
+            await aplicarFiltrosAvancados(mes, ano);
 
             $('#filtroAvancadoIconFill').addClass('d-none');
             $('#filtroAvancadoIcon').removeClass('d-none');
