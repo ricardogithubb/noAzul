@@ -70,6 +70,7 @@ $(document).ready(function() {
 
         await aplicarFiltrosAvancados(mes, ano);
 
+        $('#filtroAvancadoModal').modal('hide');
 
     });
 
@@ -229,15 +230,15 @@ $(document).ready(function() {
         });
 
         // Formulário de filtro avançado
-        $('#formFiltroAvancado').submit(function(e) {
-            e.preventDefault();
-            aplicarFiltros();
-        });
+        // $('#formFiltroAvancado').submit(function(e) {
+        //     e.preventDefault();
+        //     aplicarFiltros();
+        // });
 
-        // Limpar filtros
-        $('#limparFiltros').off('click').on('click', function () {
-            limparFiltros();
-        });
+        // // Limpar filtros
+        // $('#limparFiltros').off('click').on('click', function () {
+        //     limparFiltros();
+        // });
 
 
         $('#btnExcluirReceita').off('click').on('click', function () {
@@ -407,6 +408,10 @@ $(document).ready(function() {
 
     // Atualizar receita existente
     async function atualizarReceita(id) {
+
+        const mes = localStorage.getItem('selectedMonth');
+        const ano = localStorage.getItem('selectedYear');
+
         const receitaAtualizada = {
             descricao: $('#receitaDescricao').val(),
             valor: parseFloat($('#receitaValor').val().replace('.', '').replace(',', '.')),
@@ -423,21 +428,6 @@ $(document).ready(function() {
         try {
 
             await atualizar('transacoes', id, receitaAtualizada);
-
-            // const response = await fetch(`https://apinoazul.markethubplace.com/api/receitas/${id}`, {
-            //     method: 'PUT',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'Authorization': 'Bearer ' + localStorage.getItem('authToken') // Assumindo autenticação JWT
-            //     },
-            //     body: JSON.stringify(receitaAtualizada)
-            // });
-    
-            // if (!response.ok) {
-            //     throw new Error('Erro ao atualizar a receita.');
-            // }
-    
-            // const receitaResposta = await response.json();
     
             // Atualiza localmente
             const index = receitas.findIndex(r => r.id === id);
@@ -445,10 +435,13 @@ $(document).ready(function() {
                 receitas[index] = receitaAtualizada;
             }
 
-            await carregarReceitasIndexedDB();
+            // await carregarReceitasIndexedDB();
     
             salvarReceitas();
-            exibirReceitas(receitas);
+
+             await aplicarFiltrosAvancados(mes, ano);
+
+            // exibirReceitas(receitas);
             $('#novaReceitaModal').modal('hide');
             resetarFormulario();
             atualizarTotalReceitas();
@@ -516,59 +509,59 @@ $(document).ready(function() {
     }
 
     // Aplicar filtros avançados
-    function aplicarFiltros() {
-        const dataInicio = $('#filtroDataInicio').val();
-        const dataFim = $('#filtroDataFim').val();
-        const categoria = $('#filtroCategoria').val();
-        const valorMin = $('#filtroValorMin').val();
-        const valorMax = $('#filtroValorMax').val();
-        const status = $('#filtroStatus').val();
-        const descricao = $('#filtroDescricao').val();
+    // function aplicarFiltros() {
+    //     const dataInicio = $('#filtroDataInicio').val();
+    //     const dataFim = $('#filtroDataFim').val();
+    //     const categoria = $('#filtroCategoria').val();
+    //     const valorMin = $('#filtroValorMin').val();
+    //     const valorMax = $('#filtroValorMax').val();
+    //     const status = $('#filtroStatus').val();
+    //     const descricao = $('#filtroDescricao').val();
 
-        let receitasFiltradas = [...receitas];
+    //     let receitasFiltradas = [...receitas];
 
-        if (dataInicio) {
-            receitasFiltradas = receitasFiltradas.filter(r => r.data >= dataInicio);
-        }
+    //     if (dataInicio) {
+    //         receitasFiltradas = receitasFiltradas.filter(r => r.data >= dataInicio);
+    //     }
 
-        if (dataFim) {
-            receitasFiltradas = receitasFiltradas.filter(r => r.data <= dataFim);
-        }
+    //     if (dataFim) {
+    //         receitasFiltradas = receitasFiltradas.filter(r => r.data <= dataFim);
+    //     }
 
-        if (categoria) {
-            receitasFiltradas = receitasFiltradas.filter(r => r.categoria === categoria);
-        }
+    //     if (categoria) {
+    //         receitasFiltradas = receitasFiltradas.filter(r => r.categoria === categoria);
+    //     }
 
-        if (valorMin) {
-            receitasFiltradas = receitasFiltradas.filter(r => r.valor >= parseFloat(valorMin));
-        }
+    //     if (valorMin) {
+    //         receitasFiltradas = receitasFiltradas.filter(r => r.valor >= parseFloat(valorMin));
+    //     }
 
-        if (valorMax) {
-            receitasFiltradas = receitasFiltradas.filter(r => r.valor <= parseFloat(valorMax));
-        }
+    //     if (valorMax) {
+    //         receitasFiltradas = receitasFiltradas.filter(r => r.valor <= parseFloat(valorMax));
+    //     }
 
-        if (status) {
-            const efetivada = status === 'efetivado';
-            receitasFiltradas = receitasFiltradas.filter(r => r.efetivada === efetivada);
-        }
+    //     if (status) {
+    //         const efetivada = status === 'efetivado';
+    //         receitasFiltradas = receitasFiltradas.filter(r => r.efetivada === efetivada);
+    //     }
 
-        if (descricao) {
-            const termo = descricao.toLowerCase();
-            receitasFiltradas = receitasFiltradas.filter(r => 
-                r.descricao.toLowerCase().includes(termo)
-            );
-        }
+    //     if (descricao) {
+    //         const termo = descricao.toLowerCase();
+    //         receitasFiltradas = receitasFiltradas.filter(r => 
+    //             r.descricao.toLowerCase().includes(termo)
+    //         );
+    //     }
 
-        exibirReceitas(receitasFiltradas);
-        $('#filtroAvancadoModal').modal('hide');
-    }
+    //     exibirReceitas(receitasFiltradas);
+    //     $('#filtroAvancadoModal').modal('hide');
+    // }
 
     // Limpar filtros
-    function limparFiltros() {
-        $('#formFiltroAvancado')[0].reset();
-        exibirReceitas(receitas);
-        $('#filtroAvancadoModal').modal('hide');
-    }
+    // function limparFiltros() {
+    //     $('#formFiltroAvancado')[0].reset();
+    //     exibirReceitas(receitas);
+    //     $('#filtroAvancadoModal').modal('hide');
+    // }
 
     // Popular selects de filtro
     function popularFiltros() {

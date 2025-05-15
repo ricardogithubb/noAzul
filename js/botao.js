@@ -1,6 +1,10 @@
 $(document).ready(function () {
     const mainButton = document.getElementById('mainButton');
         const fabContainer = document.querySelector('.fab-container');
+
+        let transparenciaTimeout;
+
+        $('#mainButton').css('opacity', 0.2);
         
         mainButton.addEventListener('click', () => {
             fabContainer.classList.toggle('active');
@@ -46,8 +50,6 @@ $(document).ready(function () {
             mainButton.classList.remove('rotate-plus');
             window.location.href = 'contas.html';
         });
-
-        let transparenciaTimeout;
 
         // Escuta o scroll da página
         $(window).on('scroll', function () {

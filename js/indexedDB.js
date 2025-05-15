@@ -1048,29 +1048,46 @@ export async function listarContas(status) {
 
 
 function atualizar(storeName, id, novosDados) {
-    const request = indexedDB.open(banco, versao);
+    return new Promise((resolve, reject) => {
+        
+        const request = indexedDB.open(banco, versao);
+    
+        request.onsuccess = function(event) {
+            const db = event.target.result;
+            const transaction = db.transaction([storeName], 'readwrite');
+            const store = transaction.objectStore(storeName);
+    
+            const getRequest = store.get(id);
+    
+            getRequest.onsuccess = function() {
+                const data = getRequest.result;
+    
+                if (data) {
+                    // Atualiza os campos
+                    Object.assign(data, novosDados);
+                    data.updated_at = formatarData(new Date());
+                    store.put(data);
+                    console.log(`Registro atualizado na store ${storeName}`);
+                    resolve();
+                } else {
+                    console.error('Registro não encontrado para atualização.');
+                    reject();
+                }
+            };
+    
+            getRequest.onerror = function(event) {
+                console.error('Erro ao buscar registro para atualização:', event.target.error);
+                reject(event.target.error);
+            };
 
-    request.onsuccess = function(event) {
-        const db = event.target.result;
-        const transaction = db.transaction([storeName], 'readwrite');
-        const store = transaction.objectStore(storeName);
-
-        const getRequest = store.get(id);
-
-        getRequest.onsuccess = function() {
-            const data = getRequest.result;
-
-            if (data) {
-                // Atualiza os campos
-                Object.assign(data, novosDados);
-                data.updated_at = formatarData(new Date());
-                store.put(data);
-                console.log(`Registro atualizado na store ${storeName}`);
-            } else {
-                console.error('Registro não encontrado para atualização.');
-            }
         };
-    };
+
+        request.onerror = function(event) {
+            console.error('Erro ao abrir o banco IndexedDB:', event.target.error);
+            reject(event.target.error);
+        };
+
+    })
 }
 
 //Total de Despesas por data

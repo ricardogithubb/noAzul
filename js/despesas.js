@@ -62,6 +62,9 @@ $(document).ready(function() {
         const ano = localStorage.getItem('selectedYear');
 
         await aplicarFiltrosAvancados(mes, ano);
+
+        $('#filtroAvancadoModal').modal('hide');
+
     });
 
     // Botão para limpar filtros
@@ -227,15 +230,15 @@ $(document).ready(function() {
         });
 
         // Formulário de filtro avançado
-        $('#formFiltroAvancado').submit(function(e) {
-            e.preventDefault();
-            aplicarFiltros();
-        });
+        // $('#formFiltroAvancado').submit(function(e) {
+        //     e.preventDefault();
+        //     aplicarFiltros();
+        // });
 
         // Limpar filtros
-        $('#limparFiltros').off('click').on('click', function () {
-            limparFiltros();
-        });
+        // $('#limparFiltros').off('click').on('click', function () {
+        //     limparFiltros();
+        // });
 
 
         $('#btnExcluirDespesa').off('click').on('click', function () {
@@ -409,6 +412,10 @@ $(document).ready(function() {
 
     // Atualizar despesa existente
     async function atualizarDespesa(id) {
+        
+        const mes = localStorage.getItem('selectedMonth');
+        const ano = localStorage.getItem('selectedYear');
+
         const despesaAtualizada = {
             descricao: $('#despesaDescricao').val(),
             valor: parseFloat($('#despesaValor').val().replace('.', '').replace(',', '.')),
@@ -419,8 +426,6 @@ $(document).ready(function() {
             efetivada: $('#despesaEfetivada').is(':checked'),
             observacao: $('#despesaObservacao').val()
         };
-
-        console.log(despesaAtualizada);
     
         try {
 
@@ -436,7 +441,10 @@ $(document).ready(function() {
             await carregarDespesasIndexedDB();
     
             salvarDespesas();
-            exibirDespesas(despesas);
+            // exibirDespesas(despesas);
+
+            await aplicarFiltrosAvancados(mes, ano);
+
             $('#novaDespesaModal').modal('hide');
             resetarFormulario();
             atualizarTotalDespesas();
@@ -491,59 +499,59 @@ $(document).ready(function() {
     }
 
     // Aplicar filtros avançados
-    function aplicarFiltros() {
-        const dataInicio = $('#filtroDataInicio').val();
-        const dataFim = $('#filtroDataFim').val();
-        const categoria = $('#filtroCategoria').val();
-        const valorMin = $('#filtroValorMin').val();
-        const valorMax = $('#filtroValorMax').val();
-        const status = $('#filtroStatus').val();
-        const descricao = $('#filtroDescricao').val();
+    // function aplicarFiltros() {
+    //     const dataInicio = $('#filtroDataInicio').val();
+    //     const dataFim = $('#filtroDataFim').val();
+    //     const categoria = $('#filtroCategoria').val();
+    //     const valorMin = $('#filtroValorMin').val();
+    //     const valorMax = $('#filtroValorMax').val();
+    //     const status = $('#filtroStatus').val();
+    //     const descricao = $('#filtroDescricao').val();
 
-        let despesasFiltradas = [...despesas];
+    //     let despesasFiltradas = [...despesas];
 
-        if (dataInicio) {
-            despesasFiltradas = despesasFiltradas.filter(r => r.data >= dataInicio);
-        }
+    //     if (dataInicio) {
+    //         despesasFiltradas = despesasFiltradas.filter(r => r.data >= dataInicio);
+    //     }
 
-        if (dataFim) {
-            despesasFiltradas = despesasFiltradas.filter(r => r.data <= dataFim);
-        }
+    //     if (dataFim) {
+    //         despesasFiltradas = despesasFiltradas.filter(r => r.data <= dataFim);
+    //     }
 
-        if (categoria) {
-            despesasFiltradas = despesasFiltradas.filter(r => r.categoria === categoria);
-        }
+    //     if (categoria) {
+    //         despesasFiltradas = despesasFiltradas.filter(r => r.categoria === categoria);
+    //     }
 
-        if (valorMin) {
-            despesasFiltradas = despesasFiltradas.filter(r => r.valor >= parseFloat(valorMin));
-        }
+    //     if (valorMin) {
+    //         despesasFiltradas = despesasFiltradas.filter(r => r.valor >= parseFloat(valorMin));
+    //     }
 
-        if (valorMax) {
-            despesasFiltradas = despesasFiltradas.filter(r => r.valor <= parseFloat(valorMax));
-        }
+    //     if (valorMax) {
+    //         despesasFiltradas = despesasFiltradas.filter(r => r.valor <= parseFloat(valorMax));
+    //     }
 
-        if (status) {
-            const efetivada = status === 'efetivado';
-            despesasFiltradas = despesasFiltradas.filter(r => r.efetivada === efetivada);
-        }
+    //     if (status) {
+    //         const efetivada = status === 'efetivado';
+    //         despesasFiltradas = despesasFiltradas.filter(r => r.efetivada === efetivada);
+    //     }
 
-        if (descricao) {
-            const termo = descricao.toLowerCase();
-            despesasFiltradas = despesasFiltradas.filter(r => 
-                r.descricao.toLowerCase().includes(termo)
-            );
-        }
+    //     if (descricao) {
+    //         const termo = descricao.toLowerCase();
+    //         despesasFiltradas = despesasFiltradas.filter(r => 
+    //             r.descricao.toLowerCase().includes(termo)
+    //         );
+    //     }
 
-        exibirDespesas(despesasFiltradas);
-        $('#filtroAvancadoModal').modal('hide');
-    }
+    //     exibirDespesas(despesasFiltradas);
+    //     $('#filtroAvancadoModal').modal('hide');
+    // }
 
-    // Limpar filtros
-    function limparFiltros() {
-        $('#formFiltroAvancado')[0].reset();
-        exibirDespesas(despesas);
-        $('#filtroAvancadoModal').modal('hide');
-    }
+    // // Limpar filtros
+    // function limparFiltros() {
+    //     $('#formFiltroAvancado')[0].reset();
+    //     exibirDespesas(despesas);
+    //     $('#filtroAvancadoModal').modal('hide');
+    // }
 
     // Popular selects de filtro
     function popularFiltros() {
