@@ -13,7 +13,7 @@
         width: 60px; /* Reduzido de 80px para 60px */
         height: 60px;
         border-radius: 50%;
-        background-color: #4285f4;
+        background-color: #4286f4;
         color: white;
         border: none;
         cursor: pointer;
@@ -61,21 +61,33 @@
     .sub-button:nth-child(2) {
         background-color: #ff4444;
         color: white;
+        .tooltip {
+            left: 30%;
+        }
     }
     
     .sub-button:nth-child(3) {
         background-color: #00C851;
         color: white;
+        .tooltip {
+            left: 60%;
+        }
     }
     
     .sub-button:nth-child(4) {
         background-color: #ffbb33;
         color: white;
+        .tooltip {
+            left: 70%;
+        }
     }
     
     .sub-button:nth-child(5) {
         background-color: #33b5e5;
         color: white;
+        .tooltip {
+            left: 60%;
+        }
     }
     
     /* Posicionamento semicircular uniforme - ajustado para os novos tamanhos */
@@ -105,14 +117,14 @@
         color: rgb(255, 255, 255);
         padding: 5px 5px;
         border-radius: 4px;
-        font-size: 12px;
+        font-size: 14px;
         white-space: nowrap;
         pointer-events: none;
         opacity: 1;
         z-index: 200000;
         transition: opacity 0.3s;
-        bottom: 50px; /* Ajustado para botões menores */
-        left: 40%;
+        bottom: 40px; /* Ajustado para botões menores */
+        /* left: 50%; */
         transform: translateX(-50%);
     }
     

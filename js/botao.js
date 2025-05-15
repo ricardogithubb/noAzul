@@ -5,6 +5,7 @@ $(document).ready(function () {
         mainButton.addEventListener('click', () => {
             fabContainer.classList.toggle('active');
             mainButton.classList.toggle('rotate-plus');
+            $('#mainButton').css('opacity', 1);
             if($('#modalTelaInteira').is(':hidden')) {
                 $('#modalTelaInteira').modal('show');
             } else {
@@ -23,26 +24,45 @@ $(document).ready(function () {
         
         // Adicionar eventos para os botões secundários
         document.getElementById('despesas').addEventListener('click', () => {
-            alert('Cadastrar Despesa');
             fabContainer.classList.remove('active');
             mainButton.classList.remove('rotate-plus');
+            window.location.href = 'despesas.html';
         });
         
         document.getElementById('receitas').addEventListener('click', () => {
-            alert('Cadastrar Receita');
             fabContainer.classList.remove('active');
             mainButton.classList.remove('rotate-plus');
+            window.location.href = 'receitas.html';
         });
         
         document.getElementById('categorias').addEventListener('click', () => {
-            alert('Cadastrar Categoria');
             fabContainer.classList.remove('active');
             mainButton.classList.remove('rotate-plus');
+            window.location.href = 'categorias.html';
         });
         
         document.getElementById('contas').addEventListener('click', () => {
-            alert('Cadastrar Conta');
             fabContainer.classList.remove('active');
             mainButton.classList.remove('rotate-plus');
+            window.location.href = 'contas.html';
         });
+
+        let transparenciaTimeout;
+
+        // Escuta o scroll da página
+        $(window).on('scroll', function () {
+        $('#mainButton').css('opacity', 1); // Torna opaco ao rolar
+        console.log('opa');
+
+        // Cancela o timeout anterior se estiver rolando continuamente
+        clearTimeout(transparenciaTimeout);
+
+        // Reaplica transparência após 3 segundos parado
+        transparenciaTimeout = setTimeout(function () {
+            $('#mainButton').css('opacity', 0.2);
+        }, 3000);
+        });
+
+
+
 });
