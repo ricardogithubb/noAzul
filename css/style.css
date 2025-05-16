@@ -150,6 +150,36 @@ textarea.form-control {
     font-size: 1.05rem !important;
 }
 
+.calculator .buttons button {
+    font-size: 1.1em;
+    padding: 8px;
+}
+#calcDisplay {
+    font-size: 1.5em;
+    height: 50px;
+}
+
+#calculadoraModal {
+    z-index: 1060; /* Bootstrap usa 1055 para modais normais */
+}
+
+.calculadora-backdrop {
+    z-index: 1055 !important;
+}
+
+#calculadoraModal .modal-content {
+    background-color: #f1f1f1; /* cinza claro */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* efeito de relevo */
+    border-radius: 10px;
+    border: none;
+}
+#calculadoraModal .modal-header {
+    border-bottom: 1px solid #ddd;
+}
+
+
+
+
 /* Sombra mais intensa quando o campo está em foco */
 .form-control:focus, .form-select:focus {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;

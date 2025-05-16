@@ -35,8 +35,8 @@
     
     .sub-button {
         position: absolute;
-        width: 40px; /* Reduzido de 60px para 40px */
-        height: 40px;
+        width: 50px; /* Reduzido de 60px para 40px */
+        height: 50px;
         border-radius: 50%;
         background-color: white;
         border: none;
@@ -62,7 +62,7 @@
         background-color: #ff4444;
         color: white;
         .tooltip {
-            left: 30%;
+            left: 40%;
         }
     }
     
@@ -70,7 +70,7 @@
         background-color: #00C851;
         color: white;
         .tooltip {
-            left: 60%;
+            left: 45%;
         }
     }
     
@@ -78,7 +78,7 @@
         background-color: #ffbb33;
         color: white;
         .tooltip {
-            left: 70%;
+            left: 60%;
         }
     }
     
@@ -93,22 +93,22 @@
     /* Posicionamento semicircular uniforme - ajustado para os novos tamanhos */
     .active .sub-button:nth-child(2) {
         opacity: 1;
-        transform: translate(-70px, -40px);
+        transform: translate(-75px, -10px);
     }
     
     .active .sub-button:nth-child(3) {
         opacity: 1;
-        transform: translate(-30px, -70px);
+        transform: translate(-30px, -60px);
     }
     
     .active .sub-button:nth-child(4) {
         opacity: 1;
-        transform: translate(30px, -70px);
+        transform: translate(30px, -60px);
     }
     
     .active .sub-button:nth-child(5) {
         opacity: 1;
-        transform: translate(70px, -40px);
+        transform: translate(70px, -10px);
     }
     
     .tooltip {
@@ -123,7 +123,7 @@
         opacity: 1;
         z-index: 200000;
         transition: opacity 0.3s;
-        bottom: 40px; /* Ajustado para botões menores */
+        bottom: 50px; /* Ajustado para botões menores */
         /* left: 50%; */
         transform: translateX(-50%);
     }

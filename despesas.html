@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="css/style.css">
     <script type="module" src="js/indexedDB.js"></script>
     <script type="module" src="js/script.js"></script>
+    <script src="js/calculadora.js"></script>
 </head>
 <body id="telaDespesa">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow">
@@ -113,6 +114,9 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                     <input type="text" step="0.01" class="form-control" id="despesaValor" placeholder="Valor (R$)" required>
+                                    <button type="button" class="btn btn-outline-secondary" id="btnCalculadora">
+                                        <i class="bi bi-calculator"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -440,6 +444,7 @@
             </div>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="js/despesas.js"></script>
 
