@@ -23,12 +23,11 @@ $(document).ready(function() {
     // Inicialização
     init();
 
-    async function init() {  
-        carregarReceitasIndexedDB();              
+    async function init() {             
+        await limparFiltrosAvancados();
         setupEventListeners();
         atualizarTotalReceitas();
         popularFiltros();
-        limparFiltrosAvancados();
     }
 
     $('#receitaEfetivada').change(function() {
@@ -78,26 +77,6 @@ $(document).ready(function() {
     $('#limparFiltros').on('click', function () {
         limparFiltrosAvancados();
     });
-
-
-    async function carregarReceitasIndexedDB() {
-        const listaReceitas = await listarReceitas(localStorage.getItem('selectedMonth'), localStorage.getItem('selectedYear'));
-        
-        const dadosSalvos = JSON.stringify(listaReceitas);
-
-        //ordernar dadosSalvos da maior data para a menor
-        
-
-        if (dadosSalvos) {
-            receitas = JSON.parse(dadosSalvos);
-            receitas.sort((a, b) => new Date(a.data_vencimento) - new Date(b.data_vencimento));
-        } else {
-            // Dados de exemplo
-            receitas = [];
-        }
-        
-        exibirReceitas(receitas);
-    }
     
 
     // Carrega as receitas do localStorage (simulação)
@@ -191,7 +170,7 @@ $(document).ready(function() {
             console.log('Salvando 2');
             await salvarReceita(); // Aguarda o salvamento terminar
 
-            await carregarReceitasIndexedDB();
+            await limparFiltrosAvancados();
 
             isSubmitting = false; // libera envio novamente
             $('#btnSalvarReceita').prop('disabled', false).text('Salvar Receita');
@@ -434,8 +413,6 @@ $(document).ready(function() {
             if (index !== -1) {
                 receitas[index] = receitaAtualizada;
             }
-
-            // await carregarReceitasIndexedDB();
     
             salvarReceitas();
 
@@ -477,21 +454,12 @@ $(document).ready(function() {
                 observacao: $('#receitaObservacao').val()
             };
 
-            // const response = await fetch(`https://apinoazul.markethubplace.com/api/receitas/${id}`, {
-            //     method: 'DELETE',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'Authorization': 'Bearer ' + localStorage.getItem('authToken') // Assumindo autenticação JWT
-            //     },
-            //     body: receitaExcluida
-            // });
-    
-            // if (!response.ok) {
-            //     throw new Error('Erro ao excluir a receita.');
-            // }
-
+            let mes = localStorage.getItem('selectedMonth');
+            let ano = localStorage.getItem('selectedYear');
+            
+            
             deletar('transacoes', id);
-            await carregarReceitasIndexedDB();
+            await aplicarFiltrosAvancados(mes, ano);
             salvarReceitas();
             exibirReceitas(receitas);
             $('#novaReceitaModal').modal('hide');
@@ -664,7 +632,17 @@ $(document).ready(function() {
              $('#receitasEfetivada').text( formatMoney(totalEfetivado) ); // Atualiza o elemento com o valor do total de receitas efetivadas
              $('#receitasPendente').text( formatMoney(totalPendente) ); // Atualiza o elemento com o valor do total de receitas pendentes
     
-             exibirReceitas(transacoes);
+             const dadosSalvos = JSON.stringify(transacoes);
+
+             if (dadosSalvos) {
+                    receitas = JSON.parse(dadosSalvos);
+                    receitas.sort((a, b) => new Date(a.data_vencimento) - new Date(b.data_vencimento));
+                } else {
+                    // Dados de exemplo
+                    receitas = [];
+                }
+        
+                exibirReceitas(receitas);
 
              
             $('#filtroAvancadoIcon').addClass('d-none');

@@ -16,12 +16,11 @@ $(document).ready(function() {
     // Inicialização
     init();
 
-    async function init() {  
-        carregarDespesasIndexedDB();              
+    async function init() {             
+        await limparFiltrosAvancados();
         setupEventListeners();
         atualizarTotalDespesas();
         popularFiltros();
-        limparFiltrosAvancados();
     }
 
     $('#despesaEfetivada').change(function() {
@@ -71,26 +70,6 @@ $(document).ready(function() {
     $('#limparFiltrosBtn').on('click', function () {
         limparFiltrosAvancados();
     });
-
-
-    async function carregarDespesasIndexedDB() {
-        const listaDespesas = await listarDespesas(localStorage.getItem('selectedMonth'), localStorage.getItem('selectedYear'));
-        
-        const dadosSalvos = JSON.stringify(listaDespesas);
-
-        //ordernar dadosSalvos da maior data para a menor
-        
-
-        if (dadosSalvos) {
-            despesas = JSON.parse(dadosSalvos);
-            despesas.sort((a, b) => new Date(a.data_vencimento) - new Date(b.data_vencimento));
-        } else {
-            // Dados de exemplo
-            despesas = [];
-        }
-        
-        exibirDespesas(despesas);
-    }
     
 
     // Carrega as despesas do localStorage (simulação)
@@ -190,7 +169,7 @@ $(document).ready(function() {
             console.log('Salvando 2');
             await salvarDespesa(); // Aguarda o salvamento terminar
 
-            await carregarDespesasIndexedDB();
+            await limparFiltrosAvancados();
 
             isSubmitting = false; // libera envio novamente
             $('#btnSalvarDespesa').prop('disabled', false).text('Salvar Despesa');
@@ -431,6 +410,8 @@ $(document).ready(function() {
 
             await atualizar('transacoes', id, despesaAtualizada);
 
+            const mes = localStorage.getItem('selectedMonth');
+            const ano = localStorage.getItem('selectedYear');
 
             // Atualiza localmente
             const index = despesas.findIndex(r => r.id === id);
@@ -438,7 +419,7 @@ $(document).ready(function() {
                 despesas[index] = despesaAtualizada;
             }
 
-            await carregarDespesasIndexedDB();
+            await aplicarFiltrosAvancados(mes, ano);
     
             salvarDespesas();
             // exibirDespesas(despesas);
@@ -480,8 +461,11 @@ $(document).ready(function() {
                 observacao: $('#despesaObservacao').val()
             };
 
+            let mes = localStorage.getItem('selectedMonth');
+            let ano = localStorage.getItem('selectedYear');
+
             deletar('transacoes', id);
-            await carregarDespesasIndexedDB();
+            await aplicarFiltrosAvancados(mes, ano);
             salvarDespesas();
             exibirDespesas(despesas);
             $('#novaDespesaModal').modal('hide');
@@ -668,7 +652,17 @@ $(document).ready(function() {
             $('#despesasEfetivada').text( formatMoney(totalEfetivado) ); // Atualiza o elemento com o valor do total de receitas efetivadas
             $('#despesasPendente').text( formatMoney(totalPendente) ); // Atualiza o elemento com o valor do total de receitas pendentes
 
-            exibirDespesas(transacoes);
+            const dadosSalvos = JSON.stringify(transacoes);
+
+             if (dadosSalvos) {
+                    despesas = JSON.parse(dadosSalvos);
+                    despesas.sort((a, b) => new Date(a.data_vencimento) - new Date(b.data_vencimento));
+                } else {
+                    // Dados de exemplo
+                    despesas = [];
+                }
+
+            exibirDespesas(despesas);
 
                 
             $('#filtroAvancadoIcon').addClass('d-none');

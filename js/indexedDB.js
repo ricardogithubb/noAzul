@@ -477,7 +477,7 @@ export async function listarReceitasFiltro(filtro) {
                 const transacoesOrdenadas = transacoes.sort((a, b) => {
                     const dataA = new Date(a.data_efetivacao || a.data_vencimento);
                     const dataB = new Date(b.data_efetivacao || b.data_vencimento);
-                    return dataB - dataA;
+                    return dataA - dataB;
                 });
 
                 // Buscar os nomes das categorias
@@ -1130,6 +1130,127 @@ export async function totalDespesasData(data) {
 
             query.onerror = function(event) {
                 console.error('Erro ao buscar Despesas:', event.target.error);
+                reject(event.target.error);
+            };
+        };
+
+        request.onerror = function(event) {
+            console.error('Erro ao abrir o banco IndexedDB:', event.target.error);
+            reject(event.target.error);
+        };
+    });
+}
+//função total por conta
+export async function listarTransacoesConta(mes, ano) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(banco, versao);
+
+        request.onsuccess = async function(event) {
+            const db = event.target.result;
+            const transaction = db.transaction(['contas', 'transacoes'], 'readonly');
+            const contasStore = transaction.objectStore('contas');
+            const transacoesStore = transaction.objectStore('transacoes');
+
+            const query = contasStore.getAll();
+
+            query.onsuccess = async function() {
+                let contas = query.result || [];
+                
+
+                const registrosFiltrados = contas.filter(registro => 
+                                                             registro.deleted_at === null ||
+                                                             registro.deleted_at === undefined);
+
+                console.log(registrosFiltrados);
+                                                             // Buscar o total em transacoes por conta
+                const contasComTotal = await Promise.all(
+                    registrosFiltrados.map(async (conta) => {
+                        conta.total = 0;
+                        try {
+                            const transacoes = await listar('transacoes');                    
+                            const total = transacoes
+                            .filter(transacao => transacao.conta_id === conta.id)
+                            .filter(transacao => parseInt(transacao.data_vencimento.split('-')[1]) === parseInt(mes) && parseInt(transacao.data_vencimento.split('-')[0]) === parseInt(ano))
+                            .reduce((total, transacao) => {
+                                    const valor = transacao.valor;
+                                    return total + valor;
+                                }, 0);
+                            conta.total = parseFloat(conta.total) + total;
+                        } catch (e) {
+                            conta.total = parseFloat(0);
+                        }
+                        return conta;
+                    })
+                );     
+
+                console.log(contasComTotal);
+
+                resolve(contasComTotal);
+            };
+
+            query.onerror = function(event) {
+                console.error('Erro ao buscar Receitas:', event.target.error);
+                reject(event.target.error);
+            };
+        };
+
+        request.onerror = function(event) {
+            console.error('Erro ao abrir o banco IndexedDB:', event.target.error);
+            reject(event.target.error);
+        };
+    });
+}
+
+
+//função total por categoria
+export async function listarTransacoesCategorias(mes, ano) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(banco, versao);
+
+        request.onsuccess = async function(event) {
+            const db = event.target.result;
+            const transaction = db.transaction(['categorias', 'transacoes'], 'readonly');
+            const categoriasStore = transaction.objectStore('categorias');
+            const transacoesStore = transaction.objectStore('transacoes');
+
+            const query = categoriasStore.getAll();
+
+            query.onsuccess = async function() {
+                let categorias = query.result || [];
+                
+
+                const registrosFiltrados = categorias.filter(registro => 
+                                                             registro.deleted_at === null ||
+                                                             registro.deleted_at === undefined);
+
+                // Buscar o total em transacoes por conta
+                const categoriasComTotal = await Promise.all(
+                    registrosFiltrados.map(async (categoria) => {
+                        categoria.total = 0;
+                        try {
+                            const transacoes = await listar('transacoes');                    
+                            const total = transacoes
+                            .filter(transacao => transacao.categoria_id === categoria.id)
+                            .filter(transacao => parseInt(transacao.data_vencimento.split('-')[1]) === parseInt(mes) && parseInt(transacao.data_vencimento.split('-')[0]) === parseInt(ano))
+                            .reduce((total, transacao) => {
+                                    const valor = transacao.valor;
+                                    return total + valor;
+                                }, 0);
+                            categoria.total = parseFloat(categoria.total) + total;
+                        } catch (e) {
+                            categoria.total = parseFloat(0);
+                        }
+                        return categoria;
+                    })
+                );     
+
+                
+
+                resolve(categoriasComTotal);
+            };
+
+            query.onerror = function(event) {
+                console.error('Erro ao buscar Receitas:', event.target.error);
                 reject(event.target.error);
             };
         };

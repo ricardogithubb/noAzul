@@ -4,7 +4,7 @@ $(document).ready(function () {
 
         let transparenciaTimeout;
 
-        $('#mainButton').css('opacity', 0.2);
+        $('#mainButton').css('opacity', 0.05);
         
         mainButton.addEventListener('click', () => {
             fabContainer.classList.toggle('active');
@@ -61,7 +61,7 @@ $(document).ready(function () {
 
         // Reaplica transparência após 3 segundos parado
         transparenciaTimeout = setTimeout(function () {
-            $('#mainButton').css('opacity', 0.2);
+            $('#mainButton').css('opacity', 0.05);
         }, 3000);
         });
 

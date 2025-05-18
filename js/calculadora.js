@@ -1,6 +1,7 @@
 // Variáveis globais
 let currentCalculation = '';
 let targetField = '';
+let campoCurrente = '';
 
 // HTML da calculadora
 const calculatorHTML = `
@@ -47,11 +48,11 @@ const calculatorHTML = `
 </div>`;
 
 // Funções globais
-window.openCalculator = function(fieldId) {
+window.openCalculator = function(fieldId) {    
     targetField = fieldId;
-    const currentValue = $('#' + fieldId).val().replace(',', '.');
+    const currentValue = $('#' + fieldId).val();
     $('#calcDisplay').val(currentValue || '0');
-    currentCalculation = currentValue || '';
+    currentCalculation = currentValue.replace(',', '.') || '';
     new bootstrap.Modal(document.getElementById('calculadoraModal')).show();
 };
 
@@ -108,6 +109,7 @@ $(document).ready(function () {
 
     // Evento do botão da calculadora
     $(document).on('click', '#btnCalculadora', function() {
-        openCalculator('despesaValor');
+        $(this).data('value')
+        openCalculator($(this).data('value'));
     });
 });

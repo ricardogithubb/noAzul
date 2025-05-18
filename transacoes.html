@@ -43,6 +43,11 @@
             </div>
             <!-- Botões alinhados à direita -->
             <div class="d-flex gap-2 ms-auto">
+                <!-- Botão de Agrupamento -->
+                <button class="btn btn-outline-secondary shadow" data-bs-toggle="modal" data-bs-target="#modalAgrupamento" title="Agrupar Dados">
+                    <i class="bi bi-ui-checks-grid"></i>
+                </button>
+                <!-- Botão de Filtro Avançado -->
                 <button class="btn btn-primary shadow" data-bs-toggle="modal" data-bs-target="#filtroAvancadoModal" title="Copiar Orçamento">
                     <i class="bi bi-funnel" id="filtroAvancadoIcon"></i>
                     <i class="bi bi-funnel-fill d-none" id="filtroAvancadoIconFill"></i>
@@ -111,6 +116,38 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="modalAgrupamento" tabindex="-1" aria-labelledby="modalAgrupamentoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAgrupamentoLabel">Agrupar Por</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formAgrupamento">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="agrupamento" id="agrupamentoCategoria" value="categoria" checked>
+                    <label class="form-check-label" for="agrupamentoCategoria">Categoria</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="agrupamento" id="agrupamentoConta" value="conta">
+                    <label class="form-check-label" for="agrupamentoConta">Conta</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="agrupamento" id="agrupamentoDia" value="dia">
+                    <label class="form-check-label" for="agrupamentoDia">Dia</label>
+                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnAplicarAgrupamento">Aplicar</button>
+            </div>
+            </div>
+        </div>
+        </div>
+
 
     <!-- Modais (mesmos modais de receitas e despesas) -->
     

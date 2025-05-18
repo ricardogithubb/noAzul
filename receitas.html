@@ -13,6 +13,7 @@
     <link href="css/style.css" rel="stylesheet">
     <script type="module" src="js/indexedDB.js"></script>
     <script type="module" src="js/script.js"></script>
+    <script src="js/calculadora.js"></script>
     <style>
         .sub-button {
             /* position: absolute; */
@@ -141,10 +142,15 @@
                         <!-- Valor e Data -->
                         <div class="row mb-4">
                             <div class="col-md-6 mb-3">
+                                <div class="col-md-6 mb-3">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
                                     <input type="text" step="0.01" class="form-control" id="receitaValor" placeholder="Valor (R$)" required>
+                                    <button type="button" class="btn btn-outline-secondary" id="btnCalculadora" data-value="receitaValor">
+                                        <i class="bi bi-calculator"></i>
+                                    </button>
                                 </div>
+                            </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group">

@@ -167,13 +167,13 @@ $(document).ready(function() {
 
         transacoes.forEach(transacao => {
             const icon = transacao.tipo === 'receita' ? 
-                '<i class="bi bi-arrow-down-circle text-success me-2"></i>' : 
+                '<i class="bi bi-arrow-down-circle text-success me-2"></i>' :  
                 '<i class="bi bi-arrow-up-circle text-danger me-2"></i>';
             
             const dataStr = transacao.data;
             const dataParts = dataStr.split('-');
             const data = `${dataParts[2]}/${dataParts[1]}`;
-            const valorClass = transacao.tipo === 'receita' ? 'text-success' : 'text-danger';
+            const valorClass = transacao.tipo === 'receita' ? 'text-primary' : 'text-danger';
             const efetivadaClass = transacao.efetivada ? '' : 'text-muted';
             const efetivadaBadge = transacao.efetivada ? 
                 '<span class="badge bg-success ms-2">E</span>' : 

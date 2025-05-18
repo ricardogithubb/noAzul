@@ -1,6 +1,6 @@
 .fab-container {
         position: fixed;
-        bottom: 30px;
+        bottom: 10px;
         left: 50%;
         transform: translateX(-50%);
         width: 60px; /* Ajustado para o botão principal de 60px */
